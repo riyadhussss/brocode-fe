@@ -2,8 +2,11 @@ import Image from "next/image";
 
 export default function TentangKami() {
   return (
-    <div className="relative min-h-screen flex items-center px-6 ">
-      <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+    <div
+      id="tentang-kami"
+      className="relative min-h-[90vh] flex items-center px-6 bg-[url('/assets/Homepage/2.png')] bg-cover bg-center bg-no-repeat "
+    >
+      <div className="absolute inset-0 bg-black/76 backdrop-blur-sm"></div>
       <div className="container mx-auto relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Div Kiri - Tentang Kami */}
