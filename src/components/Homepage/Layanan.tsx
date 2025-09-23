@@ -1,6 +1,6 @@
 export default function Layanan() {
   return (
-    <div id="layanan" className="min-h-screen bg-[#2b2b2b] py-16 px-6">
+    <div id="layanan" className="min-h-screen bg-[#2b2b2b] py-16 px-6  ">
       <div className="container mx-auto">
         <h1 className="text-4xl font-bold text-center text-[#FDFB03] mb-12 font-montserrat">
           LAYANAN KAMI
