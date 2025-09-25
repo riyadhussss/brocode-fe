@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 23, "column": 0}, "map": {"version":3,"sources":["file:///D:/brocode-fe/brocode-fe/src/app/kasir/manajemen-reservasi/page.tsx"],"sourcesContent":["export default function ManajemenReservasi() {\r\n  return (\r\n    <div className=\"p-8\">\r\n      <h1 className=\"text-2xl font-bold mb-6\">Manajemen Reservasi</h1>\r\n      <p>Halaman untuk manajemen reservasi akan segera hadir.</p>\r\n    </div>\r\n  );\r\n}"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBACE,8OAAC;QAAI,WAAU;;0BACb,8OAAC;gBAAG,WAAU;0BAA0B;;;;;;0BACxC,8OAAC;0BAAE;;;;;;;;;;;;AAGT","debugId":null}}]
+}
