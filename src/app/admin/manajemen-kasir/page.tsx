@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import SidebarAdmin from "@/components/admin/Sidebar";
 import { FaPlus, FaEdit, FaTrash, FaCashRegister } from "react-icons/fa";
 
 // Dummy data untuk kasir
@@ -36,10 +35,8 @@ export default function ManajemenKasir() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <SidebarAdmin sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
       <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Manajemen Kasir

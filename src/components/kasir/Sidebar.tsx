@@ -4,10 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  FaUsers,
-  FaCut,
   FaCashRegister,
-  FaUserShield,
+  FaClock,
+  FaCalendarAlt,
   FaHistory,
   FaBars,
   FaUserEdit,
@@ -15,46 +14,36 @@ import {
   FaTachometerAlt,
 } from "react-icons/fa";
 
-interface SidebarAdminProps {
+interface SidebarKasirProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }
 
-export default function SidebarAdmin({
+export default function SidebarKasir({
   sidebarOpen,
   setSidebarOpen,
-}: SidebarAdminProps) {
+}: SidebarKasirProps) {
   const pathname = usePathname();
 
   const menuItems = [
     {
       name: "Dashboard",
-      href: "/admin",
+      href: "/kasir",
       icon: FaTachometerAlt,
     },
     {
-      name: "Manajemen Capster",
-      href: "/admin/manajemen-capster",
-      icon: FaCut,
+      name: "Atur Jadwal",
+      href: "/kasir/atur-jadwal",
+      icon: FaClock,
     },
     {
-      name: "Manajemen Kasir",
-      href: "/admin/manajemen-kasir",
-      icon: FaCashRegister,
-    },
-    {
-      name: "Manajemen Layanan",
-      href: "/admin/manajemen-layanan",
-      icon: FaUsers,
-    },
-    {
-      name: "Manajemen User",
-      href: "/admin/manajemen-user",
-      icon: FaUsers,
+      name: "Manajemen Reservasi",
+      href: "/kasir/manajemen-reservasi",
+      icon: FaCalendarAlt,
     },
     {
       name: "Riwayat Reservasi",
-      href: "/admin/riwayat-reservasi",
+      href: "/kasir/riwayat-reservasi-kasir",
       icon: FaHistory,
     },
   ];
@@ -89,7 +78,7 @@ export default function SidebarAdmin({
             {sidebarOpen && (
               <div>
                 <h1 className="text-xl font-bold text-[#FDFB03]">Brocode</h1>
-                <p className="text-sm text-gray-300">Admin Panel</p>
+                <p className="text-sm text-gray-300">Kasir Panel</p>
               </div>
             )}
           </div>
@@ -101,21 +90,6 @@ export default function SidebarAdmin({
           </button>
         </div>
       </div>
-
-      {/* Admin Profile Section */}
-      {/* {sidebarOpen && (
-        <div className="p-4 border-b border-[#FDFB03]">
-          <div className="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg">
-            <div className="w-10 h-10 bg-[#FDFB03] rounded-full flex items-center justify-center">
-              <FaUserShield className="text-black" size={18} />
-            </div>
-            <div>
-              <p className="font-medium text-[#FDFB03]">Admin User</p>
-              <p className="text-sm text-gray-300">admin@brocode.com</p>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* Navigation Menu */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -162,17 +136,17 @@ export default function SidebarAdmin({
       {/* Bottom Menu - Update Akun & Logout */}
       <div className="p-4 border-t border-[#FDFB03] space-y-2 mt-auto">
         {/* Update Akun */}
-        <Link href="/admin/update-akun">
+        <Link href="/kasir/update-akun-kasir">
           <button
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors group ${
-              pathname === "/admin/update-akun"
+              pathname === "/kasir/update-akun-kasir"
                 ? "bg-[#FDFB03] text-black"
                 : "hover:bg-gray-800 text-gray-300 hover:text-[#FDFB03]"
             }`}
           >
             <FaUserEdit
               className={`${
-                pathname === "/admin/update-akun"
+                pathname === "/kasir/update-akun-kasir"
                   ? "text-black"
                   : "text-gray-300 group-hover:text-[#FDFB03]"
               }`}
@@ -181,7 +155,7 @@ export default function SidebarAdmin({
             {sidebarOpen && (
               <span
                 className={`${
-                  pathname === "/admin/update-akun"
+                  pathname === "/kasir/update-akun-kasir"
                     ? "text-black font-medium"
                     : "text-gray-300 group-hover:text-[#FDFB03]"
                 }`}

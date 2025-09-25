@@ -1,0 +1,34 @@
+# ==== Line Endings ====
+# Semua file teks disimpan pakai LF di repo
+* text=auto eol=lf
+
+# ==== Source Code ====
+*.js     text eol=lf
+*.jsx    text eol=lf
+*.ts     text eol=lf
+*.tsx    text eol=lf
+*.json   text eol=lf
+*.css    text eol=lf
+*.scss   text eol=lf
+*.md     text eol=lf
+*.html   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# ==== Scripts ====
+*.sh     text eol=lf
+*.bat    text eol=crlf
+
+# ==== Binary Files ====
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.eot    binary
+*.mp4    binary
+*.mp3    binary

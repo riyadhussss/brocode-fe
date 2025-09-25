@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import SidebarAdmin from "@/components/admin/Sidebar";
-import { FaPlus, FaEdit, FaTrash, FaHistory, FaCalendarAlt, FaUser } from "react-icons/fa";
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
+  FaHistory,
+  FaCalendarAlt,
+  FaUser,
+} from "react-icons/fa";
 
 // Interface untuk reservasi
 interface Reservasi {
@@ -13,100 +19,101 @@ interface Reservasi {
   paket: string;
   harga: number;
   tanggal: string;
-  status: 'selesai' | 'dibatalkan' | 'dalam proses';
+  status: "selesai" | "dibatalkan";
 }
 
 // Dummy data untuk reservasi
 const dummyReservasis: Reservasi[] = [
-  { 
-    id: 1, 
-    diterimaOleh: "Siti Nurhaliza", 
-    email: "john.doe@gmail.com", 
-    nama: "John Doe", 
-    paket: "Potong Rambut Premium", 
+  {
+    id: 1,
+    diterimaOleh: "Siti Nurhaliza",
+    email: "john.doe@gmail.com",
+    nama: "John Doe",
+    paket: "Potong Rambut Premium",
     harga: 50000,
     tanggal: "2024-01-15",
-    status: "selesai"
+    status: "selesai",
   },
-  { 
-    id: 2, 
-    diterimaOleh: "Maya Sari", 
-    email: "jane.smith@yahoo.com", 
-    nama: "Jane Smith", 
-    paket: "Potong Rambut + Cuci", 
+  {
+    id: 2,
+    diterimaOleh: "Maya Sari",
+    email: "jane.smith@yahoo.com",
+    nama: "Jane Smith",
+    paket: "Potong Rambut + Cuci",
     harga: 35000,
     tanggal: "2024-01-16",
-    status: "selesai"
+    status: "selesai",
   },
-  { 
-    id: 3, 
-    diterimaOleh: "Rina Wijayanti", 
-    email: "robert.j@outlook.com", 
-    nama: "Robert Johnson", 
-    paket: "Potong Rambut Reguler", 
+  {
+    id: 3,
+    diterimaOleh: "Rina Wijayanti",
+    email: "robert.j@outlook.com",
+    nama: "Robert Johnson",
+    paket: "Potong Rambut Reguler",
     harga: 25000,
     tanggal: "2024-01-17",
-    status: "dalam proses"
+    status: "selesai",
   },
-  { 
-    id: 4, 
-    diterimaOleh: "Dewi Anggraini", 
-    email: "maria.garcia@gmail.com", 
-    nama: "Maria Garcia", 
-    paket: "Cukur Jenggot", 
+  {
+    id: 4,
+    diterimaOleh: "Dewi Anggraini",
+    email: "maria.garcia@gmail.com",
+    nama: "Maria Garcia",
+    paket: "Cukur Jenggot",
     harga: 15000,
     tanggal: "2024-01-18",
-    status: "dibatalkan"
+    status: "dibatalkan",
   },
-  { 
-    id: 5, 
-    diterimaOleh: "Siti Nurhaliza", 
-    email: "alex.brown@gmail.com", 
-    nama: "Alex Brown", 
-    paket: "Potong Rambut Premium", 
+  {
+    id: 5,
+    diterimaOleh: "Siti Nurhaliza",
+    email: "alex.brown@gmail.com",
+    nama: "Alex Brown",
+    paket: "Potong Rambut Premium",
     harga: 50000,
     tanggal: "2024-01-19",
-    status: "selesai"
+    status: "selesai",
   },
 ];
 
 export default function RiwayatReservasi() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [reservasis, setReservasis] = useState<Reservasi[]>(dummyReservasis);
-  const [filter, setFilter] = useState<'semua' | 'selesai' | 'dibatalkan' | 'dalam proses'>('semua');
+  const [filter, setFilter] = useState<"semua" | "selesai" | "dibatalkan">(
+    "semua"
+  );
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
       minimumFractionDigits: 0,
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'selesai':
-        return 'bg-green-100 text-green-800';
-      case 'dibatalkan':
-        return 'bg-red-100 text-red-800';
-      case 'dalam proses':
-        return 'bg-yellow-100 text-yellow-800';
+      case "selesai":
+        return "bg-green-100 text-green-800";
+      case "dibatalkan":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  const filteredReservasis = filter === 'semua' 
-    ? reservasis 
-    : reservasis.filter(reservasi => reservasi.status === filter);
+  const filteredReservasis =
+    filter === "semua"
+      ? reservasis
+      : reservasis.filter((reservasi) => reservasi.status === filter);
 
   const handleTambah = () => {
     console.log("Tambah reservasi");
@@ -122,16 +129,14 @@ export default function RiwayatReservasi() {
     console.log("Delete reservasi dengan ID:", id);
     // TODO: Implement delete reservasi functionality
     if (confirm("Apakah Anda yakin ingin menghapus reservasi ini?")) {
-      setReservasis(reservasis.filter(reservasi => reservasi.id !== id));
+      setReservasis(reservasis.filter((reservasi) => reservasi.id !== id));
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <SidebarAdmin sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
       <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Riwayat Reservasi
@@ -145,14 +150,14 @@ export default function RiwayatReservasi() {
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             {/* Filter Status */}
             <div className="flex space-x-2">
-              {['semua', 'selesai', 'dalam proses', 'dibatalkan'].map((status) => (
+              {["semua", "selesai", "dibatalkan"].map((status) => (
                 <button
                   key={status}
                   onClick={() => setFilter(status as any)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     filter === status
-                      ? 'bg-[#FDFB03] text-black'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
+                      ? "bg-[#FDFB03] text-black"
+                      : "bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -169,7 +174,7 @@ export default function RiwayatReservasi() {
               <span>Tambah Reservasi</span>
             </button>
           </div>
-          
+
           {/* Tabel Reservasi */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
@@ -204,7 +209,10 @@ export default function RiwayatReservasi() {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredReservasis.map((reservasi, index) => (
-                    <tr key={reservasi.id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={reservasi.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {index + 1}
                       </td>
@@ -224,7 +232,11 @@ export default function RiwayatReservasi() {
                         {formatCurrency(reservasi.harga)}
                       </td>
                       <td className="px-6 py-4 text-sm">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(reservasi.status)}`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            reservasi.status
+                          )}`}
+                        >
                           {reservasi.status}
                         </span>
                       </td>
@@ -256,7 +268,9 @@ export default function RiwayatReservasi() {
             {filteredReservasis.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg mb-4">
-                  {filter === 'semua' ? 'Tidak ada data reservasi' : `Tidak ada reservasi dengan status "${filter}"`}
+                  {filter === "semua"
+                    ? "Tidak ada data reservasi"
+                    : `Tidak ada reservasi dengan status "${filter}"`}
                 </p>
                 <button
                   onClick={handleTambah}
@@ -270,13 +284,15 @@ export default function RiwayatReservasi() {
           </div>
 
           {/* Summary Cards */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Total Reservasi */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Reservasi</p>
-                  <p className="text-2xl font-bold text-gray-900">{reservasis.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {reservasis.length}
+                  </p>
                 </div>
                 <div className="text-[#FDFB03]">
                   <FaHistory size={32} />
@@ -289,8 +305,8 @@ export default function RiwayatReservasi() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Selesai</p>
-                  <p className="text-xl font-bold text-green-600">
-                    {reservasis.filter(r => r.status === 'selesai').length}
+                  <p className="text-2xl font-bold text-green-600">
+                    {reservasis.filter((r) => r.status === "selesai").length}
                   </p>
                 </div>
                 <div className="text-green-500">
@@ -299,17 +315,17 @@ export default function RiwayatReservasi() {
               </div>
             </div>
 
-            {/* Reservasi Dalam Proses */}
+            {/* Reservasi Dibatalkan */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Dalam Proses</p>
-                  <p className="text-xl font-bold text-yellow-600">
-                    {reservasis.filter(r => r.status === 'dalam proses').length}
+                  <p className="text-sm text-gray-600">Dibatalkan</p>
+                  <p className="text-2xl font-bold text-red-600">
+                    {reservasis.filter((r) => r.status === "dibatalkan").length}
                   </p>
                 </div>
-                <div className="text-yellow-500">
-                  <FaCalendarAlt size={32} />
+                <div className="text-red-500">
+                  <FaTrash size={32} />
                 </div>
               </div>
             </div>
@@ -319,12 +335,16 @@ export default function RiwayatReservasi() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Total Pendapatan</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {formatCurrency(reservasis.filter(r => r.status === 'selesai').reduce((total, r) => total + r.harga, 0))}
+                  <p className="text-2xl font-bold text-blue-600">
+                    {formatCurrency(
+                      reservasis
+                        .filter((r) => r.status === "selesai")
+                        .reduce((total, r) => total + r.harga, 0)
+                    )}
                   </p>
                 </div>
                 <div className="text-blue-500">
-                  <FaHistory size={32} />
+                  <FaCalendarAlt size={32} />
                 </div>
               </div>
             </div>

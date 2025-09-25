@@ -4,57 +4,33 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  FaUsers,
-  FaCut,
-  FaCashRegister,
-  FaUserShield,
+  FaCalendarPlus,
   FaHistory,
   FaBars,
   FaUserEdit,
   FaSignOutAlt,
-  FaTachometerAlt,
 } from "react-icons/fa";
 
-interface SidebarAdminProps {
+interface SidebarUserProps {
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
 }
 
-export default function SidebarAdmin({
+export default function SidebarUser({
   sidebarOpen,
   setSidebarOpen,
-}: SidebarAdminProps) {
+}: SidebarUserProps) {
   const pathname = usePathname();
 
   const menuItems = [
     {
-      name: "Dashboard",
-      href: "/admin",
-      icon: FaTachometerAlt,
-    },
-    {
-      name: "Manajemen Capster",
-      href: "/admin/manajemen-capster",
-      icon: FaCut,
-    },
-    {
-      name: "Manajemen Kasir",
-      href: "/admin/manajemen-kasir",
-      icon: FaCashRegister,
-    },
-    {
-      name: "Manajemen Layanan",
-      href: "/admin/manajemen-layanan",
-      icon: FaUsers,
-    },
-    {
-      name: "Manajemen User",
-      href: "/admin/manajemen-user",
-      icon: FaUsers,
+      name: "Reservasi",
+      href: "/user",
+      icon: FaCalendarPlus,
     },
     {
       name: "Riwayat Reservasi",
-      href: "/admin/riwayat-reservasi",
+      href: "/user/riwayat-reservasi",
       icon: FaHistory,
     },
   ];
@@ -69,7 +45,7 @@ export default function SidebarAdmin({
     <aside
       className={`${
         sidebarOpen ? "w-72" : "w-20"
-      } bg-black shadow-xl transition-all duration-300 flex-shrink-0 border-r-2 border-[#FDFB03] flex flex-col fixed left-0 top-0 h-screen`}
+      } bg-black shadow-xl transition-all duration-300 flex-shrink-0 border-r-2 border-[#FDFB03] flex flex-col fixed left-0 top-0 h-screen z-50`}
     >
       {/* Sidebar Header */}
       <div className="p-6 border-b border-[#FDFB03]">
@@ -89,7 +65,7 @@ export default function SidebarAdmin({
             {sidebarOpen && (
               <div>
                 <h1 className="text-xl font-bold text-[#FDFB03]">Brocode</h1>
-                <p className="text-sm text-gray-300">Admin Panel</p>
+                <p className="text-sm text-gray-300">User Panel</p>
               </div>
             )}
           </div>
@@ -101,21 +77,6 @@ export default function SidebarAdmin({
           </button>
         </div>
       </div>
-
-      {/* Admin Profile Section */}
-      {/* {sidebarOpen && (
-        <div className="p-4 border-b border-[#FDFB03]">
-          <div className="flex items-center space-x-3 p-3 bg-gray-800 rounded-lg">
-            <div className="w-10 h-10 bg-[#FDFB03] rounded-full flex items-center justify-center">
-              <FaUserShield className="text-black" size={18} />
-            </div>
-            <div>
-              <p className="font-medium text-[#FDFB03]">Admin User</p>
-              <p className="text-sm text-gray-300">admin@brocode.com</p>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       {/* Navigation Menu */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -162,17 +123,17 @@ export default function SidebarAdmin({
       {/* Bottom Menu - Update Akun & Logout */}
       <div className="p-4 border-t border-[#FDFB03] space-y-2 mt-auto">
         {/* Update Akun */}
-        <Link href="/admin/update-akun">
+        <Link href="/user/update-akun">
           <button
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors group ${
-              pathname === "/admin/update-akun"
+              pathname === "/user/update-akun"
                 ? "bg-[#FDFB03] text-black"
                 : "hover:bg-gray-800 text-gray-300 hover:text-[#FDFB03]"
             }`}
           >
             <FaUserEdit
               className={`${
-                pathname === "/admin/update-akun"
+                pathname === "/user/update-akun"
                   ? "text-black"
                   : "text-gray-300 group-hover:text-[#FDFB03]"
               }`}
@@ -181,7 +142,7 @@ export default function SidebarAdmin({
             {sidebarOpen && (
               <span
                 className={`${
-                  pathname === "/admin/update-akun"
+                  pathname === "/user/update-akun"
                     ? "text-black font-medium"
                     : "text-gray-300 group-hover:text-[#FDFB03]"
                 }`}
