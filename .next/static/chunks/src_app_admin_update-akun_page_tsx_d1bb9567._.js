@@ -552,7 +552,7 @@ function UpdateAkun() {
         columnNumber: 5
     }, this);
 }
-_s(UpdateAkun, "ix2gbodrhcQnYP1P5LZnpEcnHr0=");
+_s(UpdateAkun, "3JNw4edBWk/noBUVuSwyutIIZDY=");
 _c = UpdateAkun;
 var _c;
 __turbopack_context__.k.register(_c, "UpdateAkun");
