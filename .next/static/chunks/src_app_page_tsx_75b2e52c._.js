@@ -2,7 +2,11 @@
     script: typeof document === "object" ? document.currentScript : undefined,
     chunks: [
   "static/chunks/node_modules_next_e17cd5a5._.js",
-  "static/chunks/src_components_homepage_Header_tsx_4ed54410._.js"
+  "static/chunks/node_modules_react-icons_fa_index_mjs_0459ff00._.js",
+  "static/chunks/node_modules_react-icons_lib_844c6c50._.js",
+  "static/chunks/node_modules_tailwind-merge_dist_bundle-mjs_mjs_56b6fd65._.js",
+  "static/chunks/node_modules_40e1f166._.js",
+  "static/chunks/src_48aec362._.js"
 ],
     source: "dynamic"
 });

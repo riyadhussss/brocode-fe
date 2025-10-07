@@ -1,9 +1,9 @@
 import Image from "next/image";
 
-export default function Section() {
+export default function HomeSection() {
   return (
     <div
-      id="section"
+      id="homesection"
       className="flex flex-col items-center justify-center min-h-[90vh] bg-[url('/assets/Homepage/1.png')] bg-cover bg-center bg-no-repeat text-white py-20 relative"
     >
       {/* Backdrop blur overlay */}
@@ -32,7 +32,7 @@ export default function Section() {
 
         {/* Div ketiga - Paragraph */}
         <div className="max-w-xs sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl text-center mb-8 sm:mb-10">
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white leading-relaxed drop-shadow-md font-light">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white leading-relaxed drop-shadow-md font-normal">
             Percayakan pangkas kepala Anda kepada kami. Dengan pengalaman
             bertahun-tahun dan tangan terampil, kami siap memberikan pelayanan
             terbaik untuk penampilan yang lebih fresh dan percaya diri.

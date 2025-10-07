@@ -6,6 +6,17 @@ import Link from "next/link";
 import { MdArrowBack } from "react-icons/md";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -24,96 +35,82 @@ export default function Login() {
 
           {/* Container Login */}
           <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="bg-black border border-gray-700 rounded-lg p-8 w-full max-w-md shadow-xl">
-              {/* Logo */}
-              <div className="flex justify-center mb-8">
-                <Image
-                  src="/assets/logo.png"
-                  alt="Brocode Aceh Barbershop Logo"
-                  width={200}
-                  height={200}
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Judul */}
-              <div className="text-center mb-6">
-                <h1 className="text-3xl font-bold">MASUK</h1>
-                <p className=" text-white mb-2">
-                  Masukkan Email dan Password Anda
-                </p>
-              </div>
-
-              {/* Form Login */}
-              <form className="space-y-6">
-                {/* Input No HP */}
-                <div>
-                  <label
-                    htmlFor="phone"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Email/No HP
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-[#FDFB03] focus:ring-1 focus:ring-[#FDFB03] transition-colors"
-                    placeholder="Masukkan email/nomor HP"
-                    required
+            <Card className="w-full max-w-sm bg-black border border-gray-700 shadow-xl">
+              <CardHeader>
+                <div className="flex justify-center mb-8">
+                  <Image
+                    src="/assets/logo.png"
+                    alt="Brocode Aceh Barbershop Logo"
+                    width={200}
+                    height={200}
+                    className="object-contain"
                   />
                 </div>
-
-                {/* Input Password */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      name="password"
-                      className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-[#FDFB03] focus:ring-1 focus:ring-[#FDFB03] transition-colors"
-                      placeholder="Masukkan password"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDFB03] transition-colors cursor-pointer"
-                    >
-                      {showPassword ? (
-                        <FaEyeSlash size={20} />
-                      ) : (
-                        <FaEye size={20} />
-                      )}
-                    </button>
+                <CardTitle className="text-white">Masuk ke akun anda</CardTitle>
+                <CardDescription>
+                  Masukkan email dan password anda untuk masuk ke akun
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form>
+                  <div className="flex flex-col gap-6">
+                    <div className="grid gap-2">
+                      <Label htmlFor="email" className="text-white">
+                        Email
+                      </Label>
+                      <Input
+                        variant={"black"}
+                        id="email"
+                        type="email"
+                        placeholder="Masukkan email anda  "
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label className="text-white" htmlFor="password">
+                          Password
+                        </Label>
+                      </div>
+                      <div className="relative">
+                        <Input
+                          variant={"black"}
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          required
+                          placeholder="Masukkan password anda"
+                          className="pr-12"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDFB03] transition-colors"
+                        >
+                          {showPassword ? (
+                            <FaEyeSlash size={20} />
+                          ) : (
+                            <FaEye size={20} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-
-                {/* Button Login */}
-                <button
-                  type="submit"
-                  className="w-full bg-[#FDFB03] text-black py-3 rounded-md font-semibold hover:bg-yellow-400 transition-colors duration-300 cursor-pointer"
-                >
+                </form>
+              </CardContent>
+              <CardFooter className="flex-col gap-4">
+                <Button type="submit" className="w-full" variant="yellow">
                   Login
-                </button>
-              </form>
+                </Button>
 
-              {/* Link Daftar - Dalam Satu Baris */}
-              <div className="flex justify-between items-center mt-6">
-                <p className="text-gray-400">Belum memiliki akun?</p>
-                <Link href="/register">
-                  <button className="text-[#FDFB03] hover:text-yellow-400 font-medium cursor-pointer transition-colors duration-300">
-                    Daftar Sekarang
-                  </button>
-                </Link>
-              </div>
-            </div>
+                {/* Registration Link */}
+                <div className="flex items-center justify-between w-full ">
+                  <CardDescription>Belum memiliki akun? </CardDescription>
+                  <Link href="/register">
+                    <Button variant="linkYellow">Daftar Sekarang</Button>
+                  </Link>
+                </div>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>

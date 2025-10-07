@@ -47,7 +47,9 @@ export const authService = {
   },
 
   // Login user
-  login: async (data: LoginData): Promise<ApiResponse<{ user: User; token: string }>> => {
+  login: async (
+    data: LoginData
+  ): Promise<ApiResponse<{ user: User; token: string }>> => {
     const response = await api.post("/auth/login", data);
     return response.data;
   },
@@ -105,13 +107,18 @@ export const adminService = {
   },
 
   // Create new user
-  createUser: async (data: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<ApiResponse<User>> => {
+  createUser: async (
+    data: Omit<User, "id" | "createdAt" | "updatedAt">
+  ): Promise<ApiResponse<User>> => {
     const response = await api.post("/admin/users", data);
     return response.data;
   },
 
   // Update user
-  updateUser: async (id: string, data: Partial<User>): Promise<ApiResponse<User>> => {
+  updateUser: async (
+    id: string,
+    data: Partial<User>
+  ): Promise<ApiResponse<User>> => {
     const response = await api.put(`/admin/users/${id}`, data);
     return response.data;
   },
@@ -132,19 +139,26 @@ export const reservationService = {
   },
 
   // Get user reservations
-  getUserReservations: async (params?: PaginationParams): Promise<ApiResponse<any[]>> => {
+  getUserReservations: async (
+    params?: PaginationParams
+  ): Promise<ApiResponse<any[]>> => {
     const response = await api.get("/reservations/user", { params });
     return response.data;
   },
 
   // Get all reservations (admin/kasir)
-  getAllReservations: async (params?: PaginationParams): Promise<ApiResponse<any[]>> => {
+  getAllReservations: async (
+    params?: PaginationParams
+  ): Promise<ApiResponse<any[]>> => {
     const response = await api.get("/reservations", { params });
     return response.data;
   },
 
   // Update reservation status
-  updateReservationStatus: async (id: string, status: string): Promise<ApiResponse<any>> => {
+  updateReservationStatus: async (
+    id: string,
+    status: string
+  ): Promise<ApiResponse<any>> => {
     const response = await api.put(`/reservations/${id}/status`, { status });
     return response.data;
   },
@@ -159,9 +173,12 @@ export const capsterService = {
   },
 
   // Get capster schedule
-  getCapsterSchedule: async (capsterId: string, date: string): Promise<ApiResponse<any>> => {
+  getCapsterSchedule: async (
+    capsterId: string,
+    date: string
+  ): Promise<ApiResponse<any>> => {
     const response = await api.get(`/capsters/${capsterId}/schedule`, {
-      params: { date }
+      params: { date },
     });
     return response.data;
   },
