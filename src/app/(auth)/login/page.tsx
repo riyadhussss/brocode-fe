@@ -27,7 +27,7 @@ export default function Login() {
           {/* Tombol Kembali */}
           <div className="absolute top-6 left-6 z-10">
             <Link href="/">
-              <button className="text-white hover:text-[#FDFB03] transition-colors duration-300 cursor-pointer">
+              <button className="text-white p-4 rounded-2xl hover:bg-[#FDFB03]/10 transition-colors duration-300 cursor-pointer">
                 <MdArrowBack size={24} />
               </button>
             </Link>
@@ -35,9 +35,9 @@ export default function Login() {
 
           {/* Container Login */}
           <div className="flex items-center justify-center min-h-screen px-4">
-            <Card className="w-full max-w-sm bg-black border border-gray-700 shadow-xl">
+            <Card className="w-full max-w-md bg-black border border-gray-700 shadow-xl">
               <CardHeader>
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mt-8 mb-8">
                   <Image
                     src="/assets/logo.png"
                     alt="Brocode Aceh Barbershop Logo"
@@ -46,8 +46,8 @@ export default function Login() {
                     className="object-contain"
                   />
                 </div>
-                <CardTitle className="text-white">Masuk ke akun anda</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white mt-5">Masuk ke akun anda</CardTitle>
+                <CardDescription className="font">
                   Masukkan email dan password anda untuk masuk ke akun
                 </CardDescription>
               </CardHeader>

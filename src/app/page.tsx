@@ -8,10 +8,18 @@ export default function Home() {
   return (
     <>
       <Header />
-      <HomeSection />
-      <Layanan />
-      <TentangKami />
-      <Footer />
+      <div id="homesection">
+        <HomeSection />
+      </div>
+      <div id="layanan">
+        <Layanan />
+      </div>
+      <div id="tentang-kami">
+        <TentangKami />
+      </div>
+      <div id="footer">
+        <Footer />
+      </div>
     </>
-  );
+  );  
 }

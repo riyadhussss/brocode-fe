@@ -7,12 +7,24 @@ import { MdArrowBack } from "react-icons/md";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/app/lib/api/api";   //Import your axios instance
+import api from "@/app/lib/api/api";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 
 // Interface untuk form data
 interface RegisterData {
   name: string;
   email: string;
+  phone: string;
   password: string;
   confirmPassword: string;
 }
@@ -29,6 +41,7 @@ export default function Register() {
   const [formData, setFormData] = useState<RegisterData>({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -59,6 +72,19 @@ export default function Register() {
 
     if (!formData.email.includes("@")) {
       setErrorMessage("Format email tidak valid");
+      return false;
+    }
+
+    if (!formData.phone.trim()) {
+      setErrorMessage("Nomor HP tidak boleh kosong");
+      return false;
+    }
+
+    // Validasi format nomor HP: harus dimulai dari 08 dan berjumlah 10-14 digit
+    if (!/^08\d{8,12}$/.test(formData.phone)) {
+      setErrorMessage(
+        "Nomor HP harus dimulai dari 08 dan berjumlah 10-14 digit"
+      );
       return false;
     }
 
@@ -95,6 +121,7 @@ export default function Register() {
       const response = await api.post("/api/users/register", {
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
       });
@@ -102,11 +129,12 @@ export default function Register() {
       console.log("✅ Registration successful:", response.data);
 
       setSuccessMessage("Registrasi berhasil! Redirecting to login...");
-      
+
       // Reset form
       setFormData({
         name: "",
         email: "",
+        phone: "",
         password: "",
         confirmPassword: "",
       });
@@ -115,16 +143,16 @@ export default function Register() {
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-
     } catch (error: any) {
       console.error("❌ Registration failed:", error);
-      
+
       // Handle different types of errors
       if (error.response) {
         // Server responded with error status
         const status = error.response.status;
-        const message = error.response.data?.message || error.response.data?.error;
-        
+        const message =
+          error.response.data?.message || error.response.data?.error;
+
         switch (status) {
           case 400:
             setErrorMessage(message || "Data tidak valid");
@@ -143,7 +171,9 @@ export default function Register() {
         }
       } else if (error.request) {
         // Network error
-        setErrorMessage("Tidak dapat terhubung ke server. Periksa koneksi internet Anda.");
+        setErrorMessage(
+          "Tidak dapat terhubung ke server. Periksa koneksi internet Anda."
+        );
       } else {
         // Other error
         setErrorMessage("Terjadi kesalahan yang tidak terduga");
@@ -160,7 +190,7 @@ export default function Register() {
           {/* Tombol Kembali */}
           <div className="absolute top-6 left-6 z-10">
             <Link href="/">
-              <button className="text-white hover:text-[#FDFB03] transition-colors duration-300 cursor-pointer">
+              <button className="text-white p-4 rounded-2xl hover:bg-[#FDFB03]/10 transition-colors duration-300 cursor-pointer">
                 <MdArrowBack size={24} />
               </button>
             </Link>
@@ -168,172 +198,181 @@ export default function Register() {
 
           {/* Container Register */}
           <div className="flex items-center justify-center min-h-screen px-4">
-            <div className="bg-black border border-gray-700 rounded-lg p-8 w-full max-w-md shadow-xl">
-              {/* Logo */}
-              <div className="flex justify-center mb-8">
-                <Image
-                  src="/assets/logo.png"
-                  alt="Brocode Aceh Barbershop Logo"
-                  width={200}
-                  height={200}
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Judul */}
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-white">DAFTAR AKUN</h2>
-                <p className="text-gray-300 mt-2">
+            <Card className="w-full max-w-md bg-black border border-gray-700 shadow-xl">
+              <CardHeader>
+                {/* Logo */}
+                <div className="flex justify-center mb-8 mt-8">
+                  <Image
+                    src="/assets/logo.png"
+                    alt="Brocode Aceh Barbershop Logo"
+                    width={200}
+                    height={200}
+                    className="object-contain"
+                  />
+                </div>
+                <CardTitle className="text-white ">Daftar Akun</CardTitle>
+                <CardDescription className="font-semibold">
                   Lengkapi data berikut untuk menyelesaikan registrasi akun
                   Anda.
-                </p>
-              </div>
+                </CardDescription>
+              </CardHeader>
 
-              {/* Error Message */}
-              {errorMessage && (
-                <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-4">
-                  <div className="flex items-center">
-                    <span className="text-red-500 mr-2">⚠️</span>
-                    {errorMessage}
+              <CardContent>
+                {/* Error Message */}
+                {errorMessage && (
+                  <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg mb-4">
+                    <div className="flex items-center">
+                      <span className="text-red-500 mr-2">⚠️</span>
+                      {errorMessage}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Success Message */}
-              {successMessage && (
-                <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg mb-4">
-                  <div className="flex items-center">
-                    <span className="text-green-500 mr-2">✅</span>
-                    {successMessage}
+                {/* Success Message */}
+                {successMessage && (
+                  <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg mb-4">
+                    <div className="flex items-center">
+                      <span className="text-green-500 mr-2">✅</span>
+                      {successMessage}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Form Register */}
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                {/* Input Nama */}
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Nama
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-[#FDFB03] focus:ring-1 focus:ring-[#FDFB03] transition-colors"
-                    placeholder="Masukkan nama lengkap"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
+                {/* Form Register */}
+                <form onSubmit={handleSubmit}>
+                  <div className="flex flex-col gap-6">
+                    {/* Input Nama */}
+                    <div className="grid gap-2">
+                      <Label htmlFor="name" className="text-white">
+                        Nama
+                      </Label>
+                      <Input
+                        variant="black"
+                        id="name"
+                        name="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nama lengkap"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
 
-                {/* Input Email */}
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-[#FDFB03] focus:ring-1 focus:ring-[#FDFB03] transition-colors"
-                    placeholder="Masukkan email"
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
+                    {/* Input Email */}
+                    <div className="grid gap-2">
+                      <Label htmlFor="email" className="text-white">
+                        Email
+                      </Label>
+                      <Input
+                        variant="black"
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan email"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
 
-                {/* Input Password */}
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-[#FDFB03] focus:ring-1 focus:ring-[#FDFB03] transition-colors"
-                      placeholder="Masukkan password (minimal 8 karakter)"
-                      required
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDFB03] transition-colors"
-                      disabled={isLoading}
-                    >
-                      {showPassword ? (
-                        <FaEyeSlash size={20} />
-                      ) : (
-                        <FaEye size={20} />
-                      )}
-                    </button>
+                    {/* Input Nomor HP */}
+                    <div className="grid gap-2">
+                      <Label htmlFor="phone" className="text-white">
+                        Nomor HP
+                      </Label>
+                      <Input
+                        variant="black"
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nomor HP anda"
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+
+                    {/* Input Password */}
+                    <div className="grid gap-2">
+                      <Label htmlFor="password" className="text-white">
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          variant="black"
+                          id="password"
+                          name="password"
+                          type={showPassword ? "text" : "password"}
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          className="pr-12"
+                          placeholder="Masukkan password (minimal 8 karakter)"
+                          required
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDFB03] transition-colors"
+                          disabled={isLoading}
+                        >
+                          {showPassword ? (
+                            <FaEyeSlash size={20} />
+                          ) : (
+                            <FaEye size={20} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Input Konfirmasi Password */}
+                    <div className="grid gap-2">
+                      <Label htmlFor="confirmPassword" className="text-white">
+                        Konfirmasi Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          variant="black"
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          className="pr-12"
+                          placeholder="Konfirmasi password"
+                          required
+                          disabled={isLoading}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDFB03] transition-colors"
+                          disabled={isLoading}
+                        >
+                          {showConfirmPassword ? (
+                            <FaEyeSlash size={20} />
+                          ) : (
+                            <FaEye size={20} />
+                          )}
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </form>
+              </CardContent>
 
-                {/* Input Konfirmasi Password */}
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-300 mb-2"
-                  >
-                    Konfirmasi Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 pr-12 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-[#FDFB03] focus:ring-1 focus:ring-[#FDFB03] transition-colors"
-                      placeholder="Konfirmasi password"
-                      required
-                      disabled={isLoading}
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FDFB03] transition-colors"
-                      disabled={isLoading}
-                    >
-                      {showConfirmPassword ? (
-                        <FaEyeSlash size={20} />
-                      ) : (
-                        <FaEye size={20} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Button Register */}
-                <button
+              <CardFooter className="flex-col gap-4">
+                <Button
                   type="submit"
                   disabled={isLoading}
-                  className={`w-full py-3 rounded-md font-semibold transition-colors duration-300 ${
-                    isLoading
-                      ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                      : "bg-[#FDFB03] text-black hover:bg-yellow-400"
-                  }`}
+                  variant="yellow"
+                  className="w-full"
+                  onClick={handleSubmit}
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center">
@@ -343,26 +382,22 @@ export default function Register() {
                   ) : (
                     "Daftar"
                   )}
-                </button>
-              </form>
+                </Button>
 
-              {/* Link Login */}
-              <div className="text-center mt-6">
-                <p className="text-gray-400 mb-2">Sudah memiliki akun?</p>
-                <Link href="/login">
-                  <button 
-                    className="text-[#FDFB03] hover:text-yellow-400 font-medium transition-colors duration-300"
-                    disabled={isLoading}
-                  >
-                    Login Sekarang
-                  </button>
-                </Link>
-              </div>
-            </div>
+                {/* Login Link */}
+                <div className="flex items-center justify-between w-full">
+                  <CardDescription>Sudah memiliki akun?</CardDescription>
+                  <Link href="/login">
+                    <Button variant="linkYellow" disabled={isLoading}>
+                      Login Sekarang
+                    </Button>
+                  </Link>
+                </div>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );

@@ -6,7 +6,7 @@
   "static/chunks/node_modules_react-icons_lib_844c6c50._.js",
   "static/chunks/node_modules_tailwind-merge_dist_bundle-mjs_mjs_56b6fd65._.js",
   "static/chunks/node_modules_40e1f166._.js",
-  "static/chunks/src_48aec362._.js"
+  "static/chunks/src_7abe9a5b._.js"
 ],
     source: "dynamic"
 });

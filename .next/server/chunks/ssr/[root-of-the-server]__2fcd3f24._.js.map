@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
-    {"offset": {"line": 15, "column": 0}, "map": {"version":3,"sources":["file:///D:/brocode-fe/brocode-fe/src/app/%28auth%29/login/page.tsx"],"sourcesContent":["import Footer from \"@/components/Footer\";\r\n\r\nexport default function Login() {\r\n  return \r\n  <>\r\n  <></></>\r\n  \r\n}"],"names":[],"mappings":";;;;;;AAEe,SAAS;IACtB;;;AAIF","debugId":null}}]
-}
