@@ -50,7 +50,7 @@ export default function Footer() {
               pelayanan terdepan.
             </p>
 
-            {/* Social Media (no icons, show platform color on hover) */}
+            {/* Social Media */}
             <div className="flex justify-center sm:justify-start space-x-3 sm:space-x-4 mb-6 sm:mb-0">
               <Link
                 href="https://www.instagram.com/brocodeaceh/"
@@ -71,7 +71,7 @@ export default function Footer() {
                 className="group"
                 aria-label="TikTok"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transform transition-all duration-300 hover:scale-110 hover:shadow-lg bg-transparent group-hover:bg-black active:scale-95">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transform transition-all duration-300 hover:scale-110 hover:shadow-lg bg-transparent group-hover:bg-gray-700 active:scale-95">
                   <FaTiktok className="text-gray-300 group-hover:text-white w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </Link>
@@ -100,7 +100,9 @@ export default function Footer() {
                 <FaMapMarkerAlt className="text-[#FDFB03] mb-2 sm:mb-0 sm:mt-1 flex-shrink-0" />
                 <div className="text-center sm:text-left">
                   <a
-                    href="https://share.google/7L62LsdeJBTucEjgb"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://maps.app.goo.gl/rogA3WkZeLpyXXYe9"
                     className="text-gray-300 leading-relaxed text-sm sm:text-base hover:text-[#FDFB03] transition-colors duration-300"
                   >
                     Jl. Dr. Mr. Mohd Hasan,

@@ -7,7 +7,7 @@ import { MdArrowBack } from "react-icons/md";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import api from "@/app/lib/api/api";
+import api from "@/app/lib/api";
 import {
   Card,
   CardHeader,

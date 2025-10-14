@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FaHome, FaArrowLeft } from "react-icons/fa";
-import BackButton from "./BackButton";
 
 export default function NotFound() {
   return (
@@ -40,8 +39,6 @@ export default function NotFound() {
               <span>Kembali ke Beranda</span>
             </button>
           </Link>
-
-          <BackButton />
         </div>
 
         {/* Footer Text */}

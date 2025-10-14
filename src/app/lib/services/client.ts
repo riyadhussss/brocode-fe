@@ -1,4 +1,4 @@
-import api from "../api/api";
+import api from "@/app/lib/api";
 
 // Interface untuk response data
 interface ApiResponse<T> {

@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { Button } from "../ui/button";
+import { ArrowRight } from "lucide-react";
 
 export default function HomeSection() {
   return (
@@ -41,7 +43,7 @@ export default function HomeSection() {
 
         {/* Button */}
         <div className="w-full max-w-xs sm:max-w-sm">
-          <button className="group relative inline-flex h-12 sm:h-14 w-full items-center justify-center overflow-hidden rounded-md bg-[#FDFB03] px-6 font-medium text-black cursor-pointer">
+          {/* <button className="group relative inline-flex h-12 sm:h-14 w-full items-center justify-center overflow-hidden rounded-md bg-[#FDFB03] px-6 font-medium text-black cursor-pointer">
             <span>BOOKING SEKARANG</span>
             <div className="w-0 translate-x-[100%] pl-0 opacity-0 transition-all duration-200 group-hover:w-5 group-hover:translate-x-0 group-hover:pl-1 group-hover:opacity-100">
               <svg
@@ -60,7 +62,12 @@ export default function HomeSection() {
                 ></path>
               </svg>
             </div>
-          </button>
+          </button> */}
+          <div className="flex justify-center w-full">
+            <Button variant={"yellow"} size={"lg"} className="mx-auto w-full">
+              Booking Sekarang <ArrowRight />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

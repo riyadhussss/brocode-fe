@@ -3,7 +3,7 @@
 
 type AppRoutes = "/" | "/admin" | "/admin/manajemen-capster" | "/admin/manajemen-kasir" | "/admin/manajemen-layanan" | "/admin/manajemen-user" | "/admin/riwayat-reservasi" | "/admin/update-akun" | "/kasir" | "/kasir/atur-jadwal" | "/kasir/manajemen-reservasi" | "/kasir/riwayat-reservasi-kasir" | "/kasir/update-akun-kasir" | "/login" | "/register" | "/tes" | "/user" | "/user/riwayat-pemesanan" | "/user/update-akun"
 type PageRoutes = never
-type LayoutRoutes = "/" | "/admin" | "/kasir" | "/user"
+type LayoutRoutes = "/" | "/admin" | "/kasir" | "/tes" | "/user"
 type RedirectRoutes = never
 type RewriteRoutes = never
 type Routes = AppRoutes | PageRoutes | LayoutRoutes | RedirectRoutes | RewriteRoutes
@@ -38,6 +38,7 @@ interface LayoutSlotMap {
   "/": never
   "/admin": never
   "/kasir": never
+  "/tes": never
   "/user": never
 }
 
