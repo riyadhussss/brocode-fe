@@ -1,15 +1,9 @@
 {
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(auth)/register/page": "app/(auth)/register/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/manajemen-admin/page": "app/admin/manajemen-admin/page.js",
-  "/admin/manajemen-capster/page": "app/admin/manajemen-capster/page.js",
-  "/admin/manajemen-kasir/page": "app/admin/manajemen-kasir/page.js",
-  "/admin/manajemen-layanan/page": "app/admin/manajemen-layanan/page.js",
-  "/admin/riwayat-reservasi/page": "app/admin/riwayat-reservasi/page.js",
-  "/admin/update-akun/page": "app/admin/update-akun/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js"
+  "/kasir/manajemen-reservasi/page": "app/kasir/manajemen-reservasi/page.js",
+  "/kasir/update-akun/page": "app/kasir/update-akun/page.js",
+  "/user/page": "app/user/page.js",
+  "/user/reservasi/page": "app/user/reservasi/page.js",
+  "/user/update-akun/page": "app/user/update-akun/page.js"
 }
