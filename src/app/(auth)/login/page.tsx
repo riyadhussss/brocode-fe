@@ -44,11 +44,14 @@ export default function Login() {
                     width={200}
                     height={200}
                     className="object-contain"
+                    priority
                   />
                 </div>
-                <CardTitle className="text-white mt-5">Masuk ke akun anda</CardTitle>
+                <CardTitle className="text-white mt-5">
+                  Masuk ke akun anda
+                </CardTitle>
                 <CardDescription className="font">
-                  Masukkan email dan password anda untuk masuk ke akun
+                  Masukkan email/nomor HP dan password anda untuk masuk ke akun
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -56,13 +59,13 @@ export default function Login() {
                   <div className="flex flex-col gap-6">
                     <div className="grid gap-2">
                       <Label htmlFor="email" className="text-white">
-                        Email
+                        Email atau nomor HP
                       </Label>
                       <Input
                         variant={"black"}
                         id="email"
                         type="email"
-                        placeholder="Masukkan email anda  "
+                        placeholder="Masukkan email atau nomor HP anda"
                         required
                       />
                     </div>

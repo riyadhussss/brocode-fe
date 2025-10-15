@@ -80,7 +80,7 @@ export default function SidebarAdmin({
             }`}
           >
             <Image
-              src="/assets/logo.png"
+              src=""
               alt="Brocode Logo"
               width={40}
               height={40}

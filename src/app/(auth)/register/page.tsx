@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Interface untuk form data
 interface RegisterData {
@@ -208,6 +209,7 @@ export default function Register() {
                     width={200}
                     height={200}
                     className="object-contain"
+                    priority
                   />
                 </div>
                 <CardTitle className="text-white ">Daftar Akun</CardTitle>
