@@ -1,7 +1,11 @@
 {
   "/(auth)/login/page": "app/(auth)/login/page.js",
   "/_not-found/page": "app/_not-found/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/update-akun/page": "app/admin/update-akun/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/loginn/page": "app/loginn/page.js",
-  "/page": "app/page.js"
+  "/kasir/atur-jadwal/page": "app/kasir/atur-jadwal/page.js",
+  "/kasir/dashboard/page": "app/kasir/dashboard/page.js",
+  "/page": "app/page.js",
+  "/user/reservasi/page": "app/user/reservasi/page.js"
 }

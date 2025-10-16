@@ -1,64 +1,170 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { authService } from "@/app/lib/services/auth.service";
+import { useRouter } from "next/navigation";
+
+// ✅ Validasi input
+const loginSchema = z.object({
+  emailOrPhone: z
+    .string()
+    .min(1, "Email atau nomor HP wajib diisi")
+    .refine(
+      (val) => {
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+        const isPhone = /^[0-9]{9,15}$/.test(val);
+        return isEmail || isPhone;
+      },
+      { message: "Masukkan email atau nomor HP yang valid" }
+    ),
+  password: z.string().min(8, "Password minimal 8 karakter"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  // ✅ Fungsi Login
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const response = await authService.login({
+        emailOrPhone: data.emailOrPhone,
+        password: data.password,
+      });
+
+      // Cek respon dari server
+      if (!response.success) {
+        throw new Error(response.message || "Login gagal");
+      }
+
+      const { user, token } = response;
+
+      // Simpan token ke localStorage
+      localStorage.setItem("token", token);
+
+      // Tampilkan pesan sukses
+      toast.success("Login berhasil!", {
+        description: `Selamat datang, ${user.name}!`,
+      });
+
+      // Reset form
+      reset();
+
+      // Redirect berdasarkan role
+      switch (user.role) {
+        case "admin":
+          router.push("/admin/dashboard");
+          break;
+        case "cashier":
+          router.push("/kasir/dashboard");
+          break;
+        case "customer":
+          router.push("/user/reservasi");
+          break;
+        default:
+          router.push("/");
+      }
+    } catch (error: any) {
+      console.error("❌ Login error:", error);
+      toast.error("Login gagal", {
+        description:
+          error.message || "Terjadi kesalahan, periksa koneksi atau data Anda.",
+      });
+    }
+  };
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
-        <Image
-          src="/assets/logo.png" // Ganti dengan path logomu
-          alt="Logo Brocode"
-          width={200} // Bisa kamu ubah sesuai ukuran
-          height={40}
-          className="object-contain mb-5"
-        />
-        <h1 className="text-2xl font-bold">Masuk ke akun anda</h1>
-        <p className="text-balance text-sm text-muted-foreground">
+        <button type="button" className="focus:outline-none">
+          <Image
+            src="/assets/logo.png"
+            alt="Logo Brocode"
+            width={200}
+            height={40}
+            className="object-contain mb-5"
+          />
+        </button>
+        <h1 className="text-2xl font-bold text-white">Masuk ke akun anda</h1>
+        <p className="text-sm text-gray-400">
           Masukkan email/nomor HP dan password anda untuk masuk ke akun
         </p>
       </div>
+
       <div className="grid gap-6">
+        {/* Email/Phone */}
         <div className="grid gap-2">
-          <Label htmlFor="email">Email/No HP</Label>
+          <Label htmlFor="emailOrPhone" className="text-white">
+            Email/No HP
+          </Label>
           <Input
-            variant={"black"}
-            id="email"
-            type="email"
-            placeholder="Masukkan email/no hp anda"
-            required
+            id="emailOrPhone"
+            placeholder="Masukkan email atau nomor HP anda"
+            variant="black"
+            {...register("emailOrPhone")}
           />
+          {errors.emailOrPhone && (
+            <p className="text-red-500 text-sm">
+              {errors.emailOrPhone.message}
+            </p>
+          )}
         </div>
+
+        {/* Password */}
         <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            {/* <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a> */}
-          </div>
+          <Label htmlFor="password" className="text-white">
+            Password
+          </Label>
           <Input
-            variant={"black"}
             id="password"
             type="password"
             placeholder="Masukkan password anda"
-            required
+            variant="black"
+            {...register("password")}
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password.message}</p>
+          )}
         </div>
-        <Button variant={"yellow"} type="submit" className="w-full">
-          Login
+
+        {/* Tombol Login */}
+        <Button
+          variant="yellow"
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Memproses..." : "Login"}
         </Button>
       </div>
-      <div className="text-center text-sm">
+
+      <div className="text-center text-sm text-gray-400">
         Belum memiliki akun?{" "}
-        <a href="#" className="underline underline-offset-4">
+        <a href="#" className="underline underline-offset-4 text-yellow-400">
           Daftar Sekarang!
         </a>
       </div>

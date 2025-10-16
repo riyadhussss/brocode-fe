@@ -201,7 +201,6 @@
     --color-red-900: #82181a;
     --color-orange-100: #ffedd5;
     --color-orange-600: #f05100;
-    --color-amber-500: #f99c00;
     --color-yellow-50: #fefce8;
     --color-yellow-100: #fef9c2;
     --color-yellow-200: #fff085;
@@ -239,8 +238,6 @@
     --color-gray-700: #364153;
     --color-gray-800: #1e2939;
     --color-gray-900: #101828;
-    --color-zinc-900: #18181b;
-    --color-neutral-900: #171717;
     --color-neutral-950: #0a0a0a;
     --color-black: #000;
     --color-white: #fff;
@@ -321,7 +318,6 @@
       --color-red-900: color(display-p3 .466906 .133198 .12139);
       --color-orange-100: color(display-p3 .988762 .931393 .843273);
       --color-orange-600: color(display-p3 .887467 .341665 .0219962);
-      --color-amber-500: color(display-p3 .93994 .620584 .0585367);
       --color-yellow-50: color(display-p3 .994197 .988062 .917538);
       --color-yellow-100: color(display-p3 .993436 .977463 .782913);
       --color-yellow-200: color(display-p3 .988789 .943116 .579188);
@@ -359,8 +355,6 @@
       --color-gray-700: color(display-p3 .219968 .253721 .318679);
       --color-gray-800: color(display-p3 .125854 .159497 .216835);
       --color-gray-900: color(display-p3 .070423 .0928982 .151928);
-      --color-zinc-900: color(display-p3 .0937957 .093793 .104806);
-      --color-neutral-900: color(display-p3 .0905274 .0905274 .0905274);
       --color-neutral-950: color(display-p3 .0393882 .0393882 .0393882);
     }
   }
@@ -379,7 +373,6 @@
       --color-red-900: lab(28.5139% 44.5539 29.0463);
       --color-orange-100: lab(94.7127% 3.58391 14.3151);
       --color-orange-600: lab(57.1026% 64.2584 89.8886);
-      --color-amber-500: lab(72.7183% 31.8672 97.9407);
       --color-yellow-50: lab(98.6846% -1.79058 9.77662);
       --color-yellow-100: lab(97.3564% -4.51407 27.344);
       --color-yellow-200: lab(94.3433% -5.00426 52.9663);
@@ -417,8 +410,6 @@
       --color-gray-700: lab(27.1134% -.956401 -12.3224);
       --color-gray-800: lab(16.1051% -1.18239 -11.7533);
       --color-gray-900: lab(8.11897% .811279 -12.254);
-      --color-zinc-900: lab(8.30603% .618212 -2.16573);
-      --color-neutral-900: lab(7.78201% -.0000149012 0);
       --color-neutral-950: lab(2.75381% 0 0);
     }
   }
@@ -2015,10 +2006,6 @@
     background-color: var(--accent);
   }
 
-  .bg-amber-500 {
-    background-color: var(--color-amber-500);
-  }
-
   .bg-background {
     background-color: var(--background);
   }
@@ -2077,16 +2064,6 @@
     }
   }
 
-  .bg-black\/80 {
-    background-color: rgba(0, 0, 0, .8);
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-black\/80 {
-      background-color: color-mix(in oklab, var(--color-black) 80%, transparent);
-    }
-  }
-
   .bg-blue-100 {
     background-color: var(--color-blue-100);
   }
@@ -2135,10 +2112,6 @@
     background-color: var(--color-gray-700);
   }
 
-  .bg-gray-900 {
-    background-color: var(--color-gray-900);
-  }
-
   .bg-green-50 {
     background-color: var(--color-green-50);
   }
@@ -2173,10 +2146,6 @@
     .bg-muted\/50 {
       background-color: color-mix(in oklab, var(--muted) 50%, transparent);
     }
-  }
-
-  .bg-neutral-900 {
-    background-color: var(--color-neutral-900);
   }
 
   .bg-neutral-950 {
@@ -2247,10 +2216,6 @@
 
   .bg-yellow-100 {
     background-color: var(--color-yellow-100);
-  }
-
-  .bg-zinc-900 {
-    background-color: var(--color-zinc-900);
   }
 
   .bg-gradient-to-br {
@@ -2700,10 +2665,6 @@
     color: var(--color-green-800);
   }
 
-  .text-muted {
-    color: var(--muted);
-  }
-
   .text-muted-foreground {
     color: var(--muted-foreground);
   }
@@ -2764,6 +2725,10 @@
 
   .text-white {
     color: var(--color-white);
+  }
+
+  .text-yellow-400 {
+    color: var(--color-yellow-400);
   }
 
   .text-yellow-600 {
@@ -3728,6 +3693,11 @@
     }
   }
 
+  .focus\:outline-none:focus {
+    --tw-outline-style: none;
+    outline-style: none;
+  }
+
   .focus-visible\:ring-0:focus-visible {
     --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(0px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -4434,12 +4404,6 @@
   @media (min-width: 48rem) {
     .md\:grid-cols-4 {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .md\:justify-start {
-      justify-content: flex-start;
     }
   }
 

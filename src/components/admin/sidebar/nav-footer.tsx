@@ -8,8 +8,31 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { authService } from "@/app/lib/services/auth.service";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function NavFooter() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout(); // hapus token dari localStorage
+
+      toast.success("Berhasil logout", {
+        description: "Anda telah keluar dari akun.",
+      });
+
+      // redirect ke halaman login
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Gagal logout", {
+        description: "Terjadi kesalahan saat logout.",
+      });
+    }
+  };
+
   return (
     <SidebarGroup className="mt-auto pb-4 pl-0 pr-0">
       <Separator className="my-2 bg-gray-700" />
@@ -20,12 +43,12 @@ export function NavFooter() {
             asChild
             tooltip="Update Profile"
             className="
-                text-white transition-colors
-                hover:bg-gray-700 hover:text-white
-                data-[active=true]:bg-[#FDFB03]
-                data-[active=true]:text-black
-                data-[active=true]:font-semibold
-              "
+              text-white transition-colors
+              hover:bg-gray-700 hover:text-white
+              data-[active=true]:bg-[#FDFB03]
+              data-[active=true]:text-black
+              data-[active=true]:font-semibold
+            "
           >
             <a href="/admin/update-akun">
               <User />
@@ -42,9 +65,7 @@ export function NavFooter() {
               text-white hover:bg-red-700 hover:text-white
               active:bg-red-700 transition-colors cursor-pointer
             "
-            onClick={() => {
-              console.log("Logout clicked"); // Placeholder — nanti diganti dengan fungsi logout
-            }}
+            onClick={handleLogout}
           >
             <LogOut />
             <span>Log Out</span>
