@@ -11,7 +11,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { authService } from "@/app/lib/services/auth.service";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Cookies from "js-cookie";
+import { Eye, EyeOff } from "lucide-react";
 
 // ✅ Validasi input
 const loginSchema = z.object({
@@ -36,6 +38,8 @@ export function LoginForm({
   ...props
 }: React.ComponentPropsWithoutRef<"form">) {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -60,9 +64,21 @@ export function LoginForm({
 
       const { user, token } = response;
 
-      // Atau menggunakan js-cookie jika sudah diinstall:
+      // Simpan data user ke cookies (expires 7 hari)
       Cookies.set("token", token, { expires: 7 });
       Cookies.set("role", user.role, { expires: 7 });
+
+      // Simpan nama dan phone jika ada
+      if (user.name) {
+        Cookies.set("name", user.name, { expires: 7 });
+      }
+      if (user.phone) {
+        Cookies.set("phone", user.phone, { expires: 7 });
+      }
+
+      // Simpan email dan userId untuk keperluan lain
+      Cookies.set("email", user.email, { expires: 7 });
+      Cookies.set("userId", user.userId, { expires: 7 });
 
       // ✅ Pesan sukses
       toast.success("Login berhasil!", {
@@ -80,11 +96,59 @@ export function LoginForm({
 
       router.push(redirectMap[user.role] || "/");
     } catch (error: any) {
+      // Handle different error types
+      if (error.response) {
+        const status = error.response.status;
+        const message =
+          error.response.data?.message || error.response.data?.error;
+
+        switch (status) {
+          case 400:
+            // Response 400 - credential salah (tidak log ke console)
+            toast.error("Login gagal", {
+              description: "Email/no HP atau password yang anda masukkan salah",
+            });
+            return; // Return early, tidak log error
+          case 401:
+            toast.error("Login gagal", {
+              description: "Email/no HP atau password yang anda masukkan salah",
+            });
+            break;
+          case 404:
+            toast.error("Login gagal", {
+              description: "Akun tidak ditemukan",
+            });
+            break;
+          case 422:
+            toast.error("Login gagal", {
+              description: message || "Data tidak valid",
+            });
+            break;
+          case 500:
+            toast.error("Login gagal", {
+              description: "Terjadi kesalahan server, coba lagi nanti",
+            });
+            break;
+          default:
+            toast.error("Login gagal", {
+              description: message || "Terjadi kesalahan, coba lagi",
+            });
+        }
+      } else if (error.request) {
+        // Network error
+        toast.error("Login gagal", {
+          description:
+            "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
+        });
+      } else {
+        // Other error
+        toast.error("Login gagal", {
+          description: error.message || "Terjadi kesalahan yang tidak terduga",
+        });
+      }
+
+      // Log error untuk semua case kecuali 400
       console.error("❌ Login error:", error);
-      toast.error("Login gagal", {
-        description:
-          error.message || "Terjadi kesalahan, periksa koneksi atau data Anda.",
-      });
     }
   };
 
@@ -136,13 +200,27 @@ export function LoginForm({
           <Label htmlFor="password" className="text-white">
             Password
           </Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Masukkan password anda"
-            variant="black"
-            {...register("password")}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Masukkan password anda"
+              variant="black"
+              {...register("password")}
+              className="pr-10"
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-red-500 text-sm">{errors.password.message}</p>
           )}
@@ -160,9 +238,12 @@ export function LoginForm({
       </div>
 
       {/* Link Register */}
-      <div className="text-center text-sm text-gray-400">
-        Belum memiliki akun?{" "}
-        <a href="#" className="underline underline-offset-4 text-yellow-400">
+      <div className="flex justify-between items-center w-full text-sm text-gray-400">
+        <p>Belum memiliki akun?</p>
+        <a
+          href="/register"
+          className=" text-[#FDFB03] hover:underline hover:underline-offset-4 transition-colors"
+        >
           Daftar Sekarang!
         </a>
       </div>

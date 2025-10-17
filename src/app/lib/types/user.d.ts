@@ -20,6 +20,17 @@ export interface LoginData {
   password: string;
 }
 
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  data: {
+    userId: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: "customer";
+  };
+}
 export interface LoginResponse {
   success: boolean;
   message: string;
@@ -29,6 +40,6 @@ export interface LoginResponse {
     name?: string;
     email: string;
     phone?: string;
-    role: "admin" | "cashier" | "customer" ;
+    role: "admin" | "cashier" | "customer";
   };
 }
