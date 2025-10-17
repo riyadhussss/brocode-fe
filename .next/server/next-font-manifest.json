@@ -9,6 +9,24 @@
     "[project]/src/app/admin/dashboard/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
+    "[project]/src/app/admin/manajemen-admin/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/manajemen-capster/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/manajemen-kasir/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/manajemen-layanan/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/manajemen-user/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/riwayat-reservasi/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
     "[project]/src/app/admin/update-akun/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
@@ -18,10 +36,22 @@
     "[project]/src/app/kasir/dashboard/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
+    "[project]/src/app/kasir/manajemen-reservasi/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/kasir/update-akun/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
     "[project]/src/app/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
     "[project]/src/app/user/reservasi/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/user/riwayat-reservasi/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/user/update-akun/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ]
   },

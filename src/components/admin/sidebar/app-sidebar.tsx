@@ -49,6 +49,7 @@ const data = {
       url: "/admin/manajemen-layanan",
       icon: SquareMenu,
     },
+    { name: "Manajemen User", url: "/admin/manajemen-user", icon: User },
     {
       name: "Riwayat Reservasi",
       url: "/admin/riwayat-reservasi",

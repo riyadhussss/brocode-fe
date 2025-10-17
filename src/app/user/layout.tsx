@@ -1,6 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/user/sidebar/app-sidebar";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,30 +24,39 @@ export default function UserLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const lastSegment = pathname.split("/").filter(Boolean).pop() || "dashboard";
+
+  // Ubah ke format title-case
+  const title = lastSegment
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink>User</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
+                {/* Statis, tidak memiliki href */}
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                  <BreadcrumbPage>User</BreadcrumbPage>
+                </BreadcrumbItem>
+
+                <BreadcrumbSeparator />
+
+                {/* Dinamis berdasarkan route */}
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{title}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-        <main>
-          {children}
-        </main>
+        <main>{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );

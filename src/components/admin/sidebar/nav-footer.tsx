@@ -11,19 +11,38 @@ import { Separator } from "@/components/ui/separator";
 import { authService } from "@/app/lib/services/auth.service";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export function NavFooter() {
   const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
-      await authService.logout(); // hapus token dari localStorage
+      // Tutup dialog
+      setIsDialogOpen(false);
 
+      // Hapus token dari localStorage
+      await authService.logout();
+
+      // Tampilkan notifikasi sukses
       toast.success("Berhasil logout", {
         description: "Anda telah keluar dari akun.",
+        duration: 2000,
       });
 
-      // redirect ke halaman login
+      // Redirect ke halaman login
       router.push("/login");
     } catch (error) {
       console.error("Logout error:", error);
@@ -57,19 +76,48 @@ export function NavFooter() {
           </SidebarMenuButton>
         </SidebarMenuItem>
 
-        {/* Log Out */}
+        {/* Logout dengan konfirmasi */}
         <SidebarMenuItem>
-          <SidebarMenuButton
-            tooltip="Log Out"
-            className="
-              text-white hover:bg-red-700 hover:text-white
-              active:bg-red-700 transition-colors cursor-pointer
-            "
-            onClick={handleLogout}
-          >
-            <LogOut />
-            <span>Log Out</span>
-          </SidebarMenuButton>
+          <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <SidebarMenuButton
+                tooltip="Log Out"
+                className="
+                  text-white hover:bg-red-700 hover:text-white
+                  active:bg-red-700 transition-colors cursor-pointer
+                "
+                onClick={() => setIsDialogOpen(true)}
+              >
+                <LogOut />
+                <span>Log Out</span>
+              </SidebarMenuButton>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="bg-neutral-900 border border-gray-700 text-white max-w-md">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-white">
+                  Konfirmasi Logout
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-gray-400">
+                  Apakah Anda yakin ingin keluar dari akun Anda? Anda akan
+                  diarahkan ke halaman login.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel
+                  className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Batal
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Ya, Logout
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>

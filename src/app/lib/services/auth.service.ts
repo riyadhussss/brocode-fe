@@ -2,6 +2,7 @@ import api from "@/app/lib/api";
 import { ApiResponse } from "@/app/lib/types/api";
 import { LoginResponse } from "@/app/lib/types/user";
 import { User, LoginData, RegisterData } from "@/app/lib/types/user";
+import Cookies from "js-cookie";
 
 export const authService = {
   register: async (data: RegisterData): Promise<ApiResponse<User>> => {
@@ -26,10 +27,12 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    // Hapus token dari localStorage
-    localStorage.removeItem("token");
-    // Opsional: bisa juga hapus data user lain jika disimpan
-    // localStorage.removeItem("user");
+    // Hapus token dari cookies
+    Cookies.remove("token");
+
+    // Opsional: kalau kamu juga menyimpan role atau user info di cookies
+    Cookies.remove("role");
+    Cookies.remove("user");
 
     return Promise.resolve();
   },
@@ -38,4 +41,9 @@ export const authService = {
     const response = await api.post("/auth/refresh");
     return response.data;
   },
+};
+
+export const authUtils = {
+  getToken: () => localStorage.getItem("token"),
+  clearToken: () => localStorage.removeItem("token"),
 };

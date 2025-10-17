@@ -11,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { authService } from "@/app/lib/services/auth.service";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 // ✅ Validasi input
 const loginSchema = z.object({
@@ -59,31 +60,25 @@ export function LoginForm({
 
       const { user, token } = response;
 
-      // Simpan token ke localStorage
-      localStorage.setItem("token", token);
+      // Atau menggunakan js-cookie jika sudah diinstall:
+      Cookies.set("token", token, { expires: 7 });
+      Cookies.set("role", user.role, { expires: 7 });
 
-      // Tampilkan pesan sukses
+      // ✅ Pesan sukses
       toast.success("Login berhasil!", {
         description: `Selamat datang, ${user.name}!`,
       });
 
-      // Reset form
       reset();
 
-      // Redirect berdasarkan role
-      switch (user.role) {
-        case "admin":
-          router.push("/admin/dashboard");
-          break;
-        case "cashier":
-          router.push("/kasir/dashboard");
-          break;
-        case "customer":
-          router.push("/user/reservasi");
-          break;
-        default:
-          router.push("/");
-      }
+      // ✅ Redirect berdasarkan role
+      const redirectMap: Record<string, string> = {
+        admin: "/admin/dashboard",
+        cashier: "/kasir/dashboard",
+        customer: "/user/reservasi",
+      };
+
+      router.push(redirectMap[user.role] || "/");
     } catch (error: any) {
       console.error("❌ Login error:", error);
       toast.error("Login gagal", {
@@ -99,6 +94,7 @@ export function LoginForm({
       className={cn("flex flex-col gap-6", className)}
       {...props}
     >
+      {/* Header */}
       <div className="flex flex-col items-center gap-2 text-center">
         <button type="button" className="focus:outline-none">
           <Image
@@ -115,6 +111,7 @@ export function LoginForm({
         </p>
       </div>
 
+      {/* Form Fields */}
       <div className="grid gap-6">
         {/* Email/Phone */}
         <div className="grid gap-2">
@@ -162,6 +159,7 @@ export function LoginForm({
         </Button>
       </div>
 
+      {/* Link Register */}
       <div className="text-center text-sm text-gray-400">
         Belum memiliki akun?{" "}
         <a href="#" className="underline underline-offset-4 text-yellow-400">
