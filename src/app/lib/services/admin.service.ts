@@ -1,5 +1,5 @@
 import api from "../api";
-import { DashboardResponse } from "../types/admin";
+import { AdminsResponse, DashboardResponse } from "../types/admin";
 // import {}
 // import { ApiResponse, PaginationParams } from "../types";
 // import { User } from "../types";
@@ -7,7 +7,10 @@ import { DashboardResponse } from "../types/admin";
 export const adminService = {
   getDashboardAdmin: async (): Promise<DashboardResponse> => {
     const response = await api.get("/dashboard/admin");
-    // Nanti ubah api terbaru
+    return response.data;
+  },
+  getAdmins: async (): Promise<AdminsResponse> => {
+    const response = await api.get("/admins");
     return response.data;
   },
   //   getUsers: async (params?: PaginationParams): Promise<ApiResponse<User[]>> => {

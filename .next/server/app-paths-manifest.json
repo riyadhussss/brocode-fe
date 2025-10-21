@@ -1,13 +1,10 @@
 {
   "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
   "/admin/manajemen-admin/page": "app/admin/manajemen-admin/page.js",
   "/admin/manajemen-capster/page": "app/admin/manajemen-capster/page.js",
   "/admin/manajemen-kasir/page": "app/admin/manajemen-kasir/page.js",
   "/admin/manajemen-layanan/page": "app/admin/manajemen-layanan/page.js",
   "/admin/manajemen-user/page": "app/admin/manajemen-user/page.js",
-  "/admin/update-akun/page": "app/admin/update-akun/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/kasir/dashboard/page": "app/kasir/dashboard/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }
