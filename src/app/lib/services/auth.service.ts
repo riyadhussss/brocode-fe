@@ -1,25 +1,34 @@
 import api from "@/app/lib/api";
 import { ApiResponse } from "@/app/lib/types/api";
-import { LoginResponse, RegisterResponse } from "@/app/lib/types/user";
+import {
+  LoginResponse,
+  RegisterResponse,
+  VerifyToken,
+  VerifyTokenResponse,
+} from "@/app/lib/types/user";
 import { User, LoginData, RegisterData } from "@/app/lib/types/user";
 import Cookies from "js-cookie";
 
 export const authService = {
+  // Register
   register: async (data: RegisterData): Promise<RegisterResponse> => {
-    const response = await api.post("/api/users/register", data);
+    const response = await api.post("/auth/register", data);
     return response.data;
   },
 
-  // LOGIN
+  // Login
   login: async (data: LoginData): Promise<LoginResponse> => {
-    const response = await api.post("/api/users/login", data);
-    return response.data;
-  },
-  verifyToken: async (): Promise<ApiResponse<User>> => {
-    const response = await api.get("/auth/verify");
+    const response = await api.post("/auth/login", data);
     return response.data;
   },
 
+  // Verify Token
+  verifyToken: async (data?: VerifyToken): Promise<VerifyTokenResponse> => {
+    const response = await api.get("/auth/verify-token", { params: data });
+    return response.data;
+  },
+
+  // Logout
   logout: async (): Promise<void> => {
     // Hapus semua cookies terkait user
     Cookies.remove("token");
@@ -32,24 +41,6 @@ export const authService = {
 
     return Promise.resolve();
   },
-
-  refreshToken: async (): Promise<ApiResponse<{ token: string }>> => {
-    const response = await api.post("/auth/refresh");
-    return response.data;
-  },
 };
 
-export const authUtils = {
-  getToken: () => Cookies.get("token"),
-  getUser: () => ({
-    userId: Cookies.get("userId"),
-    name: Cookies.get("name"),
-    email: Cookies.get("email"),
-    phone: Cookies.get("phone"),
-    role: Cookies.get("role"),
-  }),
-  getUserName: () => Cookies.get("name"),
-  getUserPhone: () => Cookies.get("phone"),
-  getUserRole: () => Cookies.get("role"),
-  clearToken: () => Cookies.remove("token"),
-};
+

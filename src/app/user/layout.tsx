@@ -55,7 +55,8 @@ export default function UserLayout({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-        </header>
+        </header> 
+        <Separator orientation="horizontal" className=" h-4" />
         <main>{children}</main>
       </SidebarInset>
     </SidebarProvider>

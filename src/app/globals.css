@@ -82,7 +82,7 @@
   --chart-5: oklch(0.769 0.188 70.08);
 
   /* Sidebar (light mode) */
-  --sidebar: #000000; /* Warna latar belakang sidebar */
+  --sidebar: #0a0a0a; /* Warna latar belakang sidebar */
   --sidebar-foreground: #ffffff; /* Warna teks atau ikon di sidebar */
   --sidebar-primary: #fdfb03; /* Warna elemen utama sidebar (misalnya tombol aktif) */
   --sidebar-primary-foreground: oklch(

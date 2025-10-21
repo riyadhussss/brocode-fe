@@ -59,7 +59,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <NavUser user={data.user} />
       </SidebarHeader>
-      <Separator className="bg-gray-700" />
+      {/* <Separator className="bg-gray-700" /> */}
       <SidebarContent>
         <NavMain items={data.items} />
       </SidebarContent>

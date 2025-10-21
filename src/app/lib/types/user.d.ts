@@ -14,12 +14,6 @@ export interface RegisterData {
   password: string;
   confirmPassword: string;
 }
-
-export interface LoginData {
-  emailOrPhone: string;
-  password: string;
-}
-
 export interface RegisterResponse {
   success: boolean;
   message: string;
@@ -31,6 +25,12 @@ export interface RegisterResponse {
     role: "customer";
   };
 }
+
+export interface LoginData {
+  emailOrPhone: string;
+  password: string;
+}
+
 export interface LoginResponse {
   success: boolean;
   message: string;
@@ -41,5 +41,25 @@ export interface LoginResponse {
     email: string;
     phone?: string;
     role: "admin" | "cashier" | "customer";
+  };
+}
+
+export interface VerifyToken {
+  token: string;
+}
+
+export interface VerifyTokenResponse {
+  success: boolean;
+  message: string;
+  data: {
+    _id: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: "admin" | "cashier" | "customer";
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    __v: number;
   };
 }

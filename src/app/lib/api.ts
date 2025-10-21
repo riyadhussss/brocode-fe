@@ -1,4 +1,5 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -10,7 +11,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -48,7 +49,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.error("🔒 Unauthorized access - redirecting to login");
       if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
+        Cookies.remove("token");
         window.location.href = "/login";
       }
     }

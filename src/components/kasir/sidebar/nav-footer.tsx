@@ -10,8 +10,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { authService } from "@/app/lib/services/auth.service";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +27,11 @@ import {
 
 export function NavFooter() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Check if current path is update profile
+  const isUpdateProfileActive = pathname === "/kasir/update-akun";
 
   const handleLogout = async () => {
     try {
@@ -60,6 +65,7 @@ export function NavFooter() {
           <SidebarMenuButton
             asChild
             tooltip="Update Profile"
+            isActive={isUpdateProfileActive}
             className="
               text-white transition-colors
               hover:bg-gray-700 hover:text-white
@@ -68,10 +74,10 @@ export function NavFooter() {
               data-[active=true]:font-semibold
             "
           >
-            <a href="/kasir/update-akun">
+            <Link href="/kasir/update-akun">
               <User />
               <span>Update Profile</span>
-            </a>
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
 

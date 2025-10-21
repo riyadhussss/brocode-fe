@@ -54,6 +54,7 @@ export default function KasirLayout({
             </Breadcrumb>
           </div>
         </header>
+        <Separator orientation="horizontal" className=" h-4" />
         <main>{children}</main>
       </SidebarInset>
     </SidebarProvider>
