@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
+import { SidebarMenuButton } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 
 export function NavUser({
@@ -12,8 +12,6 @@ export function NavUser({
     email: string;
   };
 }) {
-  const { isMobile } = useSidebar();
-
   return (
     <SidebarMenuButton
       size="lg"

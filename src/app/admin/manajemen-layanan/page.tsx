@@ -40,7 +40,6 @@ const dummyLayanans: Layanan[] = [
 ];
 
 export default function ManajemenLayanan() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [layanans, setLayanans] = useState<Layanan[]>(dummyLayanans);
 
   const formatCurrency = (amount: number) => {
@@ -71,7 +70,6 @@ export default function ManajemenLayanan() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-
       <main className="flex-1 p-8 overflow-auto">
         <div className="mx-auto">
           <div className="mb-8">

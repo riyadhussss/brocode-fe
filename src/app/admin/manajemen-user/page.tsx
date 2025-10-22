@@ -52,7 +52,6 @@ const dummyUsers: User[] = [
 ];
 
 export default function ManajemenUser() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [users, setUsers] = useState<User[]>(dummyUsers);
   const [showPassword, setShowPassword] = useState<{ [key: number]: boolean }>(
     {}

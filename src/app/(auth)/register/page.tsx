@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { RegisterForm } from "@/components/auth/register/register-form";
 
 export default function LoginPage() {
@@ -11,10 +12,12 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="relative hidden bg-muted lg:block overflow-hidden">
-        <img
+        <Image
           src="/assets/auth/auth.png"
           alt="Image"
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
+          priority
         />
         <div className="absolute inset-0 bg-black/60"></div>
       </div>

@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
+import { AddAdminDialog } from "./add-admin-dialog";
 
 // ✅ Menggunakan AdminsResponse langsung tanpa interface Admin tambahan
 import { AdminsResponse } from "@/app/lib/types/admin";
@@ -24,6 +25,7 @@ export default function ManajemenAdmin() {
   );
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   // ✅ Fetch data menggunakan adminService.getAdmins
   const fetchAdminsData = async () => {
@@ -68,12 +70,17 @@ export default function ManajemenAdmin() {
   }, []);
 
   const handleAddNew = () => {
-    toast.info("Fitur tambah admin akan segera tersedia");
+    setShowAddDialog(true);
   };
 
   const handleRefresh = async () => {
     toast.info("Memperbarui data...");
     await fetchAdminsData();
+  };
+
+  const handleAddSuccess = () => {
+    // Refresh data setelah berhasil tambah admin
+    fetchAdminsData();
   };
 
   // ✅ Convert to array untuk safety
@@ -168,8 +175,12 @@ export default function ManajemenAdmin() {
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{totalCount}</div>
-              <p className="text-xs text-muted-foreground">Total dari database</p>
+              <div className="text-2xl font-bold text-blue-600">
+                {totalCount}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Total dari database
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -192,6 +203,13 @@ export default function ManajemenAdmin() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Add Admin Dialog */}
+      <AddAdminDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={handleAddSuccess}
+      />
     </div>
   );
 }

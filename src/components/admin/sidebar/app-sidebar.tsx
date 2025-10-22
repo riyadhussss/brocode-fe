@@ -5,7 +5,6 @@ import {
   History,
   Home,
   User,
-  LogOut,
   ShieldUser,
   Scissors,
   Computer,
@@ -21,7 +20,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { NavFooter } from "./nav-footer";
 
 // This is sample data.

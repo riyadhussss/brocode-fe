@@ -1,18 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  History,
-  Home,
-  User,
-  LogOut,
-  ShieldUser,
-  Scissors,
-  Computer,
-  SquareMenu,
-  Clock,
-  CalendarClock,
-} from "lucide-react";
+import { History, Home, Clock, CalendarClock } from "lucide-react";
 
 import { NavMain } from "@/components/admin/sidebar/nav-main";
 import { NavUser } from "@/components/admin/sidebar/nav-user";
@@ -23,7 +12,6 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { NavFooter } from "./nav-footer";
 
 // This is sample data.

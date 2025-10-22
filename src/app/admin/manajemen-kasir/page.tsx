@@ -12,7 +12,6 @@ const dummyKasirs = [
 ];
 
 export default function ManajemenKasir() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [kasirs, setKasirs] = useState(dummyKasirs);
 
   const handleTambah = () => {

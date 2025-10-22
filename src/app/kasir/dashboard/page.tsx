@@ -3,9 +3,6 @@ import {
   FaClock,
   FaCheckCircle,
   FaTimesCircle,
-  FaCalendarAlt,
-  FaUsers,
-  FaCut,
 } from "react-icons/fa";
 
 // Dummy data for dashboard metrics

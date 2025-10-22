@@ -77,7 +77,6 @@ const dummyReservasis: Reservasi[] = [
 ];
 
 export default function RiwayatReservasi() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [reservasis, setReservasis] = useState<Reservasi[]>(dummyReservasis);
   const [filter, setFilter] = useState<"semua" | "selesai" | "dibatalkan">(
     "semua"
@@ -89,14 +88,6 @@ export default function RiwayatReservasi() {
       currency: "IDR",
       minimumFractionDigits: 0,
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("id-ID", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   const getStatusColor = (status: string) => {

@@ -12,7 +12,6 @@ const dummyCapsters = [
 ];
 
 export default function ManajemenCapster() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [capsters, setCapsters] = useState(dummyCapsters);
 
   const handleTambah = () => {

@@ -1,5 +1,10 @@
 import api from "../api";
-import { AdminsResponse, DashboardResponse } from "../types/admin";
+import {
+  AdminsResponse,
+  DashboardResponse,
+  TambahAdminRequest,
+  TambahAdminResponse,
+} from "../types/admin";
 // import {}
 // import { ApiResponse, PaginationParams } from "../types";
 // import { User } from "../types";
@@ -9,10 +14,17 @@ export const adminService = {
     const response = await api.get("/dashboard/admin");
     return response.data;
   },
+
   getAdmins: async (): Promise<AdminsResponse> => {
     const response = await api.get("/admins");
     return response.data;
   },
+  
+  addAdmin: async (data: TambahAdminRequest): Promise<TambahAdminResponse> => {
+    const response = await api.post("/admins", data);
+    return response.data;
+  },
+
   //   getUsers: async (params?: PaginationParams): Promise<ApiResponse<User[]>> => {
   //     const response = await api.get("/admin/users", { params });
   //     return response.data;

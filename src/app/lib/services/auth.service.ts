@@ -1,12 +1,11 @@
 import api from "@/app/lib/api";
-import { ApiResponse } from "@/app/lib/types/api";
 import {
   LoginResponse,
   RegisterResponse,
   VerifyToken,
   VerifyTokenResponse,
 } from "@/app/lib/types/user";
-import { User, LoginData, RegisterData } from "@/app/lib/types/user";
+import { LoginData, RegisterData } from "@/app/lib/types/user";
 import Cookies from "js-cookie";
 
 export const authService = {
@@ -42,5 +41,3 @@ export const authService = {
     return Promise.resolve();
   },
 };
-
-
