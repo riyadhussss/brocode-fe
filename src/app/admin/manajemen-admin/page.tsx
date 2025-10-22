@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -13,8 +13,11 @@ import { Users } from "lucide-react";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
 import { DataTable } from "./data-table";
-import { columns } from "./columns";
+import { createColumns } from "./columns";
 import { AddAdminDialog } from "./add-admin-dialog";
+import { DeleteAdminDialog } from "./delete-admin-dialog";
+import { ViewAdminDialog } from "./view-admin-dialog";
+import { EditAdminDialog } from "./edit-admin-dialog";
 
 // ✅ Menggunakan AdminsResponse langsung tanpa interface Admin tambahan
 import { AdminsResponse } from "@/app/lib/types/admin";
@@ -26,20 +29,37 @@ export default function ManajemenAdmin() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    admin: AdminsResponse["data"][number] | null;
+    loading: boolean;
+  }>({
+    open: false,
+    admin: null,
+    loading: false,
+  });
+  const [viewDialog, setViewDialog] = useState<{
+    open: boolean;
+    admin: AdminsResponse["data"][number] | null;
+  }>({
+    open: false,
+    admin: null,
+  });
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    admin: AdminsResponse["data"][number] | null;
+  }>({
+    open: false,
+    admin: null,
+  });
 
   // ✅ Fetch data menggunakan adminService.getAdmins
   const fetchAdminsData = async () => {
     try {
       setLoading(true);
 
-      console.log("🔍 Fetching admins data...");
-
-      // ✅ Panggil adminService.getAdmins
       const response = await adminService.getAdmins();
 
-      console.log("📊 Admins API Response:", response);
-
-      // ✅ Cek apakah response berhasil
       if (response && response.success && response.data) {
         setAdminsData(response.data);
         setTotalCount(response.count || response.data.length);
@@ -51,7 +71,6 @@ export default function ManajemenAdmin() {
     } catch (error: any) {
       console.error("❌ Admins fetch error:", error);
 
-      // ✅ Set empty array jika error
       setAdminsData([] as unknown as AdminsResponse["data"]);
       setTotalCount(0);
 
@@ -79,9 +98,83 @@ export default function ManajemenAdmin() {
   };
 
   const handleAddSuccess = () => {
-    // Refresh data setelah berhasil tambah admin
     fetchAdminsData();
   };
+
+  // ✅ Handle view admin
+  const handleViewClick = (admin: AdminsResponse["data"][number]) => {
+    setViewDialog({
+      open: true,
+      admin: admin,
+    });
+  };
+
+  // ✅ Handle edit admin
+  const handleEditClick = (admin: AdminsResponse["data"][number]) => {
+    setEditDialog({
+      open: true,
+      admin: admin,
+    });
+  };
+
+  const handleEditSuccess = () => {
+    fetchAdminsData();
+  };
+
+  // ✅ Handle delete admin
+  const handleDeleteClick = (admin: AdminsResponse["data"][number]) => {
+    setDeleteDialog({
+      open: true,
+      admin: admin,
+      loading: false,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.admin) return;
+
+    setDeleteDialog((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const response = await adminService.deleteAdmin(deleteDialog.admin._id);
+
+      if (response?.success) {
+        toast.success("Admin berhasil dihapus", {
+          description: `${deleteDialog.admin.name} telah dihapus dari sistem`,
+        });
+
+        // Close dialog
+        setDeleteDialog({ open: false, admin: null, loading: false });
+
+        // Refresh data
+        fetchAdminsData();
+      } else {
+        throw new Error(response?.message || "Gagal menghapus admin");
+      }
+    } catch (error: any) {
+      console.error("❌ Error deleting admin:", error);
+
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+
+      toast.error("Gagal menghapus admin", {
+        description: errorMessage,
+      });
+
+      setDeleteDialog((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  // ✅ Create columns dengan callbacks
+  const columns = useMemo(
+    () =>
+      createColumns({
+        onView: handleViewClick,
+        onEdit: handleEditClick,
+        onDelete: handleDeleteClick,
+      }),
+    []
+  );
 
   // ✅ Convert to array untuk safety
   const adminsList = Array.isArray(adminsData) ? adminsData : [];
@@ -209,6 +302,30 @@ export default function ManajemenAdmin() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSuccess={handleAddSuccess}
+      />
+
+      {/* View Admin Dialog */}
+      <ViewAdminDialog
+        open={viewDialog.open}
+        onOpenChange={(open) => setViewDialog((prev) => ({ ...prev, open }))}
+        admin={viewDialog.admin}
+      />
+
+      {/* Edit Admin Dialog */}
+      <EditAdminDialog
+        open={editDialog.open}
+        onOpenChange={(open) => setEditDialog((prev) => ({ ...prev, open }))}
+        admin={editDialog.admin}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Admin Dialog */}
+      <DeleteAdminDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
+        onConfirm={handleDeleteConfirm}
+        adminName={deleteDialog.admin?.name || ""}
+        loading={deleteDialog.loading}
       />
     </div>
   );

@@ -16,7 +16,16 @@ import { AdminsResponse } from "@/app/lib/types/admin";
 // ✅ Type untuk data row - mengambil tipe dari elemen array data
 type AdminRowData = AdminsResponse["data"][number];
 
-export const columns: ColumnDef<AdminRowData>[] = [
+// ✅ Type untuk callback functions
+type AdminActionsCallbacks = {
+  onDelete?: (admin: AdminRowData) => void;
+  onView?: (admin: AdminRowData) => void;
+  onEdit?: (admin: AdminRowData) => void;
+};
+
+export const createColumns = (
+  callbacks?: AdminActionsCallbacks
+): ColumnDef<AdminRowData>[] => [
   // ✅ Kolom Nomor
   {
     id: "nomor",
@@ -24,32 +33,27 @@ export const columns: ColumnDef<AdminRowData>[] = [
     cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
   },
 
-  // ✅ Kolom Nama - mengambil dari field 'name'
+  // ✅ Kolom Nama
   {
     accessorKey: "name",
     header: "Nama",
-    cell: ({ row }) => {
-      console.log("Row data:", row.original);
-      console.log("Nama value:", row.getValue("name"));
-      return <div className="font-medium">{row.getValue("name")}</div>;
-    },
+    cell: ({ row }) => (
+      <div className="font-medium">{row.getValue("name")}</div>
+    ),
   },
 
-  // ✅ Kolom Email - mengambil dari field 'email'
+  // ✅ Kolom Email
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }) => {
-      console.log("Email value:", row.getValue("email"));
-      return (
-        <div
-          className="text-gray-600 truncate max-w-[200px]"
-          title={row.getValue("email")}
-        >
-          {row.getValue("email")}
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div
+        className="text-gray-600 truncate max-w-[200px]"
+        title={row.getValue("email")}
+      >
+        {row.getValue("email")}
+      </div>
+    ),
   },
 
   // ✅ Kolom Actions
@@ -72,11 +76,9 @@ export const columns: ColumnDef<AdminRowData>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                console.log("Detail admin:", admin);
-                console.log("Admin ID:", admin._id);
-                console.log("Admin Nama:", admin.name);
-                console.log("Admin Email:", admin.email);
-                // TODO: Implement detail modal
+                if (callbacks?.onView) {
+                  callbacks.onView(admin);
+                }
               }}
               className="cursor-pointer"
             >
@@ -85,8 +87,9 @@ export const columns: ColumnDef<AdminRowData>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                console.log("Edit admin:", admin);
-                // TODO: Implement edit modal
+                if (callbacks?.onEdit) {
+                  callbacks.onEdit(admin);
+                }
               }}
               className="cursor-pointer"
             >
@@ -96,14 +99,8 @@ export const columns: ColumnDef<AdminRowData>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                if (
-                  confirm(
-                    `Apakah Anda yakin ingin menghapus admin ${admin.name}?`
-                  )
-                ) {
-                  console.log("Delete admin:", admin);
-                  console.log("Admin ID to delete:", admin._id);
-                  // TODO: Implement delete functionality
+                if (callbacks?.onDelete) {
+                  callbacks.onDelete(admin);
                 }
               }}
               className="cursor-pointer text-red-600 focus:text-red-600"

@@ -1,238 +1,239 @@
 "use client";
 
-import { useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaCut } from "react-icons/fa";
+import { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Scissors } from "lucide-react";
+import { DataTable } from "./data-table";
+import { createColumns, LayananRowData } from "./columns";
 
-// Interface untuk layanan
-interface Layanan {
-  id: number;
-  nama: string;
-  harga: number;
-  deskripsi: string;
-}
-
-// Dummy data untuk layanan
-const dummyLayanans: Layanan[] = [
+// ✅ Dummy data layanan untuk tampilan
+const dummyLayananData: LayananRowData[] = [
   {
-    id: 1,
-    nama: "Potong Rambut Reguler",
-    harga: 25000,
-    deskripsi: "Potongan rambut standar dengan styling sederhana",
+    _id: "1",
+    name: "Potong Rambut Reguler",
+    price: 25000,
+    duration: 30,
+    description: "Potongan rambut standar dengan styling sederhana",
+    createdAt: "2024-01-10T08:00:00Z",
+    updatedAt: "2024-01-10T08:00:00Z",
   },
   {
-    id: 2,
-    nama: "Potong Rambut + Cuci",
-    harga: 35000,
-    deskripsi: "Potongan rambut dengan cuci rambut menggunakan shampo",
+    _id: "2",
+    name: "Potong Rambut + Cuci",
+    price: 35000,
+    duration: 45,
+    description: "Potongan rambut dengan cuci rambut menggunakan shampo",
+    createdAt: "2024-01-10T08:00:00Z",
+    updatedAt: "2024-01-10T08:00:00Z",
   },
   {
-    id: 3,
-    nama: "Potong Rambut Premium",
-    harga: 50000,
-    deskripsi: "Potongan rambut dengan styling premium dan treatment rambut",
+    _id: "3",
+    name: "Potong Rambut Premium",
+    price: 50000,
+    duration: 60,
+    description: "Potongan rambut dengan styling premium dan treatment rambut",
+    createdAt: "2024-01-10T08:00:00Z",
+    updatedAt: "2024-01-10T08:00:00Z",
   },
   {
-    id: 4,
-    nama: "Cukur Jenggot",
-    harga: 15000,
-    deskripsi: "Cukur jenggot dan kumis dengan pisau cukur tradisional",
+    _id: "4",
+    name: "Cukur Jenggot",
+    price: 15000,
+    duration: 20,
+    description: "Cukur jenggot dan kumis dengan pisau cukur tradisional",
+    createdAt: "2024-01-10T08:00:00Z",
+    updatedAt: "2024-01-10T08:00:00Z",
+  },
+  {
+    _id: "5",
+    name: "Smoothing Rambut",
+    price: 150000,
+    duration: 120,
+    description: "Treatment smoothing untuk rambut lebih lurus dan berkilau",
+    createdAt: "2024-01-10T08:00:00Z",
+    updatedAt: "2024-01-10T08:00:00Z",
   },
 ];
 
 export default function ManajemenLayanan() {
-  const [layanans, setLayanans] = useState<Layanan[]>(dummyLayanans);
+  const [layananData, setLayananData] =
+    useState<LayananRowData[]>(dummyLayananData);
+  const [loading, setLoading] = useState(false);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
+  const handleAddNew = () => {
+    console.log("Tambah layanan clicked");
+    // TODO: Implement tambah layanan dialog
   };
 
-  const handleTambah = () => {
-    console.log("Tambah layanan");
-    // TODO: Implement tambah layanan functionality
+  const handleRefresh = () => {
+    console.log("Refresh data clicked");
+    // TODO: Implement refresh data
   };
 
-  const handleEdit = (id: number) => {
-    console.log("Edit layanan dengan ID:", id);
-    // TODO: Implement edit layanan functionality
+  // ✅ Handle view layanan
+  const handleViewClick = (layanan: LayananRowData) => {
+    console.log("View layanan:", layanan);
+    // TODO: Implement view dialog
   };
 
-  const handleDelete = (id: number) => {
-    console.log("Delete layanan dengan ID:", id);
-    // TODO: Implement delete layanan functionality
-    if (confirm("Apakah Anda yakin ingin menghapus layanan ini?")) {
-      setLayanans(layanans.filter((layanan) => layanan.id !== id));
-    }
+  // ✅ Handle edit layanan
+  const handleEditClick = (layanan: LayananRowData) => {
+    console.log("Edit layanan:", layanan);
+    // TODO: Implement edit dialog
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Manajemen Layanan
-            </h1>
-            <p className="text-gray-600">
-              Kelola layanan dan paket Brocode Barbershop
-            </p>
-          </div>
+  // ✅ Handle delete layanan
+  const handleDeleteClick = (layanan: LayananRowData) => {
+    console.log("Delete layanan:", layanan);
+    // TODO: Implement delete confirmation dialog
+  };
 
-          {/* Button Tambah */}
-          <div className="mb-6">
-            <button
-              onClick={handleTambah}
-              className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-medium px-6 py-3 rounded-lg transition-colors flex items-center space-x-2 shadow-sm"
-            >
-              <FaPlus size={16} />
-              <span>Tambah Layanan</span>
-            </button>
-          </div>
+  // ✅ Create columns dengan callbacks
+  const columns = useMemo(
+    () =>
+      createColumns({
+        onView: handleViewClick,
+        onEdit: handleEditClick,
+        onDelete: handleDeleteClick,
+      }),
+    []
+  );
 
-          {/* Tabel Layanan */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      No
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Nama Layanan
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Harga
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Deskripsi
-                    </th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {layanans.map((layanan, index) => (
-                    <tr
-                      key={layanan.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                        {layanan.nama}
-                      </td>
-                      <td className="px-6 py-4 text-sm font-semibold text-green-600">
-                        {formatCurrency(layanan.harga)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs">
-                        <div className="truncate" title={layanan.deskripsi}>
-                          {layanan.deskripsi}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex justify-center space-x-3">
-                          <button
-                            onClick={() => handleEdit(layanan.id)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors p-2 rounded-lg hover:bg-blue-50"
-                            title="Edit Layanan"
-                          >
-                            <FaEdit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(layanan.id)}
-                            className="text-red-600 hover:text-red-800 transition-colors p-2 rounded-lg hover:bg-red-50"
-                            title="Delete Layanan"
-                          >
-                            <FaTrash size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Empty State */}
-            {layanans.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg mb-4">
-                  Tidak ada data layanan
-                </p>
-                <button
-                  onClick={handleTambah}
-                  className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-medium px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2"
-                >
-                  <FaPlus size={16} />
-                  <span>Tambah Layanan Pertama</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Summary Cards */}
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Total Layanan */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Layanan</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {layanans.length}
-                  </p>
-                </div>
-                <div className="text-[#FDFB03]">
-                  <FaCut size={32} />
-                </div>
-              </div>
-            </div>
-
-            {/* Harga Terendah */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Harga Terendah</p>
-                  <p className="text-xl font-bold text-green-600">
-                    {layanans.length > 0
-                      ? formatCurrency(
-                          Math.min(...layanans.map((l) => l.harga))
-                        )
-                      : "Rp 0"}
-                  </p>
-                </div>
-                <div className="text-green-500">
-                  <FaCut size={32} />
-                </div>
-              </div>
-            </div>
-
-            {/* Harga Tertinggi */}
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Harga Tertinggi</p>
-                  <p className="text-xl font-bold text-blue-600">
-                    {layanans.length > 0
-                      ? formatCurrency(
-                          Math.max(...layanans.map((l) => l.harga))
-                        )
-                      : "Rp 0"}
-                  </p>
-                </div>
-                <div className="text-blue-500">
-                  <FaCut size={32} />
-                </div>
-              </div>
+  // ✅ Loading state
+  if (loading) {
+    return (
+      <div className="h-full bg-gray-50 p-6 flex flex-col">
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                Manajemen Layanan
+              </h1>
+              <p className="text-gray-600 text-sm">
+                Kelola data layanan sistem
+              </p>
             </div>
           </div>
         </div>
-      </main>
+
+        <Card>
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <p className="text-gray-600">Memuat data layanan...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
+      {/* Page Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              Manajemen Layanan
+            </h1>
+            <p className="text-gray-600 text-sm">Kelola data layanan sistem</p>
+          </div>
+          <Button onClick={handleRefresh} variant="outline">
+            Refresh Data
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Content - Stats Cards dan DataTable dalam satu container */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 flex-shrink-0">
+          {/* Total Layanan */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Layanan
+              </CardTitle>
+              <Scissors className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{layananData.length}</div>
+              <p className="text-xs text-muted-foreground">Layanan tersedia</p>
+            </CardContent>
+          </Card>
+
+          {/* Harga Terendah */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Harga Terendah
+              </CardTitle>
+              <Scissors className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {layananData.length > 0
+                  ? new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0,
+                    }).format(Math.min(...layananData.map((l) => l.price)))
+                  : "Rp 0"}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Layanan paling murah
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Harga Tertinggi */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Harga Tertinggi
+              </CardTitle>
+              <Scissors className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                {layananData.length > 0
+                  ? new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0,
+                    }).format(Math.max(...layananData.map((l) => l.price)))
+                  : "Rp 0"}
+              </div>
+              <p className="text-xs text-muted-foreground">Layanan premium</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Data Table */}
+        <Card className="flex-1 flex flex-col">
+          <CardHeader className="flex-shrink-0">
+            <CardTitle>Daftar Layanan</CardTitle>
+            <CardDescription>
+              Berikut adalah daftar semua layanan yang tersedia dalam sistem
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
+            <DataTable
+              columns={columns}
+              data={layananData}
+              onAddNew={handleAddNew}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -1,147 +1,301 @@
 "use client";
 
-import { useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaCashRegister } from "react-icons/fa";
-
-// Dummy data untuk kasir
-const dummyKasirs = [
-  { id: 1, nama: "Siti Nurhaliza" },
-  { id: 2, nama: "Maya Sari" },
-  { id: 3, nama: "Rina Wijayanti" },
-  { id: 4, nama: "Dewi Anggraini" },
-];
+import { useState, useEffect, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Users } from "lucide-react";
+import { toast } from "sonner";
+import { cashierService } from "@/app/lib/services/cashier.service";
+import { DataTable } from "./data-table";
+import { createColumns, KasirRowData } from "./columns";
+import { AddKasirDialog } from "./add-kasir-dialog";
+import { ViewKasirDialog } from "./view-kasir-dialog";
+import { EditKasirDialog } from "./edit-kasir-dialog";
+import { DeleteKasirDialog } from "./delete-kasir-dialog";
 
 export default function ManajemenKasir() {
-  const [kasirs, setKasirs] = useState(dummyKasirs);
+  const [kasirData, setKasirData] = useState<KasirRowData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [viewDialog, setViewDialog] = useState<{
+    open: boolean;
+    kasir: KasirRowData | null;
+  }>({
+    open: false,
+    kasir: null,
+  });
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    kasir: KasirRowData | null;
+  }>({
+    open: false,
+    kasir: null,
+  });
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    kasir: KasirRowData | null;
+    loading: boolean;
+  }>({
+    open: false,
+    kasir: null,
+    loading: false,
+  });
 
-  const handleTambah = () => {
-    console.log("Tambah kasir");
-    // TODO: Implement tambah kasir functionality
-  };
+  // ✅ Fetch data menggunakan cashierService.getCashiers
+  const fetchKasirData = async () => {
+    try {
+      setLoading(true);
 
-  const handleEdit = (id: number) => {
-    console.log("Edit kasir dengan ID:", id);
-    // TODO: Implement edit kasir functionality
-  };
+      const response = await cashierService.getCashiers();
 
-  const handleDelete = (id: number) => {
-    console.log("Delete kasir dengan ID:", id);
-    // TODO: Implement delete kasir functionality
-    if (confirm("Apakah Anda yakin ingin menghapus kasir ini?")) {
-      setKasirs(kasirs.filter((kasir) => kasir.id !== id));
+      if (response && response.success && response.data) {
+        setKasirData(response.data);
+        setTotalCount(response.count || response.data.length);
+
+        toast.success(`Berhasil memuat ${response.data.length} data kasir`);
+      } else {
+        throw new Error(response?.message || "Gagal mengambil data kasir");
+      }
+    } catch (error: any) {
+      console.error("❌ Kasir fetch error:", error);
+
+      setKasirData([]);
+      setTotalCount(0);
+
+      toast.error("Gagal memuat data kasir", {
+        description:
+          error.message || "Silakan coba lagi atau hubungi administrator",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Manajemen Kasir
-            </h1>
-            <p className="text-gray-600">
-              Kelola data dan informasi kasir Brocode Barbershop
-            </p>
-          </div>
+  // ✅ Load data saat komponen mount
+  useEffect(() => {
+    fetchKasirData();
+  }, []);
 
-          {/* Button Tambah */}
-          <div className="mb-6">
-            <button
-              onClick={handleTambah}
-              className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-medium px-6 py-3 rounded-lg transition-colors flex items-center space-x-2 shadow-sm"
-            >
-              <FaPlus size={16} />
-              <span>Tambah Kasir</span>
-            </button>
-          </div>
+  const handleAddNew = () => {
+    setShowAddDialog(true);
+  };
 
-          {/* Tabel Kasir */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      No
-                    </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                      Nama Kasir
-                    </th>
-                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {kasirs.map((kasir, index) => (
-                    <tr
-                      key={kasir.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 text-sm text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                        {kasir.nama}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex justify-center space-x-3">
-                          <button
-                            onClick={() => handleEdit(kasir.id)}
-                            className="text-blue-600 hover:text-blue-800 transition-colors p-2 rounded-lg hover:bg-blue-50"
-                            title="Edit Kasir"
-                          >
-                            <FaEdit size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(kasir.id)}
-                            className="text-red-600 hover:text-red-800 transition-colors p-2 rounded-lg hover:bg-red-50"
-                            title="Delete Kasir"
-                          >
-                            <FaTrash size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+  const handleAddSuccess = () => {
+    setShowAddDialog(false);
+    fetchKasirData();
+  };
 
-            {/* Empty State */}
-            {kasirs.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-gray-500 text-lg mb-4">
-                  Tidak ada data kasir
-                </p>
-                <button
-                  onClick={handleTambah}
-                  className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-medium px-6 py-3 rounded-lg transition-colors inline-flex items-center space-x-2"
-                >
-                  <FaPlus size={16} />
-                  <span>Tambah Kasir Pertama</span>
-                </button>
-              </div>
-            )}
-          </div>
+  const handleRefresh = async () => {
+    toast.info("Memperbarui data...");
+    await fetchKasirData();
+  };
 
-          {/* Summary */}
-          <div className="mt-6 bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Kasir</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {kasirs.length}
-                </p>
-              </div>
-              <div className="text-[#FDFB03]">
-                <FaCashRegister size={32} />
-              </div>
+  // ✅ Handle view kasir
+  const handleViewClick = (kasir: KasirRowData) => {
+    setViewDialog({ open: true, kasir });
+  };
+
+  // ✅ Handle edit kasir
+  const handleEditClick = (kasir: KasirRowData) => {
+    setEditDialog({ open: true, kasir });
+  };
+
+  const handleEditSuccess = () => {
+    setEditDialog({ open: false, kasir: null });
+    fetchKasirData();
+  };
+
+  // ✅ Handle delete kasir
+  const handleDeleteClick = (kasir: KasirRowData) => {
+    setDeleteDialog({ open: true, kasir, loading: false });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.kasir) return;
+
+    setDeleteDialog((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const response = await cashierService.deleteCashier(
+        deleteDialog.kasir._id
+      );
+
+      if (response.success) {
+        toast.success("Kasir berhasil dihapus!", {
+          description: `${deleteDialog.kasir.name} telah dihapus dari sistem`,
+        });
+
+        setDeleteDialog({ open: false, kasir: null, loading: false });
+        fetchKasirData();
+      } else {
+        throw new Error(response.message || "Gagal menghapus kasir");
+      }
+    } catch (error: any) {
+      console.error("❌ Error deleting kasir:", error);
+
+      toast.error("Gagal menghapus kasir", {
+        description:
+          error.response?.data?.message || error.message || "Silakan coba lagi",
+      });
+
+      setDeleteDialog((prev) => ({ ...prev, loading: false }));
+    }
+  };
+
+  // ✅ Create columns dengan callbacks
+  const columns = useMemo(
+    () =>
+      createColumns({
+        onView: handleViewClick,
+        onEdit: handleEditClick,
+        onDelete: handleDeleteClick,
+      }),
+    []
+  );
+
+  // ✅ Loading state
+  if (loading) {
+    return (
+      <div className="bg-gray-50 p-6">
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                Manajemen Kasir
+              </h1>
+              <p className="text-gray-600 text-sm">Kelola data kasir sistem</p>
             </div>
           </div>
         </div>
-      </main>
+
+        <Card>
+          <CardContent className="p-8">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              <p className="text-gray-600">Memuat data kasir...</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-gray-50 p-6">
+      {/* Page Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">
+              Manajemen Kasir
+            </h1>
+            <p className="text-gray-600 text-sm">Kelola data kasir sistem</p>
+          </div>
+          <Button onClick={handleRefresh} variant="outline">
+            Refresh Data
+          </Button>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        {/* Total Kasir */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Kasir</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{kasirData.length}</div>
+            <p className="text-xs text-muted-foreground">Kasir terdaftar</p>
+          </CardContent>
+        </Card>
+
+        {/* Kasir Aktif */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Kasir Aktif</CardTitle>
+            <Users className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {kasirData.filter((kasir) => kasir.role === "kasir").length}
+            </div>
+            <p className="text-xs text-muted-foreground">Kasir yang aktif</p>
+          </CardContent>
+        </Card>
+
+        {/* Total dari Server */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Total (Server)
+            </CardTitle>
+            <Users className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{totalCount}</div>
+            <p className="text-xs text-muted-foreground">Total dari database</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Data Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Daftar Kasir</CardTitle>
+          <CardDescription>
+            Berikut adalah daftar semua kasir yang terdaftar dalam sistem
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={kasirData}
+            onAddNew={handleAddNew}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Add Kasir Dialog */}
+      <AddKasirDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={handleAddSuccess}
+      />
+
+      {/* View Kasir Dialog */}
+      <ViewKasirDialog
+        open={viewDialog.open}
+        onOpenChange={(open) => setViewDialog({ open, kasir: null })}
+        kasir={viewDialog.kasir}
+      />
+
+      {/* Edit Kasir Dialog */}
+      <EditKasirDialog
+        open={editDialog.open}
+        onOpenChange={(open) => setEditDialog({ open, kasir: null })}
+        kasir={editDialog.kasir}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Kasir Dialog */}
+      <DeleteKasirDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          setDeleteDialog({ open, kasir: null, loading: false })
+        }
+        onConfirm={handleDeleteConfirm}
+        kasirName={deleteDialog.kasir?.name || ""}
+        loading={deleteDialog.loading}
+      />
     </div>
   );
 }

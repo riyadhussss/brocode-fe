@@ -73,8 +73,9 @@ export function DataTable<TData, TValue>({
   return (
     <div className="w-full h-full flex flex-col">
       {/* Header Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 flex-shrink-0">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4 flex-shrink-0">
+        {/* Search Input */}
+        <div className="w-full md:flex-1 lg:flex-initial lg:w-96">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
@@ -85,16 +86,17 @@ export function DataTable<TData, TValue>({
               onChange={(event) =>
                 table.getColumn("name")?.setFilterValue(event.target.value)
               }
-              className="pl-8 max-w-sm"
+              className="pl-8 w-full"
             />
           </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex items-center gap-2">
           {/* Column visibility dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="outline" className="flex-1 md:flex-initial">
                 Kolom <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -121,7 +123,7 @@ export function DataTable<TData, TValue>({
 
           {/* Add new button */}
           {onAddNew && (
-            <Button onClick={onAddNew}>
+            <Button onClick={onAddNew} className="flex-1 md:flex-initial">
               <Plus className="mr-2 h-4 w-4" />
               Tambah Admin
             </Button>
@@ -202,7 +204,7 @@ export function DataTable<TData, TValue>({
             {table.getPageCount()}
           </div>
           <Button
-            variant="outline"
+            variant="outline" 
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}

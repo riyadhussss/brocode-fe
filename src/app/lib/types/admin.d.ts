@@ -47,3 +47,23 @@ export interface TambahAdminResponse {
     updatedAt: string;
   };
 }
+
+export interface EditAdminRequest {
+  name?: string;
+  email?: string;
+  password?: string;
+}
+
+export interface EditAdminResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    _id: string;
+    userId: string;
+    name: string;
+    email: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+}

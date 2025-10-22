@@ -4,6 +4,8 @@ import {
   DashboardResponse,
   TambahAdminRequest,
   TambahAdminResponse,
+  EditAdminRequest,
+  EditAdminResponse
 } from "../types/admin";
 // import {}
 // import { ApiResponse, PaginationParams } from "../types";
@@ -19,11 +21,27 @@ export const adminService = {
     const response = await api.get("/admins");
     return response.data;
   },
+
+  getAdminbyId: async (id: string): Promise<AdminsResponse> => {
+    const response = await api.get(`/admins/${id}`);
+    return response.data;
+  },
+
+  deleteAdmin: async (id: string): Promise<AdminsResponse> => {
+    const response = await api.delete(`/admins/${id}`);
+    return response.data;
+  },
   
   addAdmin: async (data: TambahAdminRequest): Promise<TambahAdminResponse> => {
     const response = await api.post("/admins", data);
     return response.data;
   },
+
+  editAdmin: async (id: string, data: Partial<EditAdminRequest>): Promise<EditAdminResponse> => {
+    const response = await api.put(`/admins/${id}`, data);
+    return response.data;
+  }
+  
 
   //   getUsers: async (params?: PaginationParams): Promise<ApiResponse<User[]>> => {
   //     const response = await api.get("/admin/users", { params });
