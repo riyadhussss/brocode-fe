@@ -9,6 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Users } from "lucide-react";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
@@ -18,6 +19,7 @@ import { AddAdminDialog } from "./add-admin-dialog";
 import { DeleteAdminDialog } from "./delete-admin-dialog";
 import { ViewAdminDialog } from "./view-admin-dialog";
 import { EditAdminDialog } from "./edit-admin-dialog";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 // ✅ Menggunakan AdminsResponse langsung tanpa interface Admin tambahan
 import { GetAdminsResponse } from "@/app/lib/types/admin";
@@ -68,15 +70,16 @@ export default function ManajemenAdmin() {
       } else {
         throw new Error(response?.message || "Gagal mengambil data admin");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Admins fetch error:", error);
+      const errorMessage = getErrorMessage(error);
 
       setAdminsData([] as unknown as GetAdminsResponse["data"]);
       setTotalCount(0);
 
       toast.error("Gagal memuat data admin", {
         description:
-          error.message || "Silakan coba lagi atau hubungi administrator",
+          errorMessage || "Silakan coba lagi atau hubungi administrator",
       });
     } finally {
       setLoading(false);
@@ -238,10 +241,19 @@ export default function ManajemenAdmin() {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{adminsList.length}</div>
-              <p className="text-xs text-muted-foreground">
-                Administrator terdaftar
-              </p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-4 w-32" />
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">{adminsList.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Administrator terdaftar
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -252,10 +264,24 @@ export default function ManajemenAdmin() {
               <Users className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {adminsList.filter((admin) => admin.role === "admin").length}
-              </div>
-              <p className="text-xs text-muted-foreground">Admin yang aktif</p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-4 w-28" />
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-green-600">
+                    {
+                      adminsList.filter((admin) => admin.role === "admin")
+                        .length
+                    }
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Admin yang aktif
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -268,12 +294,21 @@ export default function ManajemenAdmin() {
               <Users className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {totalCount}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Total dari database
-              </p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-4 w-32" />
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {totalCount}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Total dari database
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -288,11 +323,27 @@ export default function ManajemenAdmin() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col min-h-0">
-            <DataTable
-              columns={columns}
-              data={adminsList}
-              onAddNew={handleAddNew}
-            />
+            {loading ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-10 w-[250px]" />
+                  <Skeleton className="h-10 w-[100px]" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={adminsList}
+                onAddNew={handleAddNew}
+              />
+            )}
           </CardContent>
         </Card>
       </div>

@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
 import { Users, Scissors, UserCheck, Wrench, Calendar } from "lucide-react";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 export default function AdminDashboard() {
   // ✅ State untuk menyimpan data dashboard sesuai dengan DashboardResponse
@@ -42,8 +44,9 @@ export default function AdminDashboard() {
       } else {
         throw new Error(response.message || "Gagal mengambil data dashboard");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Dashboard fetch error:", error);
+      const errorMessage = getErrorMessage(error);
 
       // ✅ Set fallback data jika API gagal
       setDashboardData({
@@ -55,7 +58,7 @@ export default function AdminDashboard() {
       });
 
       toast.error("Gagal memuat data dashboard", {
-        description: error.message || "Menggunakan data fallback",
+        description: errorMessage || "Menggunakan data fallback",
       });
     } finally {
       setLoading(false);
@@ -92,10 +95,13 @@ export default function AdminDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {" "}
-              {loading ? "..." : dashboardData.totalAdmin}
-            </div>
+            {loading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {dashboardData.totalAdmin}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -106,9 +112,13 @@ export default function AdminDashboard() {
             <Scissors className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : dashboardData.totalCapster}
-            </div>
+            {loading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {dashboardData.totalCapster}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -121,9 +131,13 @@ export default function AdminDashboard() {
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : dashboardData.totalCustomer.toLocaleString()}
-            </div>
+            {loading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {dashboardData.totalCustomer.toLocaleString()}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -134,9 +148,13 @@ export default function AdminDashboard() {
             <Wrench className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : dashboardData.totalLayanan}
-            </div>
+            {loading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {dashboardData.totalLayanan}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -149,9 +167,13 @@ export default function AdminDashboard() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? "..." : dashboardData.totalReservasi.toLocaleString()}
-            </div>
+            {loading ? (
+              <Skeleton className="h-8 w-16" />
+            ) : (
+              <div className="text-2xl font-bold">
+                {dashboardData.totalReservasi.toLocaleString()}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

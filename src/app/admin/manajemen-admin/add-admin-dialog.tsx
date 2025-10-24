@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
 import { adminService } from "@/app/lib/services/admin.service";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 // ✅ Zod Schema untuk validasi
 const addAdminSchema = z
@@ -124,9 +125,8 @@ export function AddAdminDialog({
       } else {
         throw new Error(response?.message || "Gagal menambahkan admin");
       }
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || error.message || "Terjadi kesalahan";
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
 
       toast.error("Gagal menambahkan admin", {
         description: errorMessage,
