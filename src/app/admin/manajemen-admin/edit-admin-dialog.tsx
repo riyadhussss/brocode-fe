@@ -14,11 +14,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
-import { AdminsResponse, EditAdminRequest } from "@/app/lib/types/admin";
+import { GetAdminsResponse, EditAdminRequest } from "@/app/lib/types/admin";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
-type AdminRowData = AdminsResponse["data"][number];
+type AdminRowData = GetAdminsResponse["data"][number];
 
 interface EditAdminDialogProps {
   open: boolean;

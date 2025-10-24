@@ -121,7 +121,7 @@ export default function ManajemenUser() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total User</CardTitle>
@@ -160,11 +160,11 @@ export default function ManajemenUser() {
             </p>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Data Table */}
-      <Card>
-        <CardHeader>
+      <Card className="flex-1 flex flex-col">
+        <CardHeader className="flex-shrink-0">
           <CardTitle>Daftar User</CardTitle>
           <CardDescription>
             Kelola informasi user dan lakukan operasi CRUD

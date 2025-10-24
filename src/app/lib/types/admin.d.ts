@@ -1,4 +1,4 @@
-export interface DashboardResponse {
+export interface GetDashboardResponse {
   success: boolean;
   message: string;
   data: {
@@ -10,7 +10,7 @@ export interface DashboardResponse {
   };
 }
 
-export interface AdminsResponse {
+export interface GetAdminsResponse {
   success: boolean;
   message: string;
   data: [
@@ -28,13 +28,28 @@ export interface AdminsResponse {
   count: number;
 }
 
-export interface TambahAdminRequest {
+export interface GetAdminByIdResponse {
+  success: boolean;
+  message: string;
+  data: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    __v: number;
+  };
+}
+
+export interface AddAdminRequest {
   name: string;
   email: string;
   password: string;
 }
 
-export interface TambahAdminResponse {
+export interface AddAdminResponse {
   success: boolean;
   message: string;
   data?: {
@@ -66,4 +81,9 @@ export interface EditAdminResponse {
     createdAt: string;
     updatedAt: string;
   };
+}
+
+export interface DeleteAdminsResponse {
+  success: boolean;
+  message: string;
 }

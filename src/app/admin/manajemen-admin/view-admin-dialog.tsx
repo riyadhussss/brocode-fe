@@ -8,10 +8,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { AdminsResponse } from "@/app/lib/types/admin";
+import { GetAdminsResponse } from "@/app/lib/types/admin";
 import { User, Mail } from "lucide-react";
 
-type AdminRowData = AdminsResponse["data"][number];
+type AdminRowData = GetAdminsResponse["data"][number];
 
 interface ViewAdminDialogProps {
   open: boolean;

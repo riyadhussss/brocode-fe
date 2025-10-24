@@ -11,16 +11,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
-// ✅ Dummy type untuk layanan (nanti akan diganti dengan type dari API)
+// ✅ Type untuk layanan sesuai dengan API response
 export type LayananRowData = {
   _id: string;
   name: string;
   price: number;
-  duration: number;
   description: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  packageId: string;
+  __v: number;
 };
 
 // ✅ Type untuk callback functions
@@ -64,13 +67,31 @@ export const createColumns = (
     },
   },
 
-  // ✅ Kolom Durasi
+  // ✅ Kolom Deskripsi
   {
-    accessorKey: "duration",
-    header: "Durasi",
+    accessorKey: "description",
+    header: "Deskripsi",
     cell: ({ row }) => {
-      const duration = row.getValue("duration") as number;
-      return <div className="text-gray-600">{duration} menit</div>;
+      const description = row.getValue("description") as string;
+      return (
+        <div className="max-w-xs truncate text-gray-600" title={description}>
+          {description}
+        </div>
+      );
+    },
+  },
+
+  // ✅ Kolom Status
+  {
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("isActive") as boolean;
+      return (
+        <Badge variant={isActive ? "default" : "secondary"}>
+          {isActive ? "Aktif" : "Tidak Aktif"}
+        </Badge>
+      );
     },
   },
 

@@ -6,7 +6,7 @@ export default function HomeSection() {
   return (
     <div
       id="homesection"
-      className="flex flex-col items-center justify-center min-h-[90vh] bg-[url('/assets/Homepage/1.png')] bg-cover bg-center bg-no-repeat text-white py-20 relative"
+      className="flex flex-col items-center justify-center min-h-screen bg-[url('/assets/Homepage/1.png')] bg-cover bg-center bg-no-repeat text-white py-20 relative"
     >
       {/* Backdrop blur overlay */}
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm"></div>

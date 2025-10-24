@@ -20,18 +20,18 @@ import { ViewAdminDialog } from "./view-admin-dialog";
 import { EditAdminDialog } from "./edit-admin-dialog";
 
 // ✅ Menggunakan AdminsResponse langsung tanpa interface Admin tambahan
-import { AdminsResponse } from "@/app/lib/types/admin";
+import { GetAdminsResponse } from "@/app/lib/types/admin";
 
 export default function ManajemenAdmin() {
-  const [adminsData, setAdminsData] = useState<AdminsResponse["data"]>(
-    [] as unknown as AdminsResponse["data"]
+  const [adminsData, setAdminsData] = useState<GetAdminsResponse["data"]>(
+    [] as unknown as GetAdminsResponse["data"]
   );
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
-    admin: AdminsResponse["data"][number] | null;
+    admin: GetAdminsResponse["data"][number] | null;
     loading: boolean;
   }>({
     open: false,
@@ -40,14 +40,14 @@ export default function ManajemenAdmin() {
   });
   const [viewDialog, setViewDialog] = useState<{
     open: boolean;
-    admin: AdminsResponse["data"][number] | null;
+    admin: GetAdminsResponse["data"][number] | null;
   }>({
     open: false,
     admin: null,
   });
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
-    admin: AdminsResponse["data"][number] | null;
+    admin: GetAdminsResponse["data"][number] | null;
   }>({
     open: false,
     admin: null,
@@ -71,7 +71,7 @@ export default function ManajemenAdmin() {
     } catch (error: any) {
       console.error("❌ Admins fetch error:", error);
 
-      setAdminsData([] as unknown as AdminsResponse["data"]);
+      setAdminsData([] as unknown as GetAdminsResponse["data"]);
       setTotalCount(0);
 
       toast.error("Gagal memuat data admin", {
@@ -102,7 +102,7 @@ export default function ManajemenAdmin() {
   };
 
   // ✅ Handle view admin
-  const handleViewClick = (admin: AdminsResponse["data"][number]) => {
+  const handleViewClick = (admin: GetAdminsResponse["data"][number]) => {
     setViewDialog({
       open: true,
       admin: admin,
@@ -110,7 +110,7 @@ export default function ManajemenAdmin() {
   };
 
   // ✅ Handle edit admin
-  const handleEditClick = (admin: AdminsResponse["data"][number]) => {
+  const handleEditClick = (admin: GetAdminsResponse["data"][number]) => {
     setEditDialog({
       open: true,
       admin: admin,
@@ -122,7 +122,7 @@ export default function ManajemenAdmin() {
   };
 
   // ✅ Handle delete admin
-  const handleDeleteClick = (admin: AdminsResponse["data"][number]) => {
+  const handleDeleteClick = (admin: GetAdminsResponse["data"][number]) => {
     setDeleteDialog({
       open: true,
       admin: admin,

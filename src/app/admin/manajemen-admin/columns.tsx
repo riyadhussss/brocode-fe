@@ -11,10 +11,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
-import { AdminsResponse } from "@/app/lib/types/admin";
+import { GetAdminsResponse } from "@/app/lib/types/admin";
 
 // ✅ Type untuk data row - mengambil tipe dari elemen array data
-type AdminRowData = AdminsResponse["data"][number];
+type AdminRowData = GetAdminsResponse["data"][number];
 
 // ✅ Type untuk callback functions
 type AdminActionsCallbacks = {

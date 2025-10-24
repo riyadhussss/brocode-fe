@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
 
-// ✅ Type untuk kasir
+// ✅ Type untuk kasir sesuai dengan API response
 export type KasirRowData = {
   _id: string;
   name: string;
@@ -20,6 +20,8 @@ export type KasirRowData = {
   role: string;
   createdAt: string;
   updatedAt: string;
+  userId: string;
+  __v: number;
 };
 
 // ✅ Type untuk callback functions

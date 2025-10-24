@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -12,60 +12,37 @@ import { Button } from "@/components/ui/button";
 import { Scissors } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns, LayananRowData } from "./columns";
-
-// ✅ Dummy data layanan untuk tampilan
-const dummyLayananData: LayananRowData[] = [
-  {
-    _id: "1",
-    name: "Potong Rambut Reguler",
-    price: 25000,
-    duration: 30,
-    description: "Potongan rambut standar dengan styling sederhana",
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-10T08:00:00Z",
-  },
-  {
-    _id: "2",
-    name: "Potong Rambut + Cuci",
-    price: 35000,
-    duration: 45,
-    description: "Potongan rambut dengan cuci rambut menggunakan shampo",
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-10T08:00:00Z",
-  },
-  {
-    _id: "3",
-    name: "Potong Rambut Premium",
-    price: 50000,
-    duration: 60,
-    description: "Potongan rambut dengan styling premium dan treatment rambut",
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-10T08:00:00Z",
-  },
-  {
-    _id: "4",
-    name: "Cukur Jenggot",
-    price: 15000,
-    duration: 20,
-    description: "Cukur jenggot dan kumis dengan pisau cukur tradisional",
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-10T08:00:00Z",
-  },
-  {
-    _id: "5",
-    name: "Smoothing Rambut",
-    price: 150000,
-    duration: 120,
-    description: "Treatment smoothing untuk rambut lebih lurus dan berkilau",
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-10T08:00:00Z",
-  },
-];
+import { packageService } from "@/app/lib/services/package.service";
+import { toast } from "sonner";
 
 export default function ManajemenLayanan() {
-  const [layananData, setLayananData] =
-    useState<LayananRowData[]>(dummyLayananData);
-  const [loading, setLoading] = useState(false);
+  const [layananData, setLayananData] = useState<LayananRowData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Fetch packages data
+  const fetchPackages = async () => {
+    try {
+      setLoading(true);
+      const response = await packageService.getPackages();
+
+      if (response.success && response.data) {
+        setLayananData(response.data);
+        toast.success(response.message || "Data layanan berhasil dimuat");
+      } else {
+        toast.error("Gagal memuat data layanan");
+      }
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+      toast.error("Terjadi kesalahan saat memuat data layanan");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Load data on mount
+  useEffect(() => {
+    fetchPackages();
+  }, []);
 
   const handleAddNew = () => {
     console.log("Tambah layanan clicked");
@@ -73,8 +50,7 @@ export default function ManajemenLayanan() {
   };
 
   const handleRefresh = () => {
-    console.log("Refresh data clicked");
-    // TODO: Implement refresh data
+    fetchPackages();
   };
 
   // ✅ Handle view layanan

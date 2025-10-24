@@ -1,47 +1,49 @@
 import api from "../api";
 import {
-  AdminsResponse,
-  DashboardResponse,
-  TambahAdminRequest,
-  TambahAdminResponse,
+  GetAdminsResponse,
+  GetDashboardResponse,
+  GetAdminByIdResponse,
+  AddAdminRequest,
+  AddAdminResponse,
   EditAdminRequest,
-  EditAdminResponse
+  EditAdminResponse,
+  DeleteAdminsResponse,
 } from "../types/admin";
 // import {}
-// import { ApiResponse, PaginationParams } from "../types";
-// import { User } from "../types";
 
 export const adminService = {
-  getDashboardAdmin: async (): Promise<DashboardResponse> => {
+  getDashboardAdmin: async (): Promise<GetDashboardResponse> => {
     const response = await api.get("/dashboard/admin");
     return response.data;
   },
 
-  getAdmins: async (): Promise<AdminsResponse> => {
+  getAdmins: async (): Promise<GetAdminsResponse> => {
     const response = await api.get("/admins");
     return response.data;
   },
 
-  getAdminbyId: async (id: string): Promise<AdminsResponse> => {
+  getAdminbyId: async (id: string): Promise<GetAdminByIdResponse> => {
     const response = await api.get(`/admins/${id}`);
     return response.data;
   },
 
-  deleteAdmin: async (id: string): Promise<AdminsResponse> => {
+  deleteAdmin: async (id: string): Promise<DeleteAdminsResponse> => {
     const response = await api.delete(`/admins/${id}`);
     return response.data;
   },
-  
-  addAdmin: async (data: TambahAdminRequest): Promise<TambahAdminResponse> => {
+
+  addAdmin: async (data: AddAdminRequest): Promise<AddAdminResponse> => {
     const response = await api.post("/admins", data);
     return response.data;
   },
 
-  editAdmin: async (id: string, data: Partial<EditAdminRequest>): Promise<EditAdminResponse> => {
+  editAdmin: async (
+    id: string,
+    data: Partial<EditAdminRequest>
+  ): Promise<EditAdminResponse> => {
     const response = await api.put(`/admins/${id}`, data);
     return response.data;
-  }
-  
+  },
 
   //   getUsers: async (params?: PaginationParams): Promise<ApiResponse<User[]>> => {
   //     const response = await api.get("/admin/users", { params });

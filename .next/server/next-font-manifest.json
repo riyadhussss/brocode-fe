@@ -1,24 +1,15 @@
 {
   "app": {
+    "[project]/src/app/(auth)/login/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/_not-found/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
     "[project]/src/app/admin/dashboard/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
-    "[project]/src/app/admin/manajemen-admin/page": [
-      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
-    ],
-    "[project]/src/app/admin/manajemen-capster/page": [
-      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
-    ],
-    "[project]/src/app/admin/manajemen-kasir/page": [
-      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
-    ],
-    "[project]/src/app/admin/manajemen-layanan/page": [
-      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
-    ],
-    "[project]/src/app/admin/manajemen-user/page": [
-      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
-    ],
-    "[project]/src/app/admin/riwayat-reservasi/page": [
+    "[project]/src/app/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ]
   },
