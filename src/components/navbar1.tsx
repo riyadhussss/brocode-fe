@@ -195,7 +195,7 @@ const Navbar1 = ({
                   </nav>
 
                   <div className="flex flex-col gap-3">
-                    <Button asChild variant="outlineYellow" className="w-full">
+                    <Button asChild variant="outlineYellow" className="w-full bg-transparent">
                       <a href={auth.login.url}>{auth.login.title}</a>
                     </Button>
                     <Button asChild variant="yellow" className="w-full">

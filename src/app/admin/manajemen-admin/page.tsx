@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users } from "lucide-react";
+import { Users, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
 import { DataTable } from "./data-table";
@@ -182,35 +182,6 @@ export default function ManajemenAdmin() {
   // ✅ Convert to array untuk safety
   const adminsList = Array.isArray(adminsData) ? adminsData : [];
 
-  // ✅ Loading state
-  if (loading) {
-    return (
-      <div className="h-full bg-gray-50 p-6 flex flex-col">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                Manajemen Admin
-              </h1>
-              <p className="text-gray-600 text-sm">
-                Kelola data administrator sistem
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Card>
-          <CardContent className="p-8">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <p className="text-gray-600">Memuat data admin...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       {/* Page Header */}
@@ -224,8 +195,11 @@ export default function ManajemenAdmin() {
               Kelola data administrator sistem
             </p>
           </div>
-          <Button onClick={handleRefresh} variant="outline">
-            Refresh Data
+          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
           </Button>
         </div>
       </div>
@@ -325,16 +299,33 @@ export default function ManajemenAdmin() {
           <CardContent className="flex-1 flex flex-col min-h-0">
             {loading ? (
               <div className="space-y-4">
+                {/* Search and buttons skeleton */}
                 <div className="flex items-center justify-between">
-                  <Skeleton className="h-10 w-[250px]" />
-                  <Skeleton className="h-10 w-[100px]" />
+                  <Skeleton className="h-10 w-96" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-32" />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
+                {/* Table skeleton */}
+                <div className="border rounded-md">
+                  <div className="p-4 space-y-3">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                </div>
+                {/* Pagination skeleton */}
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-32" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-32" />
+                    <Skeleton className="h-8 w-24" />
+                  </div>
                 </div>
               </div>
             ) : (

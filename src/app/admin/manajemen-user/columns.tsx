@@ -16,7 +16,9 @@ export type UserRowData = {
   _id: string;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
+  userId: string;
+  role: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -56,9 +58,9 @@ export const createColumns = (
   },
   {
     accessorKey: "phone",
-    header: "Telepon",
+    header: "No. Telepon",
     cell: ({ row }) => (
-      <div className="text-gray-600">{row.getValue("phone")}</div>
+      <div className="text-gray-600">{row.getValue("phone") || "-"}</div>
     ),
   },
   {

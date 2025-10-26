@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -9,84 +9,195 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, UserCheck, Mail } from "lucide-react";
+import { Users, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "./data-table";
 import { createColumns, UserRowData } from "./columns";
-
-// ✅ Dummy data user untuk tampilan
-const dummyUserData: UserRowData[] = [
-  {
-    _id: "1",
-    name: "John Doe",
-    email: "john.doe@gmail.com",
-    phone: "081234567890",
-    createdAt: "2024-01-10T08:00:00Z",
-    updatedAt: "2024-01-10T08:00:00Z",
-  },
-  {
-    _id: "2",
-    name: "Jane Smith",
-    email: "jane.smith@yahoo.com",
-    phone: "081298765432",
-    createdAt: "2024-02-15T09:30:00Z",
-    updatedAt: "2024-02-15T09:30:00Z",
-  },
-  {
-    _id: "3",
-    name: "Robert Johnson",
-    email: "robert.j@outlook.com",
-    phone: "081356789012",
-    createdAt: "2024-03-20T14:15:00Z",
-    updatedAt: "2024-03-20T14:15:00Z",
-  },
-  {
-    _id: "4",
-    name: "Maria Garcia",
-    email: "maria.garcia@gmail.com",
-    phone: "081445678901",
-    createdAt: "2024-04-05T10:45:00Z",
-    updatedAt: "2024-04-05T10:45:00Z",
-  },
-  {
-    _id: "5",
-    name: "David Brown",
-    email: "david.brown@gmail.com",
-    phone: "081523456789",
-    createdAt: "2024-05-12T16:20:00Z",
-    updatedAt: "2024-05-12T16:20:00Z",
-  },
-];
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import { customerService } from "@/app/lib/services/customer.service";
+import { ViewCustomerDialog } from "./view-customer-dialog";
+import { DeleteCustomerDialog } from "./delete-customer-dialog";
+import { AddCustomerDialog } from "./add-customer-dialog";
+import { EditCustomerDialog } from "./edit-customer-dialog";
 
 export default function ManajemenUser() {
-  const [userData, setUserData] = useState<UserRowData[]>(dummyUserData);
-  const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState<UserRowData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    user: UserRowData | null;
+    loading: boolean;
+  }>({
+    open: false,
+    user: null,
+    loading: false,
+  });
+  const [viewDialog, setViewDialog] = useState<{
+    open: boolean;
+    user: UserRowData | null;
+  }>({
+    open: false,
+    user: null,
+  });
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    user: UserRowData | null;
+  }>({
+    open: false,
+    user: null,
+  });
 
-  const handleAddNew = () => {
-    console.log("Tambah user clicked");
-    // TODO: Implement tambah user dialog
+  // ✅ Fetch data customers
+  const fetchCustomersData = async () => {
+    try {
+      setLoading(true);
+
+      const response = await customerService.getCustomers();
+
+      if (response && response.success && response.data) {
+        // Transform data dari API ke format UserRowData
+        const transformedData: UserRowData[] = response.data.map(
+          (customer) => ({
+            _id: customer._id,
+            name: customer.name,
+            email: customer.email,
+            phone: customer.phone,
+            userId: customer.userId,
+            role: customer.role,
+            createdAt: customer.createdAt,
+            updatedAt: customer.updatedAt,
+          })
+        );
+
+        setUserData(transformedData);
+        setTotalCount(response.count || transformedData.length);
+
+        toast.success(
+          `Berhasil memuat ${transformedData.length} data customer`
+        );
+      } else {
+        throw new Error(response?.message || "Gagal mengambil data customer");
+      }
+    } catch (error) {
+      console.error("❌ Customers fetch error:", error);
+      const errorMessage = getErrorMessage(error);
+
+      setUserData([]);
+      setTotalCount(0);
+
+      toast.error("Gagal memuat data customer", {
+        description:
+          errorMessage || "Silakan coba lagi atau hubungi administrator",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRefresh = () => {
-    console.log("Refresh data clicked");
-    // TODO: Implement refresh data
+  // ✅ Load data saat komponen mount
+  useEffect(() => {
+    fetchCustomersData();
+  }, []);
+
+  const handleAddNew = () => {
+    setShowAddDialog(true);
+  };
+
+  const handleAddSuccess = () => {
+    fetchCustomersData();
+  };
+
+  const handleRefresh = async () => {
+    toast.info("Memperbarui data...");
+    await fetchCustomersData();
   };
 
   // ✅ Handle view user
-  const handleViewClick = (user: UserRowData) => {
-    console.log("View user:", user);
-    // TODO: Implement view dialog
+  const handleViewClick = async (user: UserRowData) => {
+    try {
+      const response = await customerService.getCustomerById(user._id);
+
+      if (response && response.success && response.data) {
+        setViewDialog({
+          open: true,
+          user: {
+            _id: response.data._id,
+            name: response.data.name,
+            email: response.data.email,
+            phone: response.data.phone,
+            userId: response.data.userId,
+            role: response.data.role,
+            createdAt: response.data.createdAt,
+            updatedAt: response.data.updatedAt,
+          },
+        });
+      } else {
+        throw new Error(response?.message || "Gagal mengambil detail customer");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error("Gagal memuat detail customer", {
+        description: errorMessage,
+      });
+    }
   };
 
   // ✅ Handle edit user
   const handleEditClick = (user: UserRowData) => {
-    console.log("Edit user:", user);
-    // TODO: Implement edit dialog
+    setEditDialog({
+      open: true,
+      user: user,
+    });
+  };
+
+  const handleEditSuccess = () => {
+    fetchCustomersData();
   };
 
   // ✅ Handle delete user
   const handleDeleteClick = (user: UserRowData) => {
-    console.log("Delete user:", user);
-    // TODO: Implement delete confirmation dialog
+    setDeleteDialog({
+      open: true,
+      user: user,
+      loading: false,
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.user) return;
+
+    setDeleteDialog((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const response = await customerService.deleteCustomer(
+        deleteDialog.user._id
+      );
+
+      if (response?.success) {
+        toast.success("Customer berhasil dihapus", {
+          description: `${deleteDialog.user.name} telah dihapus dari sistem`,
+        });
+
+        // Close dialog
+        setDeleteDialog({ open: false, user: null, loading: false });
+
+        // Refresh data
+        fetchCustomersData();
+      } else {
+        throw new Error(response?.message || "Gagal menghapus customer");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+
+      toast.error("Gagal menghapus customer", {
+        description: errorMessage,
+      });
+
+      setDeleteDialog((prev) => ({ ...prev, loading: false }));
+    }
   };
 
   // ✅ Create columns dengan callbacks
@@ -102,10 +213,6 @@ export default function ManajemenUser() {
 
   // ✅ Stats calculation
   const totalUsers = userData.length;
-  const activeUsers = userData.length; // TODO: Add status field to determine active users
-  const gmailUsers = userData.filter((user) =>
-    user.email.toLowerCase().includes("@gmail.com")
-  ).length;
 
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
@@ -117,50 +224,85 @@ export default function ManajemenUser() {
             </h1>
             <p className="text-gray-600 text-sm">Kelola data pengguna sistem</p>
           </div>
+          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      {/* <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total User</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Semua pengguna terdaftar
-            </p>
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{totalUsers}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Semua pengguna terdaftar
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">User Aktif</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              Total Customer
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Pengguna aktif saat ini
-            </p>
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{totalCount}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Data dari server
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Email Gmail</CardTitle>
-            <Mail className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Status</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{gmailUsers}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Menggunakan email Gmail
-            </p>
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-green-600">Aktif</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sistem berjalan normal
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
-      </div> */}
+      </div>
 
       {/* Data Table */}
       <Card className="flex-1 flex flex-col">
@@ -170,14 +312,90 @@ export default function ManajemenUser() {
             Kelola informasi user dan lakukan operasi CRUD
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={userData}
-            onAddNew={handleAddNew}
-          />
+        <CardContent className="flex-1">
+          {loading ? (
+            <div className="space-y-4">
+              {/* Search and buttons skeleton */}
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-10 w-96" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 w-24" />
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              </div>
+              {/* Table skeleton */}
+              <div className="border rounded-md">
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              </div>
+              {/* Pagination skeleton */}
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-32" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-24" />
+                  <Skeleton className="h-8 w-32" />
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={userData}
+              onAddNew={handleAddNew}
+            />
+          )}
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteCustomerDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteDialog({ open: false, user: null, loading: false });
+          }
+        }}
+        onConfirm={handleDeleteConfirm}
+        customerName={deleteDialog.user?.name || ""}
+        loading={deleteDialog.loading}
+      />
+
+      {/* View Dialog */}
+      <ViewCustomerDialog
+        open={viewDialog.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setViewDialog({ open: false, user: null });
+          }
+        }}
+        customer={viewDialog.user}
+      />
+
+      {/* Add Customer Dialog */}
+      <AddCustomerDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={handleAddSuccess}
+      />
+
+      {/* Edit Customer Dialog */}
+      <EditCustomerDialog
+        open={editDialog.open}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditDialog({ open: false, user: null });
+          }
+        }}
+        customer={editDialog.user}
+        onSuccess={handleEditSuccess}
+      />
     </div>
   );
 }

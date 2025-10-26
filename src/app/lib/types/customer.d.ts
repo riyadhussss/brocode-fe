@@ -1,11 +1,12 @@
 export interface GetCustomersResponse {
   success: boolean;
   message: string;
-  data: [
+  data?: [
     {
       _id: string;
       name: string;
       email: string;
+      phone?: string;
       role: string;
       createdAt: string;
       updatedAt: string;
@@ -13,7 +14,23 @@ export interface GetCustomersResponse {
       __v: number;
     }
   ];
-  // count: number;
+  count?: number;
+}
+
+export interface GetCustomerByIdResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    __v: number;
+  };
 }
 
 export interface AddCustomerRequest {
@@ -21,6 +38,7 @@ export interface AddCustomerRequest {
   email: string;
   phone: string;
   password: string;
+  confirmPassword: string;
 }
 
 export interface AddCustomerResponse {
@@ -54,7 +72,7 @@ export interface EditCustomerResponse {
   };
 }
 
-// export interface DeleteCustomerResponse {
-//   success: boolean;
-//   message: string;  
-  
+export interface DeleteCustomerResponse {
+  success: boolean;
+  message: string;
+}

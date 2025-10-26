@@ -9,7 +9,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Scissors } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Scissors, RefreshCw } from "lucide-react";
 import { DataTable } from "./data-table";
 import { createColumns, LayananRowData } from "./columns";
 import { packageService } from "@/app/lib/services/package.service";
@@ -82,35 +83,6 @@ export default function ManajemenLayanan() {
     []
   );
 
-  // ✅ Loading state
-  if (loading) {
-    return (
-      <div className="h-full bg-gray-50 p-6 flex flex-col">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                Manajemen Layanan
-              </h1>
-              <p className="text-gray-600 text-sm">
-                Kelola data layanan sistem
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Card>
-          <CardContent className="p-8">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <p className="text-gray-600">Memuat data layanan...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       {/* Page Header */}
@@ -122,8 +94,11 @@ export default function ManajemenLayanan() {
             </h1>
             <p className="text-gray-600 text-sm">Kelola data layanan sistem</p>
           </div>
-          <Button onClick={handleRefresh} variant="outline">
-            Refresh Data
+          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
           </Button>
         </div>
       </div>
@@ -141,8 +116,19 @@ export default function ManajemenLayanan() {
               <Scissors className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{layananData.length}</div>
-              <p className="text-xs text-muted-foreground">Layanan tersedia</p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">{layananData.length}</div>
+                  <p className="text-xs text-muted-foreground">
+                    Layanan tersedia
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -155,18 +141,27 @@ export default function ManajemenLayanan() {
               <Scissors className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {layananData.length > 0
-                  ? new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                      minimumFractionDigits: 0,
-                    }).format(Math.min(...layananData.map((l) => l.price)))
-                  : "Rp 0"}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Layanan paling murah
-              </p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-24 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-green-600">
+                    {layananData.length > 0
+                      ? new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(Math.min(...layananData.map((l) => l.price)))
+                      : "Rp 0"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Layanan paling murah
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
 
@@ -179,16 +174,27 @@ export default function ManajemenLayanan() {
               <Scissors className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {layananData.length > 0
-                  ? new Intl.NumberFormat("id-ID", {
-                      style: "currency",
-                      currency: "IDR",
-                      minimumFractionDigits: 0,
-                    }).format(Math.max(...layananData.map((l) => l.price)))
-                  : "Rp 0"}
-              </div>
-              <p className="text-xs text-muted-foreground">Layanan premium</p>
+              {loading ? (
+                <>
+                  <Skeleton className="h-8 w-24 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {layananData.length > 0
+                      ? new Intl.NumberFormat("id-ID", {
+                          style: "currency",
+                          currency: "IDR",
+                          minimumFractionDigits: 0,
+                        }).format(Math.max(...layananData.map((l) => l.price)))
+                      : "Rp 0"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Layanan premium
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -202,11 +208,44 @@ export default function ManajemenLayanan() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col min-h-0">
-            <DataTable
-              columns={columns}
-              data={layananData}
-              onAddNew={handleAddNew}
-            />
+            {loading ? (
+              <div className="space-y-4">
+                {/* Search and buttons skeleton */}
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-10 w-96" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-32" />
+                  </div>
+                </div>
+                {/* Table skeleton */}
+                <div className="border rounded-md">
+                  <div className="p-4 space-y-3">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                </div>
+                {/* Pagination skeleton */}
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-32" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-8 w-24" />
+                    <Skeleton className="h-8 w-32" />
+                    <Skeleton className="h-8 w-24" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={layananData}
+                onAddNew={handleAddNew}
+              />
+            )}
           </CardContent>
         </Card>
       </div>

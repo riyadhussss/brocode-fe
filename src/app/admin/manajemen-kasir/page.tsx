@@ -9,7 +9,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Users, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { cashierService } from "@/app/lib/services/cashier.service";
 import { DataTable } from "./data-table";
@@ -160,33 +161,6 @@ export default function ManajemenKasir() {
     []
   );
 
-  // ✅ Loading state
-  if (loading) {
-    return (
-      <div className="bg-gray-50 p-6">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                Manajemen Kasir
-              </h1>
-              <p className="text-gray-600 text-sm">Kelola data kasir sistem</p>
-            </div>
-          </div>
-        </div>
-
-        <Card>
-          <CardContent className="p-8">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-              <p className="text-gray-600">Memuat data kasir...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-gray-50 p-6">
       {/* Page Header */}
@@ -198,8 +172,11 @@ export default function ManajemenKasir() {
             </h1>
             <p className="text-gray-600 text-sm">Kelola data kasir sistem</p>
           </div>
-          <Button onClick={handleRefresh} variant="outline">
-            Refresh Data
+          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
           </Button>
         </div>
       </div>
@@ -213,8 +190,17 @@ export default function ManajemenKasir() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{kasirData.length}</div>
-            <p className="text-xs text-muted-foreground">Kasir terdaftar</p>
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{kasirData.length}</div>
+                <p className="text-xs text-muted-foreground">Kasir terdaftar</p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -225,10 +211,21 @@ export default function ManajemenKasir() {
             <Users className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {kasirData.filter((kasir) => kasir.role === "kasir").length}
-            </div>
-            <p className="text-xs text-muted-foreground">Kasir yang aktif</p>
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-green-600">
+                  {kasirData.filter((kasir) => kasir.role === "kasir").length}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Kasir yang aktif
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -241,8 +238,21 @@ export default function ManajemenKasir() {
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{totalCount}</div>
-            <p className="text-xs text-muted-foreground">Total dari database</p>
+            {loading ? (
+              <>
+                <Skeleton className="h-8 w-16 mb-2" />
+                <Skeleton className="h-3 w-32" />
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-bold text-blue-600">
+                  {totalCount}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Total dari database
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -256,11 +266,44 @@ export default function ManajemenKasir() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <DataTable
-            columns={columns}
-            data={kasirData}
-            onAddNew={handleAddNew}
-          />
+          {loading ? (
+            <div className="space-y-4">
+              {/* Search and buttons skeleton */}
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-10 w-96" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-10 w-24" />
+                  <Skeleton className="h-10 w-32" />
+                </div>
+              </div>
+              {/* Table skeleton */}
+              <div className="border rounded-md">
+                <div className="p-4 space-y-3">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              </div>
+              {/* Pagination skeleton */}
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-32" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-24" />
+                  <Skeleton className="h-8 w-32" />
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={kasirData}
+              onAddNew={handleAddNew}
+            />
+          )}
         </CardContent>
       </Card>
 
