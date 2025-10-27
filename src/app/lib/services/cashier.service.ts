@@ -7,6 +7,7 @@ import {
   EditCashierRequest,
   EditCashierResponse,
   getCashierResponse,
+  DeleteCashierResponse,
 } from "../types/cashier";
 
 export const cashierService = {
@@ -35,7 +36,7 @@ export const cashierService = {
     const response = await api.put(`/cashiers/${id}`, data);
     return response.data;
   },
-  deleteCashier: async (id: string): Promise<GetCashiersResponse> => {
+  deleteCashier: async (id: string): Promise<DeleteCashierResponse> => {
     const response = await api.delete(`/cashiers/${id}`);
     return response.data;
   },

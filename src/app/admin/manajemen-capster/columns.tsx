@@ -2,6 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,15 +13,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
 
-// ✅ Dummy type untuk capster (nanti akan diganti dengan type dari API)
+// ✅ Type untuk capster sesuai dengan API response
 export type CapsterRowData = {
   _id: string;
   name: string;
-  email: string;
-  specialization: string;
-  experience: number;
+  phone: string;
+  photo: string;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  barberId: string;
+  __v: number;
 };
 
 // ✅ Type untuk callback functions
@@ -33,11 +36,14 @@ type CapsterActionsCallbacks = {
 export const createColumns = (
   callbacks?: CapsterActionsCallbacks
 ): ColumnDef<CapsterRowData>[] => [
+  // ✅ Kolom Nomor
   {
     id: "nomor",
     header: "No",
     cell: ({ row }) => <div className="font-medium">{row.index + 1}</div>,
   },
+
+  // ✅ Kolom Nama
   {
     accessorKey: "name",
     header: "Nama",
@@ -45,25 +51,37 @@ export const createColumns = (
       <div className="font-medium">{row.getValue("name")}</div>
     ),
   },
+
+  // ✅ Kolom No HP
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "phone",
+    header: "No HP",
     cell: ({ row }) => (
-      <div
-        className="text-gray-600 truncate max-w-[200px]"
-        title={row.getValue("email")}
-      >
-        {row.getValue("email")}
-      </div>
+      <div className="text-gray-600">{row.getValue("phone")}</div>
     ),
   },
+
+  // ✅ Kolom Status
   {
-    accessorKey: "specialization",
-    header: "Spesialisasi",
-    cell: ({ row }) => (
-      <div className="text-gray-900">{row.getValue("specialization")}</div>
-    ),
+    accessorKey: "isActive",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("isActive") as boolean;
+      return (
+        <Badge
+          className={
+            isActive
+              ? "bg-green-500 hover:bg-green-600 text-white"
+              : "bg-red-500 hover:bg-red-600 text-white"
+          }
+        >
+          {isActive ? "Aktif" : "Tidak Aktif"}
+        </Badge>
+      );
+    },
   },
+
+  // ✅ Kolom Actions
   {
     id: "actions",
     header: "Aksi",

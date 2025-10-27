@@ -81,3 +81,8 @@ export interface EditCashierResponse {
     updatedAt: string;
   };
 }
+
+export interface DeleteCashierResponse {
+  success: boolean;
+  message: string;
+}

@@ -107,10 +107,10 @@ export function ViewLayananDialog({
             </div>
             <div className="flex-1 space-y-1">
               <p className="text-sm font-medium text-gray-500">Status</p>
-              <Badge 
+              <Badge
                 className={
-                  layanan.isActive 
-                    ? "bg-green-500 hover:bg-green-600 text-white" 
+                  layanan.isActive
+                    ? "bg-green-500 hover:bg-green-600 text-white"
                     : "bg-red-500 hover:bg-red-600 text-white"
                 }
               >

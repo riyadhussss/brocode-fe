@@ -1,35 +1,43 @@
 import api from "../api";
-import { ApiResponse } from "../types";
-
-interface Capster {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
-interface CapsterSchedule {
-  capsterId: string;
-  date: string;
-  slots: Array<{
-    time: string;
-    isAvailable: boolean;
-  }>;
-}
+import {
+  GetCapstersResponse,
+  GetCapsterByIdResponse,
+  AddCapsterResponse,
+  EditCapsterRequest,
+  EditCapsterResponse,
+  DeleteCapsterResponse,
+} from "../types/capster";
 
 export const capsterService = {
-  getCapsters: async (): Promise<ApiResponse<Capster[]>> => {
-    const response = await api.get("/capsters");
+  getCapsters: async (): Promise<GetCapstersResponse> => {
+    const response = await api.get("/barbers");
     return response.data;
   },
 
-  getCapsterSchedule: async (
-    capsterId: string,
-    date: string
-  ): Promise<ApiResponse<CapsterSchedule>> => {
-    const response = await api.get(`/capsters/${capsterId}/schedule`, {
-      params: { date },
+  getCapsterById: async (id: string): Promise<GetCapsterByIdResponse> => {
+    const response = await api.get(`/barbers/${id}`);
+    return response.data;
+  },
+
+  addCapster: async (data: FormData): Promise<AddCapsterResponse> => {
+    const response = await api.post("/barbers", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
+    return response.data;
+  },
+
+  editCapster: async (
+    id: string,
+    data: Partial<EditCapsterRequest>
+  ): Promise<EditCapsterResponse> => {
+    const response = await api.put(`/barbers/${id}`, data);
+    return response.data;
+  },
+
+  deleteCapster: async (id: string): Promise<DeleteCapsterResponse> => {
+    const response = await api.delete(`/barbers/${id}`);
     return response.data;
   },
 };
