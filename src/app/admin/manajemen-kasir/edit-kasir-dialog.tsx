@@ -18,6 +18,7 @@ import {
   GetCashiersResponse,
   EditCashierRequest,
 } from "@/app/lib/types/cashier";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 
@@ -184,11 +185,10 @@ export function EditKasirDialog({
       } else {
         throw new Error(response.message || "Gagal memperbarui kasir");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Error updating kasir:", error);
       toast.error("Gagal memperbarui kasir", {
-        description:
-          error.response?.data?.message || error.message || "Terjadi kesalahan",
+        description: getErrorMessage(error),
       });
     } finally {
       setLoading(false);

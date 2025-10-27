@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Cookies from "js-cookie";
 import { Eye, EyeOff } from "lucide-react";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 // ✅ Validasi input
 const loginSchema = z.object({
@@ -95,57 +96,66 @@ export function LoginForm({
       };
 
       router.push(redirectMap[user.role] || "/");
-    } catch (error: any) {
+    } catch (error) {
       // Handle different error types
-      if (error.response) {
-        const status = error.response.status;
-        const message =
-          error.response.data?.message || error.response.data?.error;
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number;
+            data?: { message?: string; error?: string };
+          };
+        };
 
-        switch (status) {
-          case 400:
-            // Response 400 - credential salah (tidak log ke console)
-            toast.error("Login gagal", {
-              description: "Email/no HP atau password yang anda masukkan salah",
-            });
-            return; // Return early, tidak log error
-          case 401:
-            toast.error("Login gagal", {
-              description: "Email/no HP atau password yang anda masukkan salah",
-            });
-            break;
-          case 404:
-            toast.error("Login gagal", {
-              description: "Akun tidak ditemukan",
-            });
-            break;
-          case 422:
-            toast.error("Login gagal", {
-              description: message || "Data tidak valid",
-            });
-            break;
-          case 500:
-            toast.error("Login gagal", {
-              description: "Terjadi kesalahan server, coba lagi nanti",
-            });
-            break;
-          default:
-            toast.error("Login gagal", {
-              description: message || "Terjadi kesalahan, coba lagi",
-            });
+        if (axiosError.response) {
+          const status = axiosError.response.status;
+          const message =
+            axiosError.response.data?.message ||
+            axiosError.response.data?.error;
+
+          switch (status) {
+            case 400:
+              // Response 400 - credential salah (tidak log ke console)
+              toast.error("Login gagal", {
+                description:
+                  "Email/no HP atau password yang anda masukkan salah",
+              });
+              return; // Return early, tidak log error
+            case 401:
+              toast.error("Login gagal", {
+                description:
+                  "Email/no HP atau password yang anda masukkan salah",
+              });
+              break;
+            case 404:
+              toast.error("Login gagal", {
+                description: "Akun tidak ditemukan",
+              });
+              break;
+            case 422:
+              toast.error("Login gagal", {
+                description: message || "Data tidak valid",
+              });
+              break;
+            case 500:
+              toast.error("Login gagal", {
+                description: "Terjadi kesalahan server, coba lagi nanti",
+              });
+              break;
+            default:
+              toast.error("Login gagal", {
+                description: message || "Terjadi kesalahan, coba lagi",
+              });
+          }
+          // Log error untuk semua case kecuali 400
+          console.error("❌ Login error:", error);
+          return;
         }
-      } else if (error.request) {
-        // Network error
-        toast.error("Login gagal", {
-          description:
-            "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
-        });
-      } else {
-        // Other error
-        toast.error("Login gagal", {
-          description: error.message || "Terjadi kesalahan yang tidak terduga",
-        });
       }
+
+      // Fallback untuk error lain
+      toast.error("Login gagal", {
+        description: getErrorMessage(error),
+      });
 
       // Log error untuk semua case kecuali 400
       console.error("❌ Login error:", error);

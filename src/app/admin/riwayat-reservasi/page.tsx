@@ -144,7 +144,9 @@ export default function RiwayatReservasi() {
               {["semua", "selesai", "dibatalkan"].map((status) => (
                 <button
                   key={status}
-                  onClick={() => setFilter(status as any)}
+                  onClick={() =>
+                    setFilter(status as "semua" | "selesai" | "dibatalkan")
+                  }
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     filter === status
                       ? "bg-[#FDFB03] text-black"

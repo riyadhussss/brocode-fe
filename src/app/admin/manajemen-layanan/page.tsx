@@ -15,10 +15,28 @@ import { DataTable } from "./data-table";
 import { createColumns, LayananRowData } from "./columns";
 import { packageService } from "@/app/lib/services/package.service";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import { AddLayananDialog } from "./add-layanan-dialog";
+import { EditLayananDialog } from "./edit-layanan-dialog";
+import { DeleteLayananDialog } from "./delete-layanan-dialog";
+import { ViewLayananDialog } from "./view-layanan-dialog";
 
 export default function ManajemenLayanan() {
   const [layananData, setLayananData] = useState<LayananRowData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [viewDialog, setViewDialog] = useState<{
+    open: boolean;
+    layanan: LayananRowData | null;
+  }>({ open: false, layanan: null });
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    layanan: LayananRowData | null;
+  }>({ open: false, layanan: null });
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    layanan: LayananRowData | null;
+  }>({ open: false, layanan: null });
 
   // ✅ Fetch packages data
   const fetchPackages = async () => {
@@ -34,7 +52,7 @@ export default function ManajemenLayanan() {
       }
     } catch (error) {
       console.error("Error fetching packages:", error);
-      toast.error("Terjadi kesalahan saat memuat data layanan");
+      toast.error(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -46,8 +64,7 @@ export default function ManajemenLayanan() {
   }, []);
 
   const handleAddNew = () => {
-    console.log("Tambah layanan clicked");
-    // TODO: Implement tambah layanan dialog
+    setShowAddDialog(true);
   };
 
   const handleRefresh = () => {
@@ -56,20 +73,21 @@ export default function ManajemenLayanan() {
 
   // ✅ Handle view layanan
   const handleViewClick = (layanan: LayananRowData) => {
-    console.log("View layanan:", layanan);
-    // TODO: Implement view dialog
+    setViewDialog({ open: true, layanan });
   };
 
   // ✅ Handle edit layanan
   const handleEditClick = (layanan: LayananRowData) => {
-    console.log("Edit layanan:", layanan);
-    // TODO: Implement edit dialog
+    setEditDialog({ open: true, layanan });
   };
 
   // ✅ Handle delete layanan
   const handleDeleteClick = (layanan: LayananRowData) => {
-    console.log("Delete layanan:", layanan);
-    // TODO: Implement delete confirmation dialog
+    setDeleteDialog({ open: true, layanan });
+  };
+
+  const handleSuccess = () => {
+    fetchPackages();
   };
 
   // ✅ Create columns dengan callbacks
@@ -80,7 +98,7 @@ export default function ManajemenLayanan() {
         onEdit: handleEditClick,
         onDelete: handleDeleteClick,
       }),
-    []
+    [handleViewClick, handleEditClick, handleDeleteClick]
   );
 
   return (
@@ -249,6 +267,39 @@ export default function ManajemenLayanan() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Dialogs */}
+      <AddLayananDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onSuccess={handleSuccess}
+      />
+
+      <ViewLayananDialog
+        open={viewDialog.open}
+        onOpenChange={(open) =>
+          setViewDialog({ open, layanan: open ? viewDialog.layanan : null })
+        }
+        layanan={viewDialog.layanan}
+      />
+
+      <EditLayananDialog
+        open={editDialog.open}
+        onOpenChange={(open) =>
+          setEditDialog({ open, layanan: open ? editDialog.layanan : null })
+        }
+        layanan={editDialog.layanan}
+        onSuccess={handleSuccess}
+      />
+
+      <DeleteLayananDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          setDeleteDialog({ open, layanan: open ? deleteDialog.layanan : null })
+        }
+        layanan={deleteDialog.layanan}
+        onSuccess={handleSuccess}
+      />
     </div>
   );
 }

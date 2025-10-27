@@ -19,6 +19,7 @@ import { AddKasirDialog } from "./add-kasir-dialog";
 import { ViewKasirDialog } from "./view-kasir-dialog";
 import { EditKasirDialog } from "./edit-kasir-dialog";
 import { DeleteKasirDialog } from "./delete-kasir-dialog";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 export default function ManajemenKasir() {
   const [kasirData, setKasirData] = useState<KasirRowData[]>([]);
@@ -64,15 +65,14 @@ export default function ManajemenKasir() {
       } else {
         throw new Error(response?.message || "Gagal mengambil data kasir");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Kasir fetch error:", error);
 
       setKasirData([]);
       setTotalCount(0);
 
       toast.error("Gagal memuat data kasir", {
-        description:
-          error.message || "Silakan coba lagi atau hubungi administrator",
+        description: getErrorMessage(error),
       });
     } finally {
       setLoading(false);
@@ -138,12 +138,11 @@ export default function ManajemenKasir() {
       } else {
         throw new Error(response.message || "Gagal menghapus kasir");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Error deleting kasir:", error);
 
       toast.error("Gagal menghapus kasir", {
-        description:
-          error.response?.data?.message || error.message || "Silakan coba lagi",
+        description: getErrorMessage(error),
       });
 
       setDeleteDialog((prev) => ({ ...prev, loading: false }));

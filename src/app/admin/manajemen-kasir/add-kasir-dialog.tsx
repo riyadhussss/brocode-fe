@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { z } from "zod";
 import { cashierService } from "@/app/lib/services/cashier.service";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 // ✅ Zod Schema untuk validasi
 const addKasirSchema = z
@@ -129,11 +130,10 @@ export function AddKasirDialog({
       } else {
         throw new Error(response.message || "Gagal menambahkan kasir");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Error adding kasir:", error);
       toast.error("Gagal menambahkan kasir", {
-        description:
-          error.response?.data?.message || error.message || "Terjadi kesalahan",
+        description: getErrorMessage(error),
       });
     } finally {
       setLoading(false);

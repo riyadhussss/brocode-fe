@@ -7,6 +7,5 @@
   "/admin/manajemen-layanan/page": "app/admin/manajemen-layanan/page.js",
   "/admin/manajemen-user/page": "app/admin/manajemen-user/page.js",
   "/admin/riwayat-reservasi/page": "app/admin/riwayat-reservasi/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }

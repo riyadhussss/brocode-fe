@@ -154,14 +154,11 @@ export default function ManajemenAdmin() {
       } else {
         throw new Error(response?.message || "Gagal menghapus admin");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Error deleting admin:", error);
 
-      const errorMessage =
-        error.response?.data?.message || error.message || "Terjadi kesalahan";
-
       toast.error("Gagal menghapus admin", {
-        description: errorMessage,
+        description: getErrorMessage(error),
       });
 
       setDeleteDialog((prev) => ({ ...prev, loading: false }));

@@ -9,7 +9,7 @@ import { AxiosError } from "axios";
  */
 export function getErrorMessage(error: unknown): string {
   // Default message jika error tidak dikenali
-  let message = "Terjadi kesalahan tak terduga. Silakan coba lagi.";
+  const defaultMessage = "Terjadi kesalahan tak terduga. Silakan coba lagi.";
 
   // 🔹 1. Jika error dari Axios
   if (error instanceof AxiosError) {
@@ -23,7 +23,7 @@ export function getErrorMessage(error: unknown): string {
 
   // 🔹 2. Jika error adalah instance dari Error biasa
   if (error instanceof Error) {
-    return error.message || message;
+    return error.message || defaultMessage;
   }
 
   // 🔹 3. Jika error adalah object (misal custom error)
@@ -39,5 +39,5 @@ export function getErrorMessage(error: unknown): string {
   }
 
   // 🔹 5. Fallback
-  return message;
+  return defaultMessage;
 }

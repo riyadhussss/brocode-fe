@@ -13,6 +13,7 @@ import { authService } from "@/app/lib/services/auth.service";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 // ✅ Schema validasi
 const registerSchema = z
@@ -83,56 +84,63 @@ export function RegisterForm({
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
       // Handle different error types
-      if (error.response) {
-        const status = error.response.status;
-        const message =
-          error.response.data?.message || error.response.data?.error;
+      if (error && typeof error === "object" && "response" in error) {
+        const axiosError = error as {
+          response?: {
+            status?: number;
+            data?: { message?: string; error?: string };
+          };
+        };
 
-        switch (status) {
-          case 400:
-            // Response 400 - bad request (tidak log ke console)
-            toast.error("Registrasi gagal", {
-              description: message || "Data yang dimasukkan tidak valid",
-            });
-            return; // Return early, tidak log error
+        if (axiosError.response) {
+          const status = axiosError.response.status;
+          const message =
+            axiosError.response.data?.message ||
+            axiosError.response.data?.error;
 
-          case 409:
-            toast.error("Registrasi gagal", {
-              description: "Email atau nomor HP sudah terdaftar",
-            });
-            break;
+          switch (status) {
+            case 400:
+              // Response 400 - bad request (tidak log ke console)
+              toast.error("Registrasi gagal", {
+                description: message || "Data yang dimasukkan tidak valid",
+              });
+              return; // Return early, tidak log error
 
-          case 422:
-            toast.error("Registrasi gagal", {
-              description: message || "Data tidak sesuai format",
-            });
-            break;
+            case 409:
+              toast.error("Registrasi gagal", {
+                description: "Email atau nomor HP sudah terdaftar",
+              });
+              break;
 
-          case 500:
-            toast.error("Registrasi gagal", {
-              description: "Terjadi kesalahan server, coba lagi nanti",
-            });
-            break;
+            case 422:
+              toast.error("Registrasi gagal", {
+                description: message || "Data tidak sesuai format",
+              });
+              break;
 
-          default:
-            toast.error("Registrasi gagal", {
-              description: message || "Terjadi kesalahan, coba lagi",
-            });
+            case 500:
+              toast.error("Registrasi gagal", {
+                description: "Terjadi kesalahan server, coba lagi nanti",
+              });
+              break;
+
+            default:
+              toast.error("Registrasi gagal", {
+                description: message || "Terjadi kesalahan, coba lagi",
+              });
+          }
+          // Log error untuk semua case kecuali 400
+          console.error("❌ Register error:", error);
+          return;
         }
-      } else if (error.request) {
-        // Network error
-        toast.error("Registrasi gagal", {
-          description:
-            "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.",
-        });
-      } else {
-        // Other error
-        toast.error("Registrasi gagal", {
-          description: error.message || "Terjadi kesalahan yang tidak terduga",
-        });
       }
+
+      // Fallback untuk error lain
+      toast.error("Registrasi gagal", {
+        description: getErrorMessage(error),
+      });
 
       // Log error untuk semua case kecuali 400
       console.error("❌ Register error:", error);

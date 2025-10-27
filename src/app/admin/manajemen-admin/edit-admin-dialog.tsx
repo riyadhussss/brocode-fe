@@ -17,6 +17,7 @@ import { adminService } from "@/app/lib/services/admin.service";
 import { GetAdminsResponse, EditAdminRequest } from "@/app/lib/types/admin";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 type AdminRowData = GetAdminsResponse["data"][number];
 
@@ -173,23 +174,28 @@ export function EditAdminDialog({
       } else {
         throw new Error(response?.message || "Gagal mengupdate admin");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("❌ Error updating admin:", error);
 
       // Handle field-specific errors dari backend
-      if (error.response?.data?.errors) {
-        const backendErrors: Partial<Record<keyof EditAdminForm, string>> = {};
-        Object.entries(error.response.data.errors).forEach(([key, value]) => {
-          backendErrors[key as keyof EditAdminForm] = value as string;
-        });
-        setErrors(backendErrors);
+      if (error && typeof error === "object" && "response" in error) {
+        const responseError = error as {
+          response?: { data?: { errors?: Record<string, string> } };
+        };
+        if (responseError.response?.data?.errors) {
+          const backendErrors: Partial<Record<keyof EditAdminForm, string>> =
+            {};
+          Object.entries(responseError.response.data.errors).forEach(
+            ([key, value]) => {
+              backendErrors[key as keyof EditAdminForm] = value as string;
+            }
+          );
+          setErrors(backendErrors);
+        }
       }
 
-      const errorMessage =
-        error.response?.data?.message || error.message || "Terjadi kesalahan";
-
       toast.error("Gagal mengupdate admin", {
-        description: errorMessage,
+        description: getErrorMessage(error),
       });
     } finally {
       setLoading(false);

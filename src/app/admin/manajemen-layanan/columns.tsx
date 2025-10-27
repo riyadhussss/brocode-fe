@@ -19,7 +19,7 @@ export type LayananRowData = {
   name: string;
   price: number;
   description: string;
-  isActive: boolean;
+  isActive: boolean | string; // API might return string or boolean
   createdAt: string;
   updatedAt: string;
   packageId: string;
@@ -88,7 +88,13 @@ export const createColumns = (
     cell: ({ row }) => {
       const isActive = row.getValue("isActive") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
+        <Badge
+          className={
+            isActive
+              ? "bg-green-500 hover:bg-green-600 text-white"
+              : "bg-red-500 hover:bg-red-600 text-white"
+          }
+        >
           {isActive ? "Aktif" : "Tidak Aktif"}
         </Badge>
       );

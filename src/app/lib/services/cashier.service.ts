@@ -13,6 +13,7 @@ export const cashierService = {
   // getDashboardCashier: async (): Promise<DashboardResponse> => {
   //   const response = await api.get("/dashboard/cashier");
   //   return response.data;
+  
   // },
   getCashiers: async (): Promise<GetCashiersResponse> => {
     const response = await api.get("/cashiers");
