@@ -30,9 +30,13 @@ export const capsterService = {
 
   editCapster: async (
     id: string,
-    data: Partial<EditCapsterRequest>
+    data: FormData
   ): Promise<EditCapsterResponse> => {
-    const response = await api.put(`/barbers/${id}`, data);
+    const response = await api.put(`/barbers/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   },
 

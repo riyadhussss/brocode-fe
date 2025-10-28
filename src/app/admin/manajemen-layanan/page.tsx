@@ -98,7 +98,7 @@ export default function ManajemenLayanan() {
         onEdit: handleEditClick,
         onDelete: handleDeleteClick,
       }),
-    [handleViewClick, handleEditClick, handleDeleteClick]
+    [] // Columns dibuat sekali, tidak pernah berubah
   );
 
   return (

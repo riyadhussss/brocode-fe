@@ -17,11 +17,37 @@ import { createColumns, CapsterRowData } from "./columns";
 import { capsterService } from "@/app/lib/services/capster.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import { AddCapsterDialog } from "./add-capster-dialog";
+import { ViewCapsterDialog } from "./view-capster-dialog";
+import { EditCapsterDialog } from "./edit-capster-dialog";
+import { DeleteCapsterDialog } from "./delete-capster-dialog";
 
 export default function ManajemenCapster() {
   const [capsterData, setCapsterData] = useState<CapsterRowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [viewDialog, setViewDialog] = useState<{
+    open: boolean;
+    capster: CapsterRowData | null;
+  }>({
+    open: false,
+    capster: null,
+  });
+  const [editDialog, setEditDialog] = useState<{
+    open: boolean;
+    capster: CapsterRowData | null;
+  }>({
+    open: false,
+    capster: null,
+  });
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    capster: CapsterRowData | null;
+    loading: boolean;
+  }>({
+    open: false,
+    capster: null,
+    loading: false,
+  });
 
   // ✅ Fetch capsters data
   const fetchCapsters = async () => {
@@ -60,12 +86,48 @@ export default function ManajemenCapster() {
     fetchCapsters();
   };
 
-  const handleViewClick = (capster: CapsterRowData) =>
-    console.log("View:", capster);
-  const handleEditClick = (capster: CapsterRowData) =>
-    console.log("Edit:", capster);
-  const handleDeleteClick = (capster: CapsterRowData) =>
-    console.log("Delete:", capster);
+  const handleViewClick = (capster: CapsterRowData) => {
+    setViewDialog({ open: true, capster });
+  };
+
+  const handleEditClick = (capster: CapsterRowData) => {
+    setEditDialog({ open: true, capster });
+  };
+
+  const handleDeleteClick = (capster: CapsterRowData) => {
+    setDeleteDialog({ open: true, capster, loading: false });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.capster) return;
+
+    setDeleteDialog((prev) => ({ ...prev, loading: true }));
+
+    try {
+      const response = await capsterService.deleteCapster(
+        deleteDialog.capster._id
+      );
+
+      if (response?.success) {
+        toast.success("Capster berhasil dihapus", {
+          description: `${deleteDialog.capster.name} telah dihapus dari sistem`,
+        });
+
+        setDeleteDialog({ open: false, capster: null, loading: false });
+        fetchCapsters();
+      } else {
+        throw new Error(response?.message || "Gagal menghapus capster");
+      }
+    } catch (error) {
+      console.error("❌ Error deleting capster:", error);
+
+      toast.error("Gagal menghapus capster", {
+        description: getErrorMessage(error),
+      });
+
+      setDeleteDialog((prev) => ({ ...prev, loading: false }));
+    }
+  };
 
   const columns = useMemo(
     () =>
@@ -226,6 +288,30 @@ export default function ManajemenCapster() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSuccess={handleSuccess}
+      />
+
+      {/* View Capster Dialog */}
+      <ViewCapsterDialog
+        open={viewDialog.open}
+        onOpenChange={(open) => setViewDialog((prev) => ({ ...prev, open }))}
+        capster={viewDialog.capster}
+      />
+
+      {/* Edit Capster Dialog */}
+      <EditCapsterDialog
+        open={editDialog.open}
+        onOpenChange={(open) => setEditDialog((prev) => ({ ...prev, open }))}
+        capster={editDialog.capster}
+        onSuccess={handleSuccess}
+      />
+
+      {/* Delete Capster Dialog */}
+      <DeleteCapsterDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
+        onConfirm={handleDeleteConfirm}
+        capsterName={deleteDialog.capster?.name || ""}
+        loading={deleteDialog.loading}
       />
     </div>
   );

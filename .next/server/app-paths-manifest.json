@@ -1,4 +1,5 @@
 {
   "/admin/manajemen-capster/page": "app/admin/manajemen-capster/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/admin/manajemen-kasir/page": "app/admin/manajemen-kasir/page.js",
+  "/admin/riwayat-reservasi/page": "app/admin/riwayat-reservasi/page.js"
 }

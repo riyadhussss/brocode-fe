@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,21 +13,31 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { capsterService } from "@/app/lib/services/capster.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import { CapsterRowData } from "./columns";
 
-interface AddCapsterDialogProps {
+interface EditCapsterDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  capster: CapsterRowData | null;
   onSuccess?: () => void;
 }
 
-type CapsterFormData = {
+type EditCapsterFormData = {
   name: string;
   phone: string;
   photo: File | null;
+  isActive: boolean;
 };
 
 interface FormErrors {
@@ -36,19 +46,35 @@ interface FormErrors {
   photo?: string;
 }
 
-export function AddCapsterDialog({
+export function EditCapsterDialog({
   open,
   onOpenChange,
+  capster,
   onSuccess,
-}: AddCapsterDialogProps) {
+}: EditCapsterDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<CapsterFormData>({
+  const [formData, setFormData] = useState<EditCapsterFormData>({
     name: "",
     phone: "",
     photo: null,
+    isActive: true,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [previewUrl, setPreviewUrl] = useState<string>("");
+
+  // Populate form when capster changes
+  useEffect(() => {
+    if (capster) {
+      setFormData({
+        name: capster.name,
+        phone: capster.phone,
+        photo: null,
+        isActive: capster.isActive,
+      });
+      setPreviewUrl(capster.photo || "");
+      setErrors({});
+    }
+  }, [capster]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -67,10 +93,8 @@ export function AddCapsterDialog({
       newErrors.phone = "Nomor HP harus 10-13 digit angka";
     }
 
-    // Validasi foto
-    if (!formData.photo) {
-      newErrors.photo = "Foto harus diupload";
-    } else {
+    // Validasi foto (optional untuk edit)
+    if (formData.photo) {
       const validTypes = [
         "image/jpeg",
         "image/jpg",
@@ -81,7 +105,6 @@ export function AddCapsterDialog({
       if (!validTypes.includes(formData.photo.type)) {
         newErrors.photo = "Format foto harus jpg, jpeg, png, gif, atau webp";
       } else if (formData.photo.size > 5 * 1024 * 1024) {
-        // Max 5MB
         newErrors.photo = "Ukuran foto maksimal 5MB";
       }
     }
@@ -93,7 +116,7 @@ export function AddCapsterDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!capster || !validateForm()) {
       return;
     }
 
@@ -104,23 +127,16 @@ export function AddCapsterDialog({
       const formDataToSend = new globalThis.FormData();
       formDataToSend.append("name", formData.name.trim());
       formDataToSend.append("phone", formData.phone.trim());
+      formDataToSend.append("isActive", String(formData.isActive));
 
+      // Hanya append photo jika ada file baru
       if (formData.photo) {
         formDataToSend.append("photo", formData.photo);
       }
 
-      await capsterService.addCapster(formDataToSend);
+      await capsterService.editCapster(capster._id, formDataToSend);
 
-      toast.success("Capster berhasil ditambahkan!");
-
-      // Reset form
-      setFormData({
-        name: "",
-        phone: "",
-        photo: null,
-      });
-      setPreviewUrl("");
-      setErrors({});
+      toast.success("Capster berhasil diperbarui!");
 
       onOpenChange(false);
 
@@ -141,7 +157,7 @@ export function AddCapsterDialog({
     // Only handle text inputs (name and phone), not file input
     if (name === "name" || name === "phone") {
       setFormData(
-        (prev: CapsterFormData): CapsterFormData => ({
+        (prev: EditCapsterFormData): EditCapsterFormData => ({
           ...prev,
           [name]: value,
         })
@@ -198,11 +214,12 @@ export function AddCapsterDialog({
 
   const handleClearPhoto = () => {
     setFormData((prev) => ({ ...prev, photo: null }));
-    setPreviewUrl("");
+    // Restore original photo preview
+    setPreviewUrl(capster?.photo || "");
     setErrors((prev) => ({ ...prev, photo: undefined }));
 
     // Reset file input
-    const fileInput = document.getElementById("photo") as HTMLInputElement;
+    const fileInput = document.getElementById("edit-photo") as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";
     }
@@ -211,16 +228,21 @@ export function AddCapsterDialog({
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen && !loading) {
       // Reset form saat dialog ditutup
-      setFormData({
-        name: "",
-        phone: "",
-        photo: null,
-      });
-      setPreviewUrl("");
+      if (capster) {
+        setFormData({
+          name: capster.name,
+          phone: capster.phone,
+          photo: null,
+          isActive: capster.isActive,
+        });
+        setPreviewUrl(capster.photo || "");
+      }
       setErrors({});
 
       // Reset file input
-      const fileInput = document.getElementById("photo") as HTMLInputElement;
+      const fileInput = document.getElementById(
+        "edit-photo"
+      ) as HTMLInputElement;
       if (fileInput) {
         fileInput.value = "";
       }
@@ -228,14 +250,16 @@ export function AddCapsterDialog({
     onOpenChange(newOpen);
   };
 
+  if (!capster) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Tambah Capster Baru</DialogTitle>
+            <DialogTitle>Edit Capster</DialogTitle>
             <DialogDescription>
-              Isi formulir di bawah ini untuk menambahkan capster baru.
+              Perbarui informasi capster. Klik simpan untuk menyimpan perubahan.
             </DialogDescription>
           </DialogHeader>
 
@@ -279,15 +303,38 @@ export function AddCapsterDialog({
               )}
             </div>
 
+            {/* Status */}
+            <div className="grid gap-2">
+              <Label htmlFor="isActive">
+                Status <span className="text-red-500">*</span>
+              </Label>
+              <Select
+                value={String(formData.isActive)}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    isActive: value === "true",
+                  }))
+                }
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Aktif</SelectItem>
+                  <SelectItem value="false">Tidak Aktif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Upload Foto */}
             <div className="grid gap-2">
-              <Label htmlFor="photo">
-                Foto Capster <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="edit-photo">Foto Capster (Opsional)</Label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Input
-                    id="photo"
+                    id="edit-photo"
                     name="photo"
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
@@ -350,7 +397,7 @@ export function AddCapsterDialog({
             </Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? "Menambahkan..." : "Tambah Capster"}
+              {loading ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </DialogFooter>
         </form>

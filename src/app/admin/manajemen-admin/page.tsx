@@ -9,8 +9,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Users, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
 import { DataTable } from "./data-table";
@@ -21,7 +20,6 @@ import { ViewAdminDialog } from "./view-admin-dialog";
 import { EditAdminDialog } from "./edit-admin-dialog";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
-// ✅ Menggunakan AdminsResponse langsung tanpa interface Admin tambahan
 import { GetAdminsResponse } from "@/app/lib/types/admin";
 
 export default function ManajemenAdmin() {
@@ -55,7 +53,6 @@ export default function ManajemenAdmin() {
     admin: null,
   });
 
-  // ✅ Fetch data menggunakan adminService.getAdmins
   const fetchAdminsData = async () => {
     try {
       setLoading(true);
@@ -86,7 +83,6 @@ export default function ManajemenAdmin() {
     }
   };
 
-  // ✅ Load data saat komponen mount
   useEffect(() => {
     fetchAdminsData();
   }, []);
@@ -104,7 +100,6 @@ export default function ManajemenAdmin() {
     fetchAdminsData();
   };
 
-  // ✅ Handle view admin
   const handleViewClick = (admin: GetAdminsResponse["data"][number]) => {
     setViewDialog({
       open: true,
@@ -112,7 +107,6 @@ export default function ManajemenAdmin() {
     });
   };
 
-  // ✅ Handle edit admin
   const handleEditClick = (admin: GetAdminsResponse["data"][number]) => {
     setEditDialog({
       open: true,
@@ -124,7 +118,6 @@ export default function ManajemenAdmin() {
     fetchAdminsData();
   };
 
-  // ✅ Handle delete admin
   const handleDeleteClick = (admin: GetAdminsResponse["data"][number]) => {
     setDeleteDialog({
       open: true,
@@ -146,10 +139,7 @@ export default function ManajemenAdmin() {
           description: `${deleteDialog.admin.name} telah dihapus dari sistem`,
         });
 
-        // Close dialog
         setDeleteDialog({ open: false, admin: null, loading: false });
-
-        // Refresh data
         fetchAdminsData();
       } else {
         throw new Error(response?.message || "Gagal menghapus admin");
@@ -165,7 +155,6 @@ export default function ManajemenAdmin() {
     }
   };
 
-  // ✅ Create columns dengan callbacks
   const columns = useMemo(
     () =>
       createColumns({
@@ -176,7 +165,6 @@ export default function ManajemenAdmin() {
     []
   );
 
-  // ✅ Convert to array untuk safety
   const adminsList = Array.isArray(adminsData) ? adminsData : [];
 
   return (
@@ -201,90 +189,8 @@ export default function ManajemenAdmin() {
         </div>
       </div>
 
-      {/* Main Content - Stats Cards dan DataTable dalam satu container */}
+      {/* Main Content - Data Table */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 flex-shrink-0">
-          {/* Total Admin */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Admin</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <>
-                  <Skeleton className="h-8 w-16 mb-2" />
-                  <Skeleton className="h-4 w-32" />
-                </>
-              ) : (
-                <>
-                  <div className="text-2xl font-bold">{adminsList.length}</div>
-                  <p className="text-xs text-muted-foreground">
-                    Administrator terdaftar
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Admin Aktif */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Admin Aktif</CardTitle>
-              <Users className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <>
-                  <Skeleton className="h-8 w-16 mb-2" />
-                  <Skeleton className="h-4 w-28" />
-                </>
-              ) : (
-                <>
-                  <div className="text-2xl font-bold text-green-600">
-                    {
-                      adminsList.filter((admin) => admin.role === "admin")
-                        .length
-                    }
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Admin yang aktif
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Total dari Server */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total (Server)
-              </CardTitle>
-              <Users className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <>
-                  <Skeleton className="h-8 w-16 mb-2" />
-                  <Skeleton className="h-4 w-32" />
-                </>
-              ) : (
-                <>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {totalCount}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Total dari database
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Data Table */}
         <Card className="flex-1 flex flex-col">
           <CardHeader className="flex-shrink-0">
             <CardTitle>Daftar Administrator</CardTitle>
@@ -298,30 +204,30 @@ export default function ManajemenAdmin() {
               <div className="space-y-4">
                 {/* Search and buttons skeleton */}
                 <div className="flex items-center justify-between">
-                  <Skeleton className="h-10 w-96" />
+                  <div className="h-10 w-96 bg-gray-200 rounded animate-pulse" />
                   <div className="flex gap-2">
-                    <Skeleton className="h-10 w-24" />
-                    <Skeleton className="h-10 w-32" />
+                    <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
                   </div>
                 </div>
                 {/* Table skeleton */}
                 <div className="border rounded-md">
                   <div className="p-4 space-y-3">
-                    <Skeleton className="h-10 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
+                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
+                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
+                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
+                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
+                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
+                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
                   </div>
                 </div>
                 {/* Pagination skeleton */}
                 <div className="flex items-center justify-between">
-                  <Skeleton className="h-4 w-32" />
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
                   <div className="flex gap-2">
-                    <Skeleton className="h-8 w-24" />
-                    <Skeleton className="h-8 w-32" />
-                    <Skeleton className="h-8 w-24" />
+                    <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
                   </div>
                 </div>
               </div>
@@ -368,4 +274,4 @@ export default function ManajemenAdmin() {
       />
     </div>
   );
-}
+} 
