@@ -1,17 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  FaEnvelope,
-  FaLock,
-  FaEye,
-  FaEyeSlash,
-  FaSave,
-  FaEdit,
-} from "react-icons/fa";
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Save,
+  User,
+  KeyRound,
+  ShieldCheck,
+  Loader2,
+} from "lucide-react";
+import { toast } from "sonner";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { adminService } from "@/app/lib/services/admin.service";
+import Cookies from "js-cookie";
 
 // Interface untuk form data
 interface FormData {
+  name: string;
   email: string;
   currentPassword: string;
   newPassword: string;
@@ -23,22 +41,61 @@ export default function UpdateAkun() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Current admin data (dummy)
-  const [currentAdmin] = useState({
-    name: "Admin User",
-    email: "admin@brocode.com",
-    role: "Administrator",
+  // Current admin data
+  const [currentAdmin, setCurrentAdmin] = useState({
+    name: "",
+    email: "",
+    role: "",
   });
 
   const [formData, setFormData] = useState<FormData>({
-    email: currentAdmin.email,
+    name: "",
+    email: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // Fetch admin data on component mount
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        setIsLoadingData(true);
+        const _id = Cookies.get("_id");
+
+        if (!_id) {
+          toast.error("User ID tidak ditemukan. Silakan login ulang.");
+          return;
+        }
+
+        const response = await adminService.getAdminbyId(_id);
+
+        if (response.success && response.data) {
+          const adminData = {
+            name: response.data.name,
+            email: response.data.email,
+            role: response.data.role,
+          };
+
+          setCurrentAdmin(adminData);
+          setFormData((prev) => ({
+            ...prev,
+            name: adminData.name,
+            email: adminData.email,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching admin data:", error);
+        toast.error("Gagal memuat data admin");
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchAdminData();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -46,35 +103,37 @@ export default function UpdateAkun() {
       ...prev,
       [name]: value,
     }));
-    // Clear messages when user starts typing
-    if (errorMessage) setErrorMessage("");
-    if (successMessage) setSuccessMessage("");
   };
 
   const validateForm = () => {
+    if (!formData.name.trim()) {
+      toast.error("Nama tidak boleh kosong");
+      return false;
+    }
+
     if (!formData.email) {
-      setErrorMessage("Email tidak boleh kosong");
+      toast.error("Email tidak boleh kosong");
       return false;
     }
 
     if (!formData.email.includes("@")) {
-      setErrorMessage("Format email tidak valid");
+      toast.error("Format email tidak valid");
       return false;
     }
 
     if (formData.newPassword) {
       if (!formData.currentPassword) {
-        setErrorMessage("Password saat ini diperlukan untuk mengubah password");
+        toast.error("Password saat ini diperlukan untuk mengubah password");
         return false;
       }
 
       if (formData.newPassword.length < 6) {
-        setErrorMessage("Password baru minimal 6 karakter");
+        toast.error("Password baru minimal 6 karakter");
         return false;
       }
 
       if (formData.newPassword !== formData.confirmPassword) {
-        setErrorMessage("Konfirmasi password tidak cocok");
+        toast.error("Konfirmasi password tidak cocok");
         return false;
       }
     }
@@ -88,232 +147,311 @@ export default function UpdateAkun() {
     if (!validateForm()) return;
 
     setIsLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const userId = Cookies.get("userId");
 
-      // TODO: Implement actual API call here
-      console.log("Update data:", formData);
+      if (!userId) {
+        toast.error("User ID tidak ditemukan. Silakan login ulang.");
+        return;
+      }
 
-      setSuccessMessage("Akun berhasil diperbarui!");
+      // Prepare update data
+      const updateData: {
+        name?: string;
+        email?: string;
+        password?: string;
+      } = {};
 
-      // Clear password fields after successful update
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-    } catch (error) {
-      setErrorMessage("Terjadi kesalahan saat memperbarui akun");
+      // Only include changed fields
+      if (formData.name !== currentAdmin.name) {
+        updateData.name = formData.name;
+      }
+
+      if (formData.email !== currentAdmin.email) {
+        updateData.email = formData.email;
+      }
+
+      // If new password is provided, include it
+      if (formData.newPassword) {
+        updateData.password = formData.newPassword;
+      }
+
+      // If no changes, show message
+      if (Object.keys(updateData).length === 0) {
+        toast.info("Tidak ada perubahan yang dilakukan");
+        setIsLoading(false);
+        return;
+      }
+
+      // Call API to update admin
+      const response = await adminService.editAdmin(userId, updateData);
+
+      if (response.success && response.data) {
+        toast.success("Akun berhasil diperbarui!");
+
+        const updatedAdminData = {
+          name: response.data.name,
+          email: response.data.email,
+          role: response.data.role,
+        };
+
+        // Update current admin data
+        setCurrentAdmin(updatedAdminData);
+
+        // Update cookies dengan data terbaru
+        Cookies.set("name", response.data.name, { expires: 7 });
+        Cookies.set("email", response.data.email, { expires: 7 });
+
+        // Update formData dengan data terbaru dari server
+        setFormData((prev) => ({
+          ...prev,
+          name: response.data!.name,
+          email: response.data!.email,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+      }
+    } catch (error: any) {
+      console.error("Update error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Terjadi kesalahan saat memperbarui akun";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Update Akun
-            </h1>
-            <p className="text-gray-600">Kelola informasi akun admin Anda</p>
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
+      <div className="max-w-3xl mx-auto w-full">
+        <div className="mb-6">
+          <div className="flex items-center space-x-3 mb-2">
+            <ShieldCheck className="h-8 w-8 text-[#FDFB03]" />
+            <h1 className="text-2xl font-bold text-gray-900">Update Akun</h1>
           </div>
-
-          {/* Update Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-100">
-              <div className="flex items-center space-x-3">
-                <FaEdit className="text-[#FDFB03] text-xl" />
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Update Informasi Akun
-                </h3>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Success Message */}
-              {successMessage && (
-                <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-                  {successMessage}
-                </div>
-              )}
-
-              {/* Error Message */}
-              {errorMessage && (
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-                  {errorMessage}
-                </div>
-              )}
-
-              {/* Email Field */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className="text-gray-400" size={16} />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                    placeholder="admin@brocode.com"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Password Section */}
-              <div className="border-t border-gray-100 pt-6">
-                <h4 className="text-lg font-medium text-gray-900 mb-4">
-                  Ubah Password
-                </h4>
-                <p className="text-sm text-gray-600 mb-4">
-                  Kosongkan jika tidak ingin mengubah password
-                </p>
-
-                {/* Current Password */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="currentPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Password Saat Ini
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaLock className="text-gray-400" size={16} />
-                    </div>
-                    <input
-                      type={showCurrentPassword ? "text" : "password"}
-                      id="currentPassword"
-                      name="currentPassword"
-                      value={formData.currentPassword}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      placeholder="Masukkan password saat ini"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowCurrentPassword(!showCurrentPassword)
-                      }
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                    >
-                      {showCurrentPassword ? (
-                        <FaEyeSlash size={16} />
-                      ) : (
-                        <FaEye size={16} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* New Password */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="newPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Password Baru
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaLock className="text-gray-400" size={16} />
-                    </div>
-                    <input
-                      type={showNewPassword ? "text" : "password"}
-                      id="newPassword"
-                      name="newPassword"
-                      value={formData.newPassword}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      placeholder="Masukkan password baru"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                    >
-                      {showNewPassword ? (
-                        <FaEyeSlash size={16} />
-                      ) : (
-                        <FaEye size={16} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Confirm Password */}
-                <div>
-                  <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Konfirmasi Password Baru
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <FaLock className="text-gray-400" size={16} />
-                    </div>
-                    <input
-                      type={showConfirmPassword ? "text" : "password"}
-                      id="confirmPassword"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      placeholder="Konfirmasi password baru"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                    >
-                      {showConfirmPassword ? (
-                        <FaEyeSlash size={16} />
-                      ) : (
-                        <FaEye size={16} />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end pt-6 border-t border-gray-100">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-                    isLoading
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-[#FDFB03] hover:bg-yellow-400 text-black"
-                  }`}
-                >
-                  <FaSave size={16} />
-                  <span>{isLoading ? "Menyimpan..." : "Simpan Perubahan"}</span>
-                </button>
-              </div>
-            </form>
-          </div>
+          <p className="text-gray-600 text-sm">
+            Kelola informasi akun dan keamanan Anda
+          </p>
         </div>
-      </main>
+
+        <div className="max-w-2xl mx-auto">
+          {isLoadingData ? (
+            <Card>
+              <CardContent className="flex items-center justify-center py-12">
+                <div className="flex flex-col items-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#FDFB03]" />
+                  <p className="text-gray-600">Memuat data admin...</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="h-5 w-5 text-[#FDFB03]" />
+                  <span>Informasi Akun</span>
+                </CardTitle>
+                <CardDescription>
+                  Update informasi pribadi dan password akun Anda
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Nama Field */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="name"
+                      className="flex items-center space-x-2"
+                    >
+                      <User className="h-4 w-4 text-gray-500" />
+                      <span>Nama Lengkap</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      placeholder="Masukkan nama lengkap"
+                      required
+                      className="focus-visible:ring-[#FDFB03]"
+                    />
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="email"
+                      className="flex items-center space-x-2"
+                    >
+                      <Mail className="h-4 w-4 text-gray-500" />
+                      <span>Email</span>
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="admin@brocode.com"
+                      required
+                      className="focus-visible:ring-[#FDFB03]"
+                    />
+                  </div>
+
+                  <Separator className="my-6" />
+
+                  {/* Password Section */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <KeyRound className="h-5 w-5 text-[#FDFB03]" />
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        Ubah Password
+                      </h3>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Kosongkan jika tidak ingin mengubah password
+                    </p>
+
+                    {/* Current Password */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="currentPassword"
+                        className="flex items-center space-x-2"
+                      >
+                        <Lock className="h-4 w-4 text-gray-500" />
+                        <span>Password Saat Ini</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="currentPassword"
+                          name="currentPassword"
+                          type={showCurrentPassword ? "text" : "password"}
+                          value={formData.currentPassword}
+                          onChange={handleInputChange}
+                          placeholder="Masukkan password saat ini"
+                          className="pr-10 focus-visible:ring-[#FDFB03]"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
+                        >
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* New Password */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="newPassword"
+                        className="flex items-center space-x-2"
+                      >
+                        <Lock className="h-4 w-4 text-gray-500" />
+                        <span>Password Baru</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          name="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          value={formData.newPassword}
+                          onChange={handleInputChange}
+                          placeholder="Masukkan password baru (min. 6 karakter)"
+                          className="pr-10 focus-visible:ring-[#FDFB03]"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Confirm Password */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="flex items-center space-x-2"
+                      >
+                        <Lock className="h-4 w-4 text-gray-500" />
+                        <span>Konfirmasi Password Baru</span>
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="confirmPassword"
+                          name="confirmPassword"
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          placeholder="Konfirmasi password baru"
+                          className="pr-10 focus-visible:ring-[#FDFB03]"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4 text-gray-500" />
+                          ) : (
+                            <Eye className="h-4 w-4 text-gray-500" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="flex justify-end pt-4">
+                    <Button
+                      type="submit"
+                      disabled={isLoading}
+                      className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-medium"
+                    >
+                      {isLoading ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Menyimpan...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Simpan Perubahan
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

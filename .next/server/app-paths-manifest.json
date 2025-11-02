@@ -1,9 +1,8 @@
 {
+  "/(auth)/login/page": "app/(auth)/login/page.js",
+  "/(auth)/register/page": "app/(auth)/register/page.js",
   "/_not-found/page": "app/_not-found/page.js",
   "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/manajemen-admin/page": "app/admin/manajemen-admin/page.js",
-  "/admin/manajemen-user/page": "app/admin/manajemen-user/page.js",
-  "/admin/riwayat-reservasi/page": "app/admin/riwayat-reservasi/page.js",
-  "/admin/update-akun/page": "app/admin/update-akun/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
 }

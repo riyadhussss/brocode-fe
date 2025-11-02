@@ -36,6 +36,7 @@ export const authService = {
     Cookies.remove("phone");
     Cookies.remove("email");
     Cookies.remove("userId");
+    Cookies.remove("_id");
     Cookies.remove("user");
 
     return Promise.resolve();

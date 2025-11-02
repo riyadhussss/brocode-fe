@@ -97,19 +97,19 @@ export function NavFooter() {
                 <span>Log Out</span>
               </SidebarMenuButton>
             </AlertDialogTrigger>
-            <AlertDialogContent className="bg-neutral-900 border border-gray-700 text-white max-w-md">
+            <AlertDialogContent className="bg-white border border-gray-200 text-black max-w-md">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-white">
+                <AlertDialogTitle className="text-gray-900 text-xl font-semibold">
                   Konfirmasi Logout
                 </AlertDialogTitle>
-                <AlertDialogDescription className="text-gray-400">
+                <AlertDialogDescription className="text-gray-600">
                   Apakah Anda yakin ingin keluar dari akun Anda? Anda akan
                   diarahkan ke halaman login.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel
-                  className="bg-gray-700 text-white hover:bg-gray-600 border-gray-600"
+                  className="bg-gray-100 text-gray-900 hover:bg-gray-200 border-gray-300"
                   onClick={() => setIsDialogOpen(false)}
                 >
                   Batal

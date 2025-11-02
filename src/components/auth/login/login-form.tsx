@@ -77,7 +77,8 @@ export function LoginForm({
         Cookies.set("phone", user.phone, { expires: 7 });
       }
 
-      // Simpan email dan userId untuk keperluan lain
+      // Simpan email, userId, dan _id untuk keperluan lain
+      Cookies.set("_id", user._id, { expires: 7 });
       Cookies.set("email", user.email, { expires: 7 });
       Cookies.set("userId", user.userId, { expires: 7 });
 

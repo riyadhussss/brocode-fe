@@ -36,6 +36,7 @@ export interface LoginResponse {
   message: string;
   token: string;
   user: {
+    _id: string;
     userId: string;
     name?: string;
     email: string;
