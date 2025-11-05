@@ -32,7 +32,7 @@ export default function KasirLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear">
+        <header className="sticky top-0 z-10 bg-background flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear border-b">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -53,7 +53,6 @@ export default function KasirLayout({
             </Breadcrumb>
           </div>
         </header>
-        <Separator orientation="horizontal" className=" h-4" />
         <main>{children}</main>
       </SidebarInset>
     </SidebarProvider>

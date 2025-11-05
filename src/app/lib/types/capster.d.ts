@@ -1,36 +1,26 @@
+export interface Barber {
+  _id: string;
+  name: string;
+  phone: string;
+  photo: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  barberId: string;
+  __v: number;
+}
+
 export interface GetCapstersResponse {
   success: boolean;
   message: string;
-  data?: [
-    {
-      _id: string;
-      name: string;
-      phone: string;
-      photo: string;
-      isActive: boolean;
-      createdAt: string;
-      updatedAt: string;
-      barberId: string;
-      __v: number;
-    }
-  ];
+  data?: Barber[];
   count: number;
 }
 
 export interface GetCapsterByIdResponse {
   success: boolean;
   message: string;
-  data?: {
-    _id: string;
-    name: string;
-    phone: string;
-    photo: string;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-    barberId: string;
-    __v: number;
-  };
+  data?: Barber;
 }
 
 export interface AddCapsterRequest {
@@ -42,40 +32,20 @@ export interface AddCapsterRequest {
 export interface AddCapsterResponse {
   success: boolean;
   message: string;
-  data?: {
-    _id: string;
-    name: string;
-    phone: string;
-    photo: string;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-    barberId: string;
-    __v: number;
-  };
+  data?: Barber;
 }
 
 export interface EditCapsterRequest {
   name?: string;
   phone?: string;
-  photo?: string;
+  photo?: File;
   isActive?: boolean;
 }
 
 export interface EditCapsterResponse {
   success: boolean;
   message: string;
-  data?: {
-    _id: string;
-    name: string;
-    phone: string;
-    photo: string;
-    isActive: boolean;
-    createdAt: string;
-    updatedAt: string;
-    barberId: string;
-    __v: number;
-  };
+  data?: Barber;
 }
 
 export interface DeleteCapsterResponse {
@@ -88,7 +58,9 @@ export interface DeleteCapsterResponse {
   };
 }
 
-// export interface AddCapsterResponse {
-//   success: boolean;
-//   message: string;
-//   data?: {
+// Response untuk mendapatkan daftar barber yang aktif saja
+export interface GetActiveBarbersResponse {
+  success: boolean;
+  message: string;
+  data: Barber[];
+}

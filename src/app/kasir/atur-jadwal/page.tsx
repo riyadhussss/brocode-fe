@@ -1,351 +1,450 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  FaSave,
-  FaClock,
-  FaUser,
-  FaCalendarAlt,
-  FaCheck,
-  FaTimes,
-} from "react-icons/fa";
-
-// Data capster dari admin
-const capsters = [
-  { id: 1, nama: "Ahmad Rizki" },
-  { id: 2, nama: "Budi Santoso" },
-  { id: 3, nama: "Chandra Wijaya" },
-  { id: 4, nama: "Doni Prakoso" },
-];
-
-// Hari dalam seminggu
-const daysOfWeek = [
-  { id: "senin", name: "Senin", short: "Sen" },
-  { id: "selasa", name: "Selasa", short: "Sel" },
-  { id: "rabu", name: "Rabu", short: "Rab" },
-  { id: "kamis", name: "Kamis", short: "Kam" },
-  { id: "jumat", name: "Jumat", short: "Jum" },
-  { id: "sabtu", name: "Sabtu", short: "Sab" },
-  { id: "minggu", name: "Minggu", short: "Min" },
-];
-
-// Slot waktu
-const timeSlots = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-  "20:00",
-];
-
-// Interface untuk schedule
-interface ScheduleItem {
-  capsterId: number;
-  day: string;
-  time: string;
-  available: boolean;
-}
-
-// Default schedule data
-const generateDefaultSchedule = (): ScheduleItem[] => {
-  const schedule: ScheduleItem[] = [];
-  capsters.forEach((capster) => {
-    daysOfWeek.forEach((day) => {
-      timeSlots.forEach((time) => {
-        schedule.push({
-          capsterId: capster.id,
-          day: day.id,
-          time: time,
-          available: true, // Default semua tersedia
-        });
-      });
-    });
-  });
-  return schedule;
-};
+  Save,
+  Clock,
+  User,
+  CalendarDays,
+  Check,
+  X,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from "lucide-react";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { capsterService } from "@/app/lib/services/capster.service";
+import { scheduleService } from "@/app/lib/services/schedule.service";
+import { Barber } from "@/app/lib/types/capster";
+import { Schedule } from "@/app/lib/types/schedule";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 export default function AturJadwal() {
-  const [selectedCapster, setSelectedCapster] = useState<number>(1);
-  const [selectedDay, setSelectedDay] = useState<string>("senin");
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(
-    generateDefaultSchedule()
-  );
+  // State untuk data dari API
+  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [selectedBarberId, setSelectedBarberId] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
-  // Toggle availability untuk slot tertentu
-  const toggleAvailability = (capsterId: number, day: string, time: string) => {
-    setSchedule((prevSchedule) =>
-      prevSchedule.map((item) =>
-        item.capsterId === capsterId && item.day === day && item.time === time
-          ? { ...item, available: !item.available }
-          : item
-      )
-    );
+  // Loading states
+  const [loadingBarbers, setLoadingBarbers] = useState(true);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
+
+  // Fetch active barbers on mount
+  useEffect(() => {
+    fetchActiveBarbers();
+  }, []);
+
+  // Fetch schedules when barber or date changes
+  useEffect(() => {
+    if (selectedBarberId) {
+      fetchSchedulesByBarber(selectedBarberId);
+    }
+  }, [selectedBarberId, selectedDate]);
+
+  const fetchActiveBarbers = async () => {
+    try {
+      setLoadingBarbers(true);
+      const response = await capsterService.getActiveBarbers();
+
+      if (response.success && response.data && response.data.length > 0) {
+        // Urutkan barbers berdasarkan nama (A-Z, 0-9)
+        const sortedBarbers = [...response.data].sort((a, b) =>
+          a.name.localeCompare(b.name, "id", {
+            numeric: true,
+            sensitivity: "base",
+          })
+        );
+        setBarbers(sortedBarbers);
+        // Set barber pertama sebagai default
+        setSelectedBarberId(sortedBarbers[0]._id);
+      } else {
+        toast.error("Tidak ada barber aktif tersedia");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(`Gagal memuat data barber: ${errorMessage}`);
+    } finally {
+      setLoadingBarbers(false);
+    }
   };
 
-  // Get schedule untuk capster dan hari tertentu
-  const getScheduleForCapsterAndDay = (capsterId: number, day: string) => {
-    return schedule.filter(
-      (item) => item.capsterId === capsterId && item.day === day
+  const fetchSchedulesByBarber = async (barberId: string) => {
+    try {
+      setLoadingSchedules(true);
+      const response = await scheduleService.getSchedulesByIdBarber(barberId);
+
+      if (response.success && response.data) {
+        setSchedules(response.data);
+      } else {
+        setSchedules([]);
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(`Gagal memuat jadwal: ${errorMessage}`);
+      setSchedules([]);
+    } finally {
+      setLoadingSchedules(false);
+    }
+  };
+
+  // Filter schedules untuk tanggal yang dipilih
+  const getSchedulesForSelectedDate = () => {
+    const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
+    const filtered = schedules.filter((schedule) => {
+      const scheduleDate = format(new Date(schedule.date), "yyyy-MM-dd");
+      return scheduleDate === selectedDateStr;
+    });
+
+    // Urutkan berdasarkan waktu (timeSlot)
+    return filtered.sort((a, b) => {
+      // Convert timeSlot (format "08:00" atau "08:00 - 09:00") ke number untuk sorting
+      const timeA =
+        a.timeSlot.split(":")[0] + a.timeSlot.split(":")[1].substring(0, 2);
+      const timeB =
+        b.timeSlot.split(":")[0] + b.timeSlot.split(":")[1].substring(0, 2);
+      return parseInt(timeA) - parseInt(timeB);
+    });
+  };
+
+  // Group schedules by time slot
+  const getSchedulesByTimeSlot = () => {
+    const schedulesForDate = getSchedulesForSelectedDate();
+    const grouped: { [key: string]: Schedule } = {};
+
+    schedulesForDate.forEach((schedule) => {
+      grouped[schedule.timeSlot] = schedule;
+    });
+
+    return grouped;
+  };
+
+  // Toggle availability untuk slot tertentu
+  const toggleAvailability = (scheduleId: string) => {
+    setSchedules((prevSchedules) =>
+      prevSchedules.map((schedule) =>
+        schedule._id === scheduleId
+          ? {
+              ...schedule,
+              status:
+                schedule.status === "available" ? "unavailable" : "available",
+            }
+          : schedule
+      )
     );
   };
 
   // Toggle semua slot untuk hari tertentu
-  const toggleAllSlotsForDay = (
-    capsterId: number,
-    day: string,
-    available: boolean
-  ) => {
-    setSchedule((prevSchedule) =>
-      prevSchedule.map((item) =>
-        item.capsterId === capsterId && item.day === day
-          ? { ...item, available }
-          : item
-      )
-    );
+  const toggleAllSlotsForDay = (available: boolean) => {
+    const schedulesForDate = getSchedulesForSelectedDate();
+    const updatedSchedules = schedules.map((schedule) => {
+      const isInSelectedDate = schedulesForDate.some(
+        (s) => s._id === schedule._id
+      );
+      if (isInSelectedDate) {
+        return {
+          ...schedule,
+          status: available ? "available" : "unavailable",
+        };
+      }
+      return schedule;
+    });
+    setSchedules(updatedSchedules);
   };
 
   const handleSaveSchedule = () => {
-    console.log("Menyimpan jadwal:", schedule);
-    // TODO: Implement save schedule functionality
-    alert("Jadwal berhasil disimpan!");
+    console.log("Menyimpan jadwal:", schedules);
+    // TODO: Implement save schedule functionality dengan API
+    toast.success("Jadwal berhasil disimpan!");
   };
 
-  const selectedCapsterData = capsters.find((c) => c.id === selectedCapster);
-  const daySchedule = getScheduleForCapsterAndDay(selectedCapster, selectedDay);
+  const selectedBarberData = barbers.find((b) => b._id === selectedBarberId);
+  const scheduledSlots = getSchedulesByTimeSlot();
+  const schedulesForDate = getSchedulesForSelectedDate();
+
+  // Calculate statistics
+  const availableSlots = schedulesForDate.filter(
+    (s) => s.status === "available"
+  ).length;
+  const totalSlots = schedulesForDate.length;
+
+  // Show loading state
+  if (loadingBarbers) {
+    return (
+      <div className="h-full bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-[#FDFB03] mx-auto" />
+          <p className="text-gray-600">Memuat data barber...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (barbers.length === 0) {
+    return (
+      <div className="h-full bg-gray-50 p-6 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Tidak Ada Barber Aktif</CardTitle>
+            <CardDescription>
+              Silakan tambahkan barber aktif terlebih dahulu
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Atur Jadwal Capster
-            </h1>
-            <p className="text-gray-600">
-              Kelola jadwal ketersediaan setiap capster untuk menerima reservasi
-            </p>
-          </div>
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
+      <div className="mb-6">
+        <div className="flex items-center space-x-3 mb-2">
+          <CalendarDays className="h-8 w-8 text-[#FDFB03]" />
+          <h1 className="text-2xl font-bold text-gray-900">
+            Atur Jadwal Capster
+          </h1>
+        </div>
+        <p className="text-gray-600 text-sm">
+          Kelola jadwal ketersediaan setiap capster untuk menerima reservasi
+        </p>
+      </div>
 
-          {/* Controls */}
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+      <div className="space-y-6">
+        {/* Controls */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Filter Jadwal</CardTitle>
+            <CardDescription>
+              Pilih capster dan tanggal untuk mengelola jadwal
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Pilih Capster */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaUser className="inline mr-2" />
-                  Pilih Capster
-                </label>
-                <select
-                  value={selectedCapster}
-                  onChange={(e) => setSelectedCapster(parseInt(e.target.value))}
-                  title="Pilih Capster"
-                  aria-label="Pilih Capster"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-[#FDFB03]"
+              <div className="space-y-2">
+                <Label className="flex items-center space-x-2">
+                  <User className="h-4 w-4" />
+                  <span>Pilih Capster</span>
+                </Label>
+                <Select
+                  value={selectedBarberId}
+                  onValueChange={setSelectedBarberId}
+                  disabled={loadingBarbers}
                 >
-                  {capsters.map((capster) => (
-                    <option key={capster.id} value={capster.id}>
-                      {capster.nama}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="focus-visible:ring-[#FDFB03]">
+                    <SelectValue placeholder="Pilih capster" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {barbers.map((barber) => (
+                      <SelectItem key={barber._id} value={barber._id}>
+                        {barber.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Pilih Hari */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <FaCalendarAlt className="inline mr-2" />
-                  Pilih Hari
-                </label>
-                <select
-                  value={selectedDay}
-                  onChange={(e) => setSelectedDay(e.target.value)}
-                  title="Pilih Hari"
-                  aria-label="Pilih Hari"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-[#FDFB03]"
-                >
-                  {daysOfWeek.map((day) => (
-                    <option key={day.id} value={day.id}>
-                      {day.name}
-                    </option>
-                  ))}
-                </select>
+              {/* Pilih Tanggal dengan Date Picker */}
+              <div className="space-y-2">
+                <Label className="flex items-center space-x-2">
+                  <CalendarDays className="h-4 w-4" />
+                  <span>Pilih Tanggal</span>
+                </Label>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal focus-visible:ring-[#FDFB03]",
+                        !selectedDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {selectedDate ? (
+                        format(selectedDate, "EEEE, dd MMMM yyyy", {
+                          locale: localeId,
+                        })
+                      ) : (
+                        <span>Pilih tanggal</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date);
+                          setCalendarOpen(false);
+                        }
+                      }}
+                      disabled={(date) =>
+                        date < new Date(new Date().setHours(0, 0, 0, 0))
+                      }
+                      initialFocus
+                      locale={localeId}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Schedule Grid */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Jadwal {selectedCapsterData?.nama} -{" "}
-                  {daysOfWeek.find((d) => d.id === selectedDay)?.name}
-                </h3>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() =>
-                      toggleAllSlotsForDay(selectedCapster, selectedDay, true)
-                    }
-                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
-                  >
-                    <FaCheck className="inline mr-1" />
-                    Buka Semua
-                  </button>
-                  <button
-                    onClick={() =>
-                      toggleAllSlotsForDay(selectedCapster, selectedDay, false)
-                    }
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
-                  >
-                    <FaTimes className="inline mr-1" />
-                    Tutup Semua
-                  </button>
+        {/* Schedule Grid */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+              <div>
+                <CardTitle>
+                  Jadwal {selectedBarberData?.name} -{" "}
+                  {format(selectedDate, "EEEE, dd MMMM yyyy", {
+                    locale: localeId,
+                  })}
+                </CardTitle>
+                <CardDescription>
+                  Klik slot untuk mengubah status ketersediaan
+                </CardDescription>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={() => toggleAllSlotsForDay(true)}
+                  variant="outline"
+                  size="sm"
+                  className="text-green-700 border-green-300 hover:bg-green-50"
+                  disabled={loadingSchedules}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Buka Semua
+                </Button>
+                <Button
+                  onClick={() => toggleAllSlotsForDay(false)}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-700 border-red-300 hover:bg-red-50"
+                  disabled={loadingSchedules}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Tutup Semua
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {loadingSchedules ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="text-center space-y-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-[#FDFB03] mx-auto" />
+                  <p className="text-gray-600 text-sm">Memuat jadwal...</p>
                 </div>
               </div>
-            </div>
-
-            <div className="p-6">
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                {timeSlots.map((time) => {
-                  const scheduleItem = daySchedule.find(
-                    (item) => item.time === time
-                  );
-                  const isAvailable = scheduleItem?.available ?? false;
+            ) : schedulesForDate.length === 0 ? (
+              <div className="text-center py-12">
+                <CalendarDays className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600">
+                  Tidak ada jadwal tersedia untuk tanggal ini
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {schedulesForDate.map((schedule) => {
+                  const isAvailable = schedule.status === "available";
+                  const isBooked = schedule.reservation !== null;
 
                   return (
-                    <button
-                      key={time}
+                    <Button
+                      key={schedule._id}
                       onClick={() =>
-                        toggleAvailability(selectedCapster, selectedDay, time)
+                        !isBooked && toggleAvailability(schedule._id)
                       }
-                      className={`p-4 rounded-lg border-2 transition-all duration-200 text-center ${
-                        isAvailable
-                          ? "bg-green-50 border-green-300 text-green-800 hover:bg-green-100"
-                          : "bg-red-50 border-red-300 text-red-800 hover:bg-red-100"
+                      variant="outline"
+                      disabled={isBooked}
+                      className={`h-auto p-4 flex flex-col items-center space-y-2 transition-all ${
+                        isBooked
+                          ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed"
+                          : isAvailable
+                          ? "bg-green-50 border-green-300 text-green-800 hover:bg-green-100 hover:border-green-400"
+                          : "bg-red-50 border-red-300 text-red-800 hover:bg-red-100 hover:border-red-400"
                       }`}
                     >
-                      <div className="flex flex-col items-center space-y-2">
-                        <FaClock className="text-lg" />
-                        <span className="font-medium">{time}</span>
-                        <span className="text-xs">
-                          {isAvailable ? "Tersedia" : "Tutup"}
-                        </span>
-                      </div>
-                    </button>
+                      <Clock className="h-5 w-5" />
+                      <span className="font-semibold text-base">
+                        {schedule.timeSlot}
+                      </span>
+                      <Badge
+                        variant={
+                          isBooked
+                            ? "secondary"
+                            : isAvailable
+                            ? "default"
+                            : "destructive"
+                        }
+                        className={
+                          isBooked
+                            ? "bg-gray-500"
+                            : isAvailable
+                            ? "bg-green-600"
+                            : ""
+                        }
+                      >
+                        {isBooked
+                          ? "Terpesan"
+                          : isAvailable
+                          ? "Tersedia"
+                          : "Tutup"}
+                      </Badge>
+                    </Button>
                   );
                 })}
               </div>
-            </div>
-          </div>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Week Overview */}
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Ringkasan Jadwal Mingguan - {selectedCapsterData?.nama}
-              </h3>
-            </div>
-
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {daysOfWeek.map((day) => {
-                  const dayScheduleData = getScheduleForCapsterAndDay(
-                    selectedCapster,
-                    day.id
-                  );
-                  const availableSlots = dayScheduleData.filter(
-                    (item) => item.available
-                  ).length;
-                  const totalSlots = dayScheduleData.length;
-                  const percentage = Math.round(
-                    (availableSlots / totalSlots) * 100
-                  );
-
-                  return (
-                    <div
-                      key={day.id}
-                      className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                        selectedDay === day.id
-                          ? "border-[#FDFB03] bg-yellow-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                      onClick={() => setSelectedDay(day.id)}
-                    >
-                      <div className="text-center">
-                        <h4 className="font-medium text-gray-900 mb-2">
-                          {day.name}
-                        </h4>
-                        <div className="text-2xl font-bold mb-1">
-                          <span className="text-green-600">
-                            {availableSlots}
-                          </span>
-                          <span className="text-gray-400">/{totalSlots}</span>
-                        </div>
-                        <div className="text-sm text-gray-600 mb-2">
-                          {percentage}% tersedia
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className={`bg-green-600 h-2 rounded-full transition-all duration-300 ${
-                              percentage === 0
-                                ? "w-0"
-                                : percentage <= 10
-                                ? "w-[10%]"
-                                : percentage <= 20
-                                ? "w-1/5"
-                                : percentage <= 25
-                                ? "w-1/4"
-                                : percentage <= 30
-                                ? "w-[30%]"
-                                : percentage <= 40
-                                ? "w-2/5"
-                                : percentage <= 50
-                                ? "w-1/2"
-                                : percentage <= 60
-                                ? "w-3/5"
-                                : percentage <= 70
-                                ? "w-[70%]"
-                                : percentage <= 75
-                                ? "w-3/4"
-                                : percentage <= 80
-                                ? "w-4/5"
-                                : percentage <= 90
-                                ? "w-[90%]"
-                                : percentage < 100
-                                ? "w-[95%]"
-                                : "w-full"
-                            }`}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Save Button */}
+        {/* Save Button */}
+        {!loadingSchedules && schedulesForDate.length > 0 && (
           <div className="flex justify-end">
-            <button
+            <Button
               onClick={handleSaveSchedule}
-              className="px-8 py-4 bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold rounded-lg transition-colors flex items-center space-x-2 shadow-lg"
+              size="lg"
+              className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold shadow-lg"
+              disabled={loadingSchedules}
             >
-              <FaSave />
-              <span>Simpan Jadwal</span>
-            </button>
+              <Save className="h-5 w-5 mr-2" />
+              Simpan Jadwal
+            </Button>
           </div>
-        </div>
-      </main>
+        )}
+      </div>
     </div>
   );
 }

@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { capsterService } from "@/app/lib/services/capster.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import { CapsterRowData } from "./columns";
+import { EditCapsterRequest } from "@/app/lib/types/capster";
 
 interface EditCapsterDialogProps {
   open: boolean;
@@ -36,7 +37,7 @@ interface EditCapsterDialogProps {
 type EditCapsterFormData = {
   name: string;
   phone: string;
-  photo: File | null;
+  photo?: File;
   isActive: boolean;
 };
 
@@ -56,7 +57,7 @@ export function EditCapsterDialog({
   const [formData, setFormData] = useState<EditCapsterFormData>({
     name: "",
     phone: "",
-    photo: null,
+    photo: undefined,
     isActive: true,
   });
   const [errors, setErrors] = useState<FormErrors>({});
@@ -68,7 +69,7 @@ export function EditCapsterDialog({
       setFormData({
         name: capster.name,
         phone: capster.phone,
-        photo: null,
+        photo: undefined,
         isActive: capster.isActive,
       });
       setPreviewUrl(capster.photo || "");
@@ -123,18 +124,19 @@ export function EditCapsterDialog({
     setLoading(true);
 
     try {
-      // Create FormData untuk mengirim file ke backend
-      const formDataToSend = new globalThis.FormData();
-      formDataToSend.append("name", formData.name.trim());
-      formDataToSend.append("phone", formData.phone.trim());
-      formDataToSend.append("isActive", String(formData.isActive));
+      // Prepare EditCapsterRequest data
+      const requestData: EditCapsterRequest = {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        isActive: formData.isActive,
+      };
 
-      // Hanya append photo jika ada file baru
+      // Hanya sertakan photo jika ada file baru
       if (formData.photo) {
-        formDataToSend.append("photo", formData.photo);
+        requestData.photo = formData.photo;
       }
 
-      await capsterService.editCapster(capster._id, formDataToSend);
+      await capsterService.editCapster(capster._id, requestData);
 
       toast.success("Capster berhasil diperbarui!");
 
@@ -213,7 +215,7 @@ export function EditCapsterDialog({
   };
 
   const handleClearPhoto = () => {
-    setFormData((prev) => ({ ...prev, photo: null }));
+    setFormData((prev) => ({ ...prev, photo: undefined }));
     // Restore original photo preview
     setPreviewUrl(capster?.photo || "");
     setErrors((prev) => ({ ...prev, photo: undefined }));
@@ -232,7 +234,7 @@ export function EditCapsterDialog({
         setFormData({
           name: capster.name,
           phone: capster.phone,
-          photo: null,
+          photo: undefined,
           isActive: capster.isActive,
         });
         setPreviewUrl(capster.photo || "");

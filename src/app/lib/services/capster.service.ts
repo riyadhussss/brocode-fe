@@ -1,3 +1,4 @@
+import { get } from "http";
 import api from "../api";
 import {
   GetCapstersResponse,
@@ -6,6 +7,7 @@ import {
   EditCapsterRequest,
   EditCapsterResponse,
   DeleteCapsterResponse,
+  GetActiveBarbersResponse,
 } from "../types/capster";
 
 export const capsterService = {
@@ -30,9 +32,25 @@ export const capsterService = {
 
   editCapster: async (
     id: string,
-    data: FormData
+    data: EditCapsterRequest
   ): Promise<EditCapsterResponse> => {
-    const response = await api.put(`/barbers/${id}`, data, {
+    // Convert EditCapsterRequest to FormData
+    const formData = new FormData();
+
+    if (data.name !== undefined) {
+      formData.append("name", data.name);
+    }
+    if (data.phone !== undefined) {
+      formData.append("phone", data.phone);
+    }
+    if (data.isActive !== undefined) {
+      formData.append("isActive", String(data.isActive));
+    }
+    if (data.photo) {
+      formData.append("photo", data.photo);
+    }
+
+    const response = await api.put(`/barbers/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -44,4 +62,9 @@ export const capsterService = {
     const response = await api.delete(`/barbers/${id}`);
     return response.data;
   },
+
+  getActiveBarbers: async (): Promise<GetActiveBarbersResponse> => {
+    const response = await api.get("/barbers/active");
+    return response.data;
+  }
 };
