@@ -7,7 +7,6 @@ import {
   User,
   CalendarDays,
   Check,
-  X,
   CheckCircle2,
   XCircle,
   Loader2,
@@ -66,11 +65,19 @@ export default function AturJadwal() {
   // Dialog state
   const [addScheduleDialogOpen, setAddScheduleDialogOpen] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string>("7");
+  const [saveConfirmDialogOpen, setSaveConfirmDialogOpen] = useState(false);
 
   // Loading states
   const [loadingBarbers, setLoadingBarbers] = useState(true);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
   const [loadingAddSchedule, setLoadingAddSchedule] = useState(false);
+  const [loadingSaveSchedule, setLoadingSaveSchedule] = useState(false);
+
+  // Track original schedules and modified schedules
+  const [originalSchedules, setOriginalSchedules] = useState<Schedule[]>([]);
+  const [modifiedScheduleIds, setModifiedScheduleIds] = useState<Set<string>>(
+    new Set()
+  );
 
   // Fetch active barbers on mount
   useEffect(() => {
@@ -81,6 +88,8 @@ export default function AturJadwal() {
   useEffect(() => {
     if (selectedBarberId) {
       fetchSchedulesByBarber(selectedBarberId);
+      // Reset modified schedules when changing barber or date
+      setModifiedScheduleIds(new Set());
     }
   }, [selectedBarberId, selectedDate]);
 
@@ -117,14 +126,56 @@ export default function AturJadwal() {
       const response = await scheduleService.getSchedulesByIdBarber(barberId);
 
       if (response.success && response.data) {
-        setSchedules(response.data);
+        // Transform availabilityGrid to Schedule array
+        const availabilityGrid = response.data.availabilityGrid || {};
+        const scheduleData: Schedule[] = [];
+        const barberInfo = response.data.barber;
+
+        // Iterate through each date in the grid
+        Object.entries(availabilityGrid).forEach(
+          ([dateStr, dateData]: [string, any]) => {
+            const slots = dateData.slots || {};
+
+            // Iterate through each time slot
+            Object.entries(slots).forEach(
+              ([timeSlot, slotData]: [string, any]) => {
+                scheduleData.push({
+                  _id: slotData._id,
+                  barber: {
+                    _id: barberInfo._id,
+                    name: barberInfo.name,
+                    barberId: barberInfo.barberId,
+                  },
+                  date: dateData.date,
+                  timeSlot: timeSlot,
+                  scheduled_time: `${
+                    dateData.date.split("T")[0]
+                  }T${timeSlot}:00.000Z`,
+                  status: slotData.status,
+                  reservation: null,
+                  isDefaultSlot: true,
+                  dayOfWeek: dateData.dayOfWeek,
+                  completedAt: null,
+                  __v: 0,
+                  createdAt: dateData.date,
+                  updatedAt: dateData.date,
+                });
+              }
+            );
+          }
+        );
+
+        setSchedules(scheduleData);
+        setOriginalSchedules(scheduleData);
       } else {
         setSchedules([]);
+        setOriginalSchedules([]);
       }
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       toast.error(`Gagal memuat jadwal: ${errorMessage}`);
       setSchedules([]);
+      setOriginalSchedules([]);
     } finally {
       setLoadingSchedules(false);
     }
@@ -140,7 +191,6 @@ export default function AturJadwal() {
 
     // Urutkan berdasarkan waktu (timeSlot)
     return filtered.sort((a, b) => {
-      // Convert timeSlot (format "08:00" atau "08:00 - 09:00") ke number untuk sorting
       const timeA =
         a.timeSlot.split(":")[0] + a.timeSlot.split(":")[1].substring(0, 2);
       const timeB =
@@ -174,30 +224,145 @@ export default function AturJadwal() {
           : schedule
       )
     );
+
+    // Track modified schedule - compare with original
+    setModifiedScheduleIds((prev) => {
+      const newSet = new Set(prev);
+      const originalSchedule = originalSchedules.find(
+        (s) => s._id === scheduleId
+      );
+      const currentSchedule = schedules.find((s) => s._id === scheduleId);
+
+      if (originalSchedule && currentSchedule) {
+        // Toggle the status
+        const newStatus =
+          currentSchedule.status === "available" ? "unavailable" : "available";
+
+        // If new status equals original, remove from modified set
+        if (newStatus === originalSchedule.status) {
+          newSet.delete(scheduleId);
+        } else {
+          newSet.add(scheduleId);
+        }
+      }
+      return newSet;
+    });
   };
 
   // Toggle semua slot untuk hari tertentu
   const toggleAllSlotsForDay = (available: boolean) => {
     const schedulesForDate = getSchedulesForSelectedDate();
+    const targetStatus = available ? "available" : "unavailable";
+
     const updatedSchedules = schedules.map((schedule) => {
       const isInSelectedDate = schedulesForDate.some(
         (s) => s._id === schedule._id
       );
-      if (isInSelectedDate) {
+      if (isInSelectedDate && schedule.reservation === null) {
         return {
           ...schedule,
-          status: available ? "available" : "unavailable",
+          status: targetStatus,
         };
       }
       return schedule;
     });
     setSchedules(updatedSchedules);
+
+    // Track all modified schedules - compare with original
+    setModifiedScheduleIds((prev) => {
+      const newSet = new Set(prev);
+
+      schedulesForDate.forEach((schedule) => {
+        if (schedule.reservation === null) {
+          const originalSchedule = originalSchedules.find(
+            (s) => s._id === schedule._id
+          );
+
+          if (originalSchedule) {
+            // If new status equals original, remove from modified set
+            if (targetStatus === originalSchedule.status) {
+              newSet.delete(schedule._id);
+            } else {
+              newSet.add(schedule._id);
+            }
+          }
+        }
+      });
+
+      return newSet;
+    });
   };
 
-  const handleSaveSchedule = () => {
-    console.log("Menyimpan jadwal:", schedules);
-    // TODO: Implement save schedule functionality dengan API
-    toast.success("Jadwal berhasil disimpan!");
+  const confirmSaveSchedule = () => {
+    if (modifiedScheduleIds.size === 0) {
+      toast.info("Tidak ada perubahan yang perlu disimpan");
+      return;
+    }
+    setSaveConfirmDialogOpen(true);
+  };
+
+  const handleSaveSchedule = async () => {
+    setSaveConfirmDialogOpen(false);
+
+    try {
+      setLoadingSaveSchedule(true);
+
+      // Group schedules by their new status
+      const schedulesToEnable: string[] = [];
+      const schedulesToDisable: string[] = [];
+
+      modifiedScheduleIds.forEach((scheduleId) => {
+        const schedule = schedules.find((s) => s._id === scheduleId);
+        if (schedule) {
+          if (schedule.status === "available") {
+            schedulesToEnable.push(scheduleId);
+          } else {
+            schedulesToDisable.push(scheduleId);
+          }
+        }
+      });
+
+      // Send requests for enable and disable separately
+      const promises = [];
+
+      if (schedulesToEnable.length > 0) {
+        promises.push(
+          scheduleService.switchScheduleStatus({
+            action: "enable",
+            scheduleIds: schedulesToEnable,
+          })
+        );
+      }
+
+      if (schedulesToDisable.length > 0) {
+        promises.push(
+          scheduleService.switchScheduleStatus({
+            action: "disable",
+            scheduleIds: schedulesToDisable,
+          })
+        );
+      }
+
+      const results = await Promise.all(promises);
+
+      // Check if all requests were successful
+      const allSuccess = results.every((result) => result.success);
+
+      if (allSuccess) {
+        toast.success("Jadwal berhasil disimpan!");
+        // Clear modified schedules after successful save
+        setModifiedScheduleIds(new Set());
+        // Refresh schedules to get updated data from server
+        await fetchSchedulesByBarber(selectedBarberId);
+      } else {
+        toast.error("Beberapa perubahan gagal disimpan");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(`Gagal menyimpan jadwal: ${errorMessage}`);
+    } finally {
+      setLoadingSaveSchedule(false);
+    }
   };
 
   const handleAddSchedule = async () => {
@@ -532,6 +697,19 @@ export default function AturJadwal() {
             </div>
           </CardHeader>
           <CardContent>
+            {/* Info helper untuk modified schedules */}
+            {modifiedScheduleIds.size > 0 && !loadingSchedules && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-2 text-sm">
+                <div className="bg-[#FDFB03] rounded-full p-1">
+                  <Save className="h-3 w-3 text-black" />
+                </div>
+                <p className="text-yellow-800">
+                  Slot dengan ikon <span className="font-semibold">disket</span>{" "}
+                  memiliki perubahan yang belum disimpan
+                </p>
+              </div>
+            )}
+
             {loadingSchedules ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                 {Array.from({ length: 12 }).map((_, i) => (
@@ -550,6 +728,7 @@ export default function AturJadwal() {
                 {schedulesForDate.map((schedule) => {
                   const isAvailable = schedule.status === "available";
                   const isBooked = schedule.reservation !== null;
+                  const isModified = modifiedScheduleIds.has(schedule._id);
 
                   return (
                     <Button
@@ -559,14 +738,21 @@ export default function AturJadwal() {
                       }
                       variant="outline"
                       disabled={isBooked}
-                      className={`h-auto p-4 flex flex-col items-center space-y-2 transition-all ${
+                      className={`h-auto p-4 flex flex-col items-center space-y-2 transition-all relative ${
                         isBooked
                           ? "bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed"
                           : isAvailable
                           ? "bg-green-50 border-green-300 text-green-800 hover:bg-green-100 hover:border-green-400"
-                          : "bg-red-50 border-red-300 text-red-800 hover:bg-red-100 hover:border-red-400"
+                          : "bg-red-100 border-red-400 text-red-900 hover:bg-red-200 hover:border-red-500"
+                      } ${
+                        isModified ? "ring-2 ring-[#FDFB03] ring-offset-2" : ""
                       }`}
                     >
+                      {isModified && (
+                        <div className="absolute -top-2 -right-2 bg-[#FDFB03] rounded-full p-1">
+                          <Save className="h-3 w-3 text-black" />
+                        </div>
+                      )}
                       <Clock className="h-5 w-5" />
                       <span className="font-semibold text-base">
                         {schedule.timeSlot}
@@ -603,16 +789,118 @@ export default function AturJadwal() {
 
         {/* Save Button */}
         {!loadingSchedules && schedulesForDate.length > 0 && (
-          <div className="flex justify-end">
-            <Button
-              onClick={handleSaveSchedule}
-              size="lg"
-              className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold shadow-lg"
-              disabled={loadingSchedules}
+          <div className="flex flex-col items-end gap-2">
+            {modifiedScheduleIds.size > 0 && (
+              <p className="text-sm text-gray-600">
+                {modifiedScheduleIds.size} perubahan belum disimpan
+              </p>
+            )}
+            <Dialog
+              open={saveConfirmDialogOpen}
+              onOpenChange={setSaveConfirmDialogOpen}
             >
-              <Save className="h-5 w-5 mr-2" />
-              Simpan Jadwal
-            </Button>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={confirmSaveSchedule}
+                  size="lg"
+                  className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold shadow-lg"
+                  disabled={
+                    loadingSaveSchedule || modifiedScheduleIds.size === 0
+                  }
+                >
+                  {loadingSaveSchedule ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-5 w-5 mr-2" />
+                      Simpan Jadwal
+                      {modifiedScheduleIds.size > 0 &&
+                        ` (${modifiedScheduleIds.size})`}
+                    </>
+                  )}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Konfirmasi Penyimpanan</DialogTitle>
+                  <DialogDescription>
+                    Anda akan menyimpan {modifiedScheduleIds.size} perubahan
+                    jadwal. Perubahan ini akan mempengaruhi ketersediaan slot
+                    untuk reservasi.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="py-4 space-y-3">
+                  <p className="text-sm font-medium text-gray-700">
+                    Ringkasan Perubahan:
+                  </p>
+                  <div className="space-y-2">
+                    {(() => {
+                      const enableCount = Array.from(
+                        modifiedScheduleIds
+                      ).filter((id) => {
+                        const schedule = schedules.find((s) => s._id === id);
+                        return schedule?.status === "available";
+                      }).length;
+                      const disableCount =
+                        modifiedScheduleIds.size - enableCount;
+
+                      return (
+                        <>
+                          {enableCount > 0 && (
+                            <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 p-2 rounded">
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span>
+                                {enableCount} slot akan dibuka (tersedia)
+                              </span>
+                            </div>
+                          )}
+                          {disableCount > 0 && (
+                            <div className="flex items-center gap-2 text-sm text-red-700 bg-red-50 p-2 rounded">
+                              <XCircle className="h-4 w-4" />
+                              <span>{disableCount} slot akan ditutup</span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Pastikan perubahan sudah sesuai sebelum menyimpan.
+                  </p>
+                </div>
+
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSaveConfirmDialogOpen(false)}
+                    disabled={loadingSaveSchedule}
+                  >
+                    Batal
+                  </Button>
+                  <Button
+                    onClick={handleSaveSchedule}
+                    disabled={loadingSaveSchedule}
+                    className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold"
+                  >
+                    {loadingSaveSchedule ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Menyimpan...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        Ya, Simpan
+                      </>
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>
