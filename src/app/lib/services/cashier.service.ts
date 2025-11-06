@@ -6,7 +6,7 @@ import {
   AddCashierResponse,
   EditCashierRequest,
   EditCashierResponse,
-  getCashierResponse,
+  getCashierByIdResponse,
   DeleteCashierResponse,
 } from "../types/cashier";
 
@@ -14,14 +14,10 @@ export const cashierService = {
   // getDashboardCashier: async (): Promise<DashboardResponse> => {
   //   const response = await api.get("/dashboard/cashier");
   //   return response.data;
-  
+
   // },
   getCashiers: async (): Promise<GetCashiersResponse> => {
     const response = await api.get("/cashiers");
-    return response.data;
-  },
-  getCashier: async (id: string): Promise<getCashierResponse> => {
-    const response = await api.get(`/cashiers/${id}`);
     return response.data;
   },
 

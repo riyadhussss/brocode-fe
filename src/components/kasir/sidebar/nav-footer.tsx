@@ -30,8 +30,8 @@ export function NavFooter() {
   const pathname = usePathname();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // Check if current path is update profile
-  const isUpdateProfileActive = pathname === "/kasir/update-akun";
+  // Check if current path is  profile
+  const isProfileActive = pathname === "/kasir/profile";
 
   const handleLogout = async () => {
     try {
@@ -64,8 +64,8 @@ export function NavFooter() {
         <SidebarMenuItem>
           <SidebarMenuButton
             asChild
-            tooltip="Update Profile"
-            isActive={isUpdateProfileActive}
+            tooltip="Profile"
+            isActive={isProfileActive}
             className="
               text-white transition-colors
               hover:bg-gray-700 hover:text-white
@@ -74,9 +74,9 @@ export function NavFooter() {
               data-[active=true]:font-semibold
             "
           >
-            <Link href="/kasir/update-akun">
+            <Link href="/kasir/profile">
               <User />
-              <span>Update Profile</span>
+              <span>Profile</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

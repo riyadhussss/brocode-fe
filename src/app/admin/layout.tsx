@@ -2,10 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/admin/sidebar/app-sidebar";
-// import { useVerifyToken } from "../hooks/useVerifyToken";
-// import { useRouter } from "next/navigation";
-// import { useEffect } from "react";
-
 import {
   Breadcrumb,
   BreadcrumbItem,

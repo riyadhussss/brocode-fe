@@ -108,19 +108,19 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
   type __Unused = __Check
 }
 
-// Validate ../../src/app/admin/riwayat-reservasi/page.tsx
+// Validate ../../src/app/admin/profile/page.tsx
 {
-  type __IsExpected<Specific extends AppPageConfig<"/admin/riwayat-reservasi">> = Specific
-  const handler = {} as typeof import("../../src/app/admin/riwayat-reservasi/page.js")
+  type __IsExpected<Specific extends AppPageConfig<"/admin/profile">> = Specific
+  const handler = {} as typeof import("../../src/app/admin/profile/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
 }
 
-// Validate ../../src/app/admin/update-akun/page.tsx
+// Validate ../../src/app/admin/riwayat-reservasi/page.tsx
 {
-  type __IsExpected<Specific extends AppPageConfig<"/admin/update-akun">> = Specific
-  const handler = {} as typeof import("../../src/app/admin/update-akun/page.js")
+  type __IsExpected<Specific extends AppPageConfig<"/admin/riwayat-reservasi">> = Specific
+  const handler = {} as typeof import("../../src/app/admin/riwayat-reservasi/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
@@ -153,19 +153,19 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
   type __Unused = __Check
 }
 
-// Validate ../../src/app/kasir/riwayat-reservasi-kasir/page.tsx
+// Validate ../../src/app/kasir/profile/page.tsx
 {
-  type __IsExpected<Specific extends AppPageConfig<"/kasir/riwayat-reservasi-kasir">> = Specific
-  const handler = {} as typeof import("../../src/app/kasir/riwayat-reservasi-kasir/page.js")
+  type __IsExpected<Specific extends AppPageConfig<"/kasir/profile">> = Specific
+  const handler = {} as typeof import("../../src/app/kasir/profile/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check
 }
 
-// Validate ../../src/app/kasir/update-akun/page.tsx
+// Validate ../../src/app/kasir/riwayat-reservasi-kasir/page.tsx
 {
-  type __IsExpected<Specific extends AppPageConfig<"/kasir/update-akun">> = Specific
-  const handler = {} as typeof import("../../src/app/kasir/update-akun/page.js")
+  type __IsExpected<Specific extends AppPageConfig<"/kasir/riwayat-reservasi-kasir">> = Specific
+  const handler = {} as typeof import("../../src/app/kasir/riwayat-reservasi-kasir/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

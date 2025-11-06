@@ -28,7 +28,7 @@ export interface GetCashiersResponse {
   count: number;
 }
 
-export interface getCashierResponse {
+export interface getCashierByIdResponse {
   success: boolean;
   message: string;
   data?: {

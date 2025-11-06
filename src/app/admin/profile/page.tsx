@@ -24,7 +24,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { adminService } from "@/app/lib/services/admin.service";
+import { Skeleton } from "@/components/ui/skeleton";
+import { profileService } from "@/app/lib/services/profile.service";
 import Cookies from "js-cookie";
 
 // Interface untuk form data
@@ -36,7 +37,7 @@ interface FormData {
   confirmPassword: string;
 }
 
-export default function UpdateAkun() {
+export default function Profile() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -58,43 +59,37 @@ export default function UpdateAkun() {
     confirmPassword: "",
   });
 
-  // Fetch admin data on component mount
+  // Fetch profile data on component mount
   useEffect(() => {
-    const fetchAdminData = async () => {
+    const fetchProfileData = async () => {
       try {
         setIsLoadingData(true);
-        const _id = Cookies.get("_id");
 
-        if (!_id) {
-          toast.error("User ID tidak ditemukan. Silakan login ulang.");
-          return;
-        }
-
-        const response = await adminService.getAdminbyId(_id);
+        const response = await profileService.getProfile();
 
         if (response.success && response.data) {
-          const adminData = {
+          const profileData = {
             name: response.data.name,
             email: response.data.email,
             role: response.data.role,
           };
 
-          setCurrentAdmin(adminData);
+          setCurrentAdmin(profileData);
           setFormData((prev) => ({
             ...prev,
-            name: adminData.name,
-            email: adminData.email,
+            name: profileData.name,
+            email: profileData.email,
           }));
         }
       } catch (error) {
-        console.error("Error fetching admin data:", error);
-        toast.error("Gagal memuat data admin");
+        console.error("Error fetching profile data:", error);
+        toast.error("Gagal memuat data profil");
       } finally {
         setIsLoadingData(false);
       }
     };
 
-    fetchAdminData();
+    fetchProfileData();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,55 +144,39 @@ export default function UpdateAkun() {
     setIsLoading(true);
 
     try {
-      const userId = Cookies.get("userId");
+      // Check if there are any changes
+      const hasNameChange = formData.name !== currentAdmin.name;
+      const hasEmailChange = formData.email !== currentAdmin.email;
+      const hasPasswordChange = formData.newPassword !== "";
 
-      if (!userId) {
-        toast.error("User ID tidak ditemukan. Silakan login ulang.");
-        return;
-      }
-
-      // Prepare update data
-      const updateData: {
-        name?: string;
-        email?: string;
-        password?: string;
-      } = {};
-
-      // Only include changed fields
-      if (formData.name !== currentAdmin.name) {
-        updateData.name = formData.name;
-      }
-
-      if (formData.email !== currentAdmin.email) {
-        updateData.email = formData.email;
-      }
-
-      // If new password is provided, include it
-      if (formData.newPassword) {
-        updateData.password = formData.newPassword;
-      }
-
-      // If no changes, show message
-      if (Object.keys(updateData).length === 0) {
+      if (!hasNameChange && !hasEmailChange && !hasPasswordChange) {
         toast.info("Tidak ada perubahan yang dilakukan");
         setIsLoading(false);
         return;
       }
 
-      // Call API to update admin
-      const response = await adminService.editAdmin(userId, updateData);
+      // Prepare update data (profileService requires all fields)
+      const updateData = {
+        name: formData.name,
+        email: formData.email,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      };
+
+      // Call API to update profile
+      const response = await profileService.updateProfile(updateData);
 
       if (response.success && response.data) {
-        toast.success("Akun berhasil diperbarui!");
+        toast.success("Profil berhasil diperbarui!");
 
-        const updatedAdminData = {
+        const updatedProfileData = {
           name: response.data.name,
           email: response.data.email,
           role: response.data.role,
         };
 
         // Update current admin data
-        setCurrentAdmin(updatedAdminData);
+        setCurrentAdmin(updatedProfileData);
 
         // Update cookies dengan data terbaru
         Cookies.set("name", response.data.name, { expires: 7 });
@@ -217,7 +196,7 @@ export default function UpdateAkun() {
       console.error("Update error:", error);
       const errorMessage =
         error.response?.data?.message ||
-        "Terjadi kesalahan saat memperbarui akun";
+        "Terjadi kesalahan saat memperbarui profil";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -230,20 +209,63 @@ export default function UpdateAkun() {
         <div className="mb-6">
           <div className="flex items-center space-x-3 mb-2">
             <ShieldCheck className="h-8 w-8 text-[#FDFB03]" />
-            <h1 className="text-2xl font-bold text-gray-900">Update Akun</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Profil</h1>
           </div>
           <p className="text-gray-600 text-sm">
-            Kelola informasi akun dan keamanan Anda
+            Kelola informasi profil dan keamanan Anda
           </p>
         </div>
 
         <div className="max-w-2xl mx-auto">
           {isLoadingData ? (
             <Card>
-              <CardContent className="flex items-center justify-center py-12">
-                <div className="flex flex-col items-center space-y-4">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#FDFB03]" />
-                  <p className="text-gray-600">Memuat data admin...</p>
+              <CardHeader>
+                <Skeleton className="h-6 w-40 mb-2" />
+                <Skeleton className="h-4 w-64" />
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Nama Field Skeleton */}
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+
+                {/* Email Field Skeleton */}
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-20 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+
+                {/* Separator Skeleton */}
+                <Skeleton className="h-px w-full my-6" />
+
+                {/* Password Section Header Skeleton */}
+                <div className="space-y-4">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-4 w-72" />
+                </div>
+
+                {/* Current Password Skeleton */}
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-40 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+
+                {/* New Password Skeleton */}
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-32 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+
+                {/* Confirm Password Skeleton */}
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-48 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+
+                {/* Button Skeleton */}
+                <div className="flex justify-end pt-4">
+                  <Skeleton className="h-10 w-40" />
                 </div>
               </CardContent>
             </Card>
@@ -252,10 +274,10 @@ export default function UpdateAkun() {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <User className="h-5 w-5 text-[#FDFB03]" />
-                  <span>Informasi Akun</span>
+                  <span>Informasi Profil</span>
                 </CardTitle>
                 <CardDescription>
-                  Update informasi pribadi dan password akun Anda
+                  Update informasi pribadi dan password profil Anda
                 </CardDescription>
               </CardHeader>
               <CardContent>

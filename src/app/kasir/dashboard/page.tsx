@@ -83,163 +83,158 @@ export default function DashboardKasir() {
   };
 
   return (
-    <>
-      <div className="min-h-screen bg-gray-50 flex">
-        <main className="flex-1 p-8 overflow-auto">
-          <div className="mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Dashboard Kasir
-              </h1>
-              <p className="text-gray-600">
-                Selamat datang di panel kasir Brocode Aceh Barbershop
-              </p>
-            </div>
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          Dashboard Kasir
+        </h1>
+        <p className="text-gray-600 text-sm">
+          Selamat datang di panel kasir Brocode Aceh Barbershop
+        </p>
+      </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* Total Pesanan */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                      Total Pesanan
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {dashboardData.totalPesanan}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-blue-100 rounded-full">
-                    <FaShoppingCart className="text-blue-600 text-xl" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Pesanan Pending */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                      Pesanan Pending
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {dashboardData.pesananPending}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-yellow-100 rounded-full">
-                    <FaClock className="text-yellow-600 text-xl" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Pesanan Selesai */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                      Pesanan Selesai
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {dashboardData.pesananSelesai}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-green-100 rounded-full">
-                    <FaCheckCircle className="text-green-600 text-xl" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Pesanan Batal */}
-              <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                      Pesanan Batal
-                    </p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {dashboardData.pesananBatal}
-                    </p>
-                  </div>
-                  <div className="p-3 bg-red-100 rounded-full">
-                    <FaTimesCircle className="text-red-600 text-xl" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Orders Table */}
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Pesanan Terbaru
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  Daftar pesanan terbaru yang masuk hari ini
+      <div className="space-y-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Pesanan */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
+                  Total Pesanan
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {dashboardData.totalPesanan}
                 </p>
               </div>
-
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        ID Pesanan
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Customer
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Layanan
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Waktu
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {recentOrders.map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {order.id}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {order.customer}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {order.layanan}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {order.waktu}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
-                              order.status
-                            )}`}
-                          >
-                            {order.status.charAt(0).toUpperCase() +
-                              order.status.slice(1)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {formatCurrency(order.total)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="p-3 bg-blue-100 rounded-full">
+                <FaShoppingCart className="text-blue-600 text-xl" />
               </div>
             </div>
           </div>
-        </main>
+
+          {/* Pesanan Pending */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
+                  Pesanan Pending
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {dashboardData.pesananPending}
+                </p>
+              </div>
+              <div className="p-3 bg-yellow-100 rounded-full">
+                <FaClock className="text-yellow-600 text-xl" />
+              </div>
+            </div>
+          </div>
+
+          {/* Pesanan Selesai */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
+                  Pesanan Selesai
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {dashboardData.pesananSelesai}
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <FaCheckCircle className="text-green-600 text-xl" />
+              </div>
+            </div>
+          </div>
+
+          {/* Pesanan Batal */}
+          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1 uppercase tracking-wide">
+                  Pesanan Batal
+                </p>
+                <p className="text-3xl font-bold text-gray-900">
+                  {dashboardData.pesananBatal}
+                </p>
+              </div>
+              <div className="p-3 bg-red-100 rounded-full">
+                <FaTimesCircle className="text-red-600 text-xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Orders Table */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Pesanan Terbaru
+            </h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Daftar pesanan terbaru yang masuk hari ini
+            </p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    ID Pesanan
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Layanan
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Waktu
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {order.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {order.customer}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {order.layanan}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {order.waktu}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(
+                          order.status
+                        )}`}
+                      >
+                        {order.status.charAt(0).toUpperCase() +
+                          order.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {formatCurrency(order.total)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

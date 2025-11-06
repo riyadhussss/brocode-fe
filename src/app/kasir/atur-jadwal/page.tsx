@@ -38,6 +38,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { capsterService } from "@/app/lib/services/capster.service";
 import { scheduleService } from "@/app/lib/services/schedule.service";
@@ -53,9 +63,14 @@ export default function AturJadwal() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [calendarOpen, setCalendarOpen] = useState(false);
 
+  // Dialog state
+  const [addScheduleDialogOpen, setAddScheduleDialogOpen] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<string>("7");
+
   // Loading states
   const [loadingBarbers, setLoadingBarbers] = useState(true);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
+  const [loadingAddSchedule, setLoadingAddSchedule] = useState(false);
 
   // Fetch active barbers on mount
   useEffect(() => {
@@ -185,6 +200,37 @@ export default function AturJadwal() {
     toast.success("Jadwal berhasil disimpan!");
   };
 
+  const handleAddSchedule = async () => {
+    if (!selectedBarberId) {
+      toast.error("Silakan pilih capster terlebih dahulu");
+      return;
+    }
+
+    try {
+      setLoadingAddSchedule(true);
+      const response = await scheduleService.addBarberSchedule(
+        selectedBarberId,
+        {
+          days: parseInt(selectedDays),
+        }
+      );
+
+      if (response.success) {
+        toast.success(response.message || "Jadwal berhasil ditambahkan!");
+        setAddScheduleDialogOpen(false);
+        // Refresh schedules after adding
+        await fetchSchedulesByBarber(selectedBarberId);
+      } else {
+        toast.error(response.message || "Gagal menambahkan jadwal");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(`Gagal menambahkan jadwal: ${errorMessage}`);
+    } finally {
+      setLoadingAddSchedule(false);
+    }
+  };
+
   const selectedBarberData = barbers.find((b) => b._id === selectedBarberId);
   const scheduledSlots = getSchedulesByTimeSlot();
   const schedulesForDate = getSchedulesForSelectedDate();
@@ -198,10 +244,48 @@ export default function AturJadwal() {
   // Show loading state
   if (loadingBarbers) {
     return (
-      <div className="h-full bg-gray-50 p-6 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-12 w-12 animate-spin text-[#FDFB03] mx-auto" />
-          <p className="text-gray-600">Memuat data barber...</p>
+      <div className="h-full bg-gray-50 p-6 flex flex-col">
+        <div className="mb-6">
+          <div className="flex items-center space-x-3 mb-2">
+            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-8 w-64" />
+          </div>
+          <Skeleton className="h-4 w-96" />
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-24 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-24 mb-2" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-96 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -317,55 +401,142 @@ export default function AturJadwal() {
                 </Popover>
               </div>
             </div>
+
+            {/* Button Tambah Jadwal */}
+            <div className="mt-6 pt-6 border-t">
+              <Dialog
+                open={addScheduleDialogOpen}
+                onOpenChange={setAddScheduleDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <Button
+                    className="w-full bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold"
+                    disabled={!selectedBarberId}
+                  >
+                    <CalendarDays className="h-5 w-5 mr-2" />
+                    Tambah Jadwal
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Tambah Jadwal Capster</DialogTitle>
+                    <DialogDescription>
+                      Silahkan masukkan jadwal yang akan anda tambahkan dalam
+                      beberapa hari ke depan
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="days">Jumlah Hari</Label>
+                      <Select
+                        value={selectedDays}
+                        onValueChange={setSelectedDays}
+                      >
+                        <SelectTrigger
+                          id="days"
+                          className="focus-visible:ring-[#FDFB03]"
+                        >
+                          <SelectValue placeholder="Pilih jumlah hari" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="7">7 Hari</SelectItem>
+                          <SelectItem value="14">14 Hari</SelectItem>
+                          <SelectItem value="30">30 Hari</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-gray-500">
+                        Jadwal akan ditambahkan untuk{" "}
+                        <span className="font-semibold text-gray-700">
+                          {selectedBarberData?.name || "capster yang dipilih"}
+                        </span>{" "}
+                        selama {selectedDays} hari ke depan
+                      </p>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button
+                      variant="outline"
+                      onClick={() => setAddScheduleDialogOpen(false)}
+                      disabled={loadingAddSchedule}
+                    >
+                      Batal
+                    </Button>
+                    <Button
+                      onClick={handleAddSchedule}
+                      disabled={loadingAddSchedule}
+                      className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold"
+                    >
+                      {loadingAddSchedule ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Menambahkan...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Tambahkan
+                        </>
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
           </CardContent>
         </Card>
 
         {/* Schedule Grid */}
         <Card>
           <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-              <div>
-                <CardTitle>
-                  Jadwal {selectedBarberData?.name} -{" "}
-                  {format(selectedDate, "EEEE, dd MMMM yyyy", {
-                    locale: localeId,
-                  })}
-                </CardTitle>
-                <CardDescription>
-                  Klik slot untuk mengubah status ketersediaan
-                </CardDescription>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  onClick={() => toggleAllSlotsForDay(true)}
-                  variant="outline"
-                  size="sm"
-                  className="text-green-700 border-green-300 hover:bg-green-50"
-                  disabled={loadingSchedules}
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Buka Semua
-                </Button>
-                <Button
-                  onClick={() => toggleAllSlotsForDay(false)}
-                  variant="outline"
-                  size="sm"
-                  className="text-red-700 border-red-300 hover:bg-red-50"
-                  disabled={loadingSchedules}
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Tutup Semua
-                </Button>
+            <div className="space-y-4 lg:space-y-0">
+              {/* Title and Buttons Container */}
+              <div className="lg:flex lg:items-start lg:justify-between lg:gap-4">
+                <div className="lg:flex-1">
+                  <CardTitle>
+                    Jadwal {selectedBarberData?.name} -{" "}
+                    {format(selectedDate, "EEEE, dd MMMM yyyy", {
+                      locale: localeId,
+                    })}
+                  </CardTitle>
+                  <CardDescription>
+                    Klik slot untuk mengubah status ketersediaan
+                  </CardDescription>
+                </div>
+
+                {/* Buttons - Responsive Layout */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:flex gap-2 mt-4 lg:mt-0">
+                  <Button
+                    onClick={() => toggleAllSlotsForDay(true)}
+                    variant="outline"
+                    size="sm"
+                    className="text-green-700 border-green-300 hover:bg-green-50 w-full lg:w-auto"
+                    disabled={loadingSchedules}
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Buka Semua
+                  </Button>
+                  <Button
+                    onClick={() => toggleAllSlotsForDay(false)}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-700 border-red-300 hover:bg-red-50 w-full lg:w-auto"
+                    disabled={loadingSchedules}
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Tutup Semua
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             {loadingSchedules ? (
-              <div className="flex items-center justify-center py-12">
-                <div className="text-center space-y-3">
-                  <Loader2 className="h-8 w-8 animate-spin text-[#FDFB03] mx-auto" />
-                  <p className="text-gray-600 text-sm">Memuat jadwal...</p>
-                </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <Skeleton key={i} className="h-32 w-full" />
+                ))}
               </div>
             ) : schedulesForDate.length === 0 ? (
               <div className="text-center py-12">
