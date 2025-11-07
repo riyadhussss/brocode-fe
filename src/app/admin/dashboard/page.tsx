@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
-import { Users, Scissors, UserCheck, Wrench, Calendar } from "lucide-react";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import { DashboardHeader, DashboardStats } from "./components";
 
 export default function AdminDashboard() {
   // ✅ State untuk menyimpan data dashboard sesuai dengan DashboardResponse
@@ -73,110 +71,13 @@ export default function AdminDashboard() {
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Dashboard Admin
-            </h1>
-            <p className="text-gray-600 text-sm">
-              Selamat datang di panel admin Brocode Barbershop
-            </p>
-          </div>
-        </div>
-      </div>
+      <DashboardHeader
+        title="Dashboard Admin"
+        description="Selamat datang di panel admin Brocode Barbershop"
+      />
 
       {/* Dashboard Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8 flex-shrink-0">
-        {/* Total Admin */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Admin</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">
-                {dashboardData.totalAdmin}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Total Capster */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Capster</CardTitle>
-            <Scissors className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">
-                {dashboardData.totalCapster}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Total Customer */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Customer
-            </CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">
-                {dashboardData.totalCustomer.toLocaleString()}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Total Layanan */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Layanan</CardTitle>
-            <Wrench className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">
-                {dashboardData.totalLayanan}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Total Reservasi */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Reservasi
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-8 w-16" />
-            ) : (
-              <div className="text-2xl font-bold">
-                {dashboardData.totalReservasi.toLocaleString()}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <DashboardStats data={dashboardData} loading={loading} />
     </div>
   );
 }

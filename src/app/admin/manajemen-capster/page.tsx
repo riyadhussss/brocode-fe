@@ -8,18 +8,23 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, RefreshCw } from "lucide-react";
+import { Users } from "lucide-react";
 import { toast } from "sonner";
-import { DataTable } from "./data-table";
-import { createColumns, CapsterRowData } from "./columns";
+import {
+  CapsterPageHeader,
+  CapsterTableSkeleton,
+  CapsterStats,
+  CapsterDataTable,
+  createColumns,
+  AddCapsterDialog,
+  ViewCapsterDialog,
+  EditCapsterDialog,
+  DeleteCapsterDialog,
+} from "./components";
 import { capsterService } from "@/app/lib/services/capster.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
-import { AddCapsterDialog } from "./add-capster-dialog";
-import { ViewCapsterDialog } from "./view-capster-dialog";
-import { EditCapsterDialog } from "./edit-capster-dialog";
-import { DeleteCapsterDialog } from "./delete-capster-dialog";
+import type { CapsterRowData } from "./components/CapsterTableColumns";
 
 export default function ManajemenCapster() {
   const [capsterData, setCapsterData] = useState<CapsterRowData[]>([]);
@@ -203,69 +208,14 @@ export default function ManajemenCapster() {
 
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Manajemen Capster
-            </h1>
-            <p className="text-gray-600 text-sm">Kelola data capster sistem</p>
-          </div>
-          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh Data
-          </Button>
-        </div>
-      </div>
+      <CapsterPageHeader loading={loading} onRefresh={handleRefresh} />
+
       <div className="flex-1 flex flex-col min-h-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 flex-shrink-0">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Capster
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{capsterData.length}</div>
-              <p className="text-xs text-muted-foreground">Capster terdaftar</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Capster Aktif
-              </CardTitle>
-              <Users className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                {activeCapsters}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Capster yang aktif
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Capster Tidak Aktif
-              </CardTitle>
-              <Users className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">
-                {capsterData.length - activeCapsters}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Capster tidak aktif
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        <CapsterStats
+          totalCapsters={capsterData.length}
+          activeCapsters={activeCapsters}
+        />
+
         <Card className="flex-1 flex flex-col">
           <CardHeader className="flex-shrink-0">
             <CardTitle>Daftar Capster</CardTitle>
@@ -274,7 +224,7 @@ export default function ManajemenCapster() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col min-h-0">
-            <DataTable
+            <CapsterDataTable
               columns={columns}
               data={capsterData}
               onAddNew={handleAddNew}

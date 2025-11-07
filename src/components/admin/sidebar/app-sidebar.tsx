@@ -9,6 +9,7 @@ import {
   Scissors,
   Computer,
   SquareMenu,
+  DollarSign,
 } from "lucide-react";
 
 import { NavMain } from "@/components/admin/sidebar/nav-main";
@@ -48,6 +49,11 @@ const data = {
       icon: SquareMenu,
     },
     { name: "Manajemen User", url: "/admin/manajemen-user", icon: User },
+    {
+      name: "Metode Pembayaran",
+      url: "/admin/metode-pembayaran",
+      icon: DollarSign,
+    },
     {
       name: "Riwayat Reservasi",
       url: "/admin/riwayat-reservasi",

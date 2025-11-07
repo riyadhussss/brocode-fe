@@ -4,6 +4,7 @@ import {
   ReservationAutoResponse,
   ReservationOtherRequest,
   ReservationOtherResponse,
+  AddReservationRequest
 } from "../types/reservation";
 
 export const reservationService = {

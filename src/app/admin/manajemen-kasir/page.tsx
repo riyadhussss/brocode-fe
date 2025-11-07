@@ -8,18 +8,20 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Users, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { cashierService } from "@/app/lib/services/cashier.service";
-import { DataTable } from "./data-table";
-import { createColumns, KasirRowData } from "./columns";
-import { AddKasirDialog } from "./add-kasir-dialog";
-import { ViewKasirDialog } from "./view-kasir-dialog";
-import { EditKasirDialog } from "./edit-kasir-dialog";
-import { DeleteKasirDialog } from "./delete-kasir-dialog";
+import {
+  KasirPageHeader,
+  KasirTableSkeleton,
+  KasirDataTable,
+  createColumns,
+  AddKasirDialog,
+  ViewKasirDialog,
+  EditKasirDialog,
+  DeleteKasirDialog,
+} from "./components";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import type { KasirRowData } from "./components/KasirTableColumns";
 
 export default function ManajemenKasir() {
   const [kasirData, setKasirData] = useState<KasirRowData[]>([]);
@@ -161,150 +163,32 @@ export default function ManajemenKasir() {
   );
 
   return (
-    <div className="bg-gray-50 p-6">
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Manajemen Kasir
-            </h1>
-            <p className="text-gray-600 text-sm">Kelola data kasir sistem</p>
-          </div>
-          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        {/* Total Kasir */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Kasir</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <>
-                <Skeleton className="h-8 w-16 mb-2" />
-                <Skeleton className="h-3 w-32" />
-              </>
-            ) : (
-              <>
-                <div className="text-2xl font-bold">{kasirData.length}</div>
-                <p className="text-xs text-muted-foreground">Kasir terdaftar</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Kasir Aktif */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Kasir Aktif</CardTitle>
-            <Users className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <>
-                <Skeleton className="h-8 w-16 mb-2" />
-                <Skeleton className="h-3 w-32" />
-              </>
-            ) : (
-              <>
-                <div className="text-2xl font-bold text-green-600">
-                  {kasirData.filter((kasir) => kasir.role === "kasir").length}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Kasir yang aktif
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Total dari Server */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total (Server)
-            </CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <>
-                <Skeleton className="h-8 w-16 mb-2" />
-                <Skeleton className="h-3 w-32" />
-              </>
-            ) : (
-              <>
-                <div className="text-2xl font-bold text-blue-600">
-                  {totalCount}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Total dari database
-                </p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <KasirPageHeader loading={loading} onRefresh={handleRefresh} />
 
       {/* Data Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Daftar Kasir</CardTitle>
-          <CardDescription>
-            Berikut adalah daftar semua kasir yang terdaftar dalam sistem
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-4">
-              {/* Search and buttons skeleton */}
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-10 w-96" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-10 w-24" />
-                  <Skeleton className="h-10 w-32" />
-                </div>
-              </div>
-              {/* Table skeleton */}
-              <div className="border rounded-md">
-                <div className="p-4 space-y-3">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                </div>
-              </div>
-              {/* Pagination skeleton */}
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-4 w-32" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-8 w-24" />
-                  <Skeleton className="h-8 w-32" />
-                  <Skeleton className="h-8 w-24" />
-                </div>
-              </div>
-            </div>
-          ) : (
-            <DataTable
-              columns={columns}
-              data={kasirData}
-              onAddNew={handleAddNew}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex flex-col min-h-0">
+        <Card className="flex-1 flex flex-col">
+          <CardHeader>
+            <CardTitle>Daftar Kasir</CardTitle>
+            <CardDescription>
+              Berikut adalah daftar semua kasir yang terdaftar dalam sistem
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
+            {loading ? (
+              <KasirTableSkeleton />
+            ) : (
+              <KasirDataTable
+                columns={columns}
+                data={kasirData}
+                onAddNew={handleAddNew}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Add Kasir Dialog */}
       <AddKasirDialog

@@ -8,18 +8,19 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { adminService } from "@/app/lib/services/admin.service";
-import { DataTable } from "./data-table";
-import { createColumns } from "./columns";
-import { AddAdminDialog } from "./add-admin-dialog";
-import { DeleteAdminDialog } from "./delete-admin-dialog";
-import { ViewAdminDialog } from "./view-admin-dialog";
-import { EditAdminDialog } from "./edit-admin-dialog";
+import {
+  AdminPageHeader,
+  AdminTableSkeleton,
+  AdminDataTable,
+  createColumns,
+  AddAdminDialog,
+  ViewAdminDialog,
+  EditAdminDialog,
+  DeleteAdminDialog,
+} from "./components";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
-
 import { GetAdminsResponse } from "@/app/lib/types/admin";
 
 export default function ManajemenAdmin() {
@@ -170,24 +171,7 @@ export default function ManajemenAdmin() {
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Manajemen Admin
-            </h1>
-            <p className="text-gray-600 text-sm">
-              Kelola data administrator sistem
-            </p>
-          </div>
-          <Button onClick={handleRefresh} variant="outline" disabled={loading}>
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
-            />
-            Refresh
-          </Button>
-        </div>
-      </div>
+      <AdminPageHeader loading={loading} onRefresh={handleRefresh} />
 
       {/* Main Content - Data Table */}
       <div className="flex-1 flex flex-col min-h-0">
@@ -201,38 +185,9 @@ export default function ManajemenAdmin() {
           </CardHeader>
           <CardContent className="flex-1 flex flex-col min-h-0">
             {loading ? (
-              <div className="space-y-4">
-                {/* Search and buttons skeleton */}
-                <div className="flex items-center justify-between">
-                  <div className="h-10 w-96 bg-gray-200 rounded animate-pulse" />
-                  <div className="flex gap-2">
-                    <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-10 w-32 bg-gray-200 rounded animate-pulse" />
-                  </div>
-                </div>
-                {/* Table skeleton */}
-                <div className="border rounded-md">
-                  <div className="p-4 space-y-3">
-                    <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
-                    <div className="h-12 w-full bg-gray-200 rounded animate-pulse" />
-                  </div>
-                </div>
-                {/* Pagination skeleton */}
-                <div className="flex items-center justify-between">
-                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
-                  <div className="flex gap-2">
-                    <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
-                    <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
-                  </div>
-                </div>
-              </div>
+              <AdminTableSkeleton />
             ) : (
-              <DataTable
+              <AdminDataTable
                 columns={columns}
                 data={adminsList}
                 onAddNew={handleAddNew}
@@ -274,4 +229,4 @@ export default function ManajemenAdmin() {
       />
     </div>
   );
-} 
+}

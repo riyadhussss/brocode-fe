@@ -1,17 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Save,
-  User,
-  KeyRound,
-  ShieldCheck,
-  Loader2,
-} from "lucide-react";
+import { Save, User } from "lucide-react";
 import { toast } from "sonner";
 import {
   Card,
@@ -21,12 +11,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { profileService } from "@/app/lib/services/profile.service";
 import Cookies from "js-cookie";
+import {
+  ProfilePageHeader,
+  ProfileFormSkeleton,
+  ProfileInfoForm,
+  PasswordSection,
+  ConfirmSaveDialog,
+} from "./components";
 
 // Interface untuk form data
 interface FormData {
@@ -38,11 +32,9 @@ interface FormData {
 }
 
 export default function Profile() {
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Current admin data
   const [currentAdmin, setCurrentAdmin] = useState({
@@ -141,6 +133,11 @@ export default function Profile() {
 
     if (!validateForm()) return;
 
+    // Show confirmation dialog
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSave = async () => {
     setIsLoading(true);
 
     try {
@@ -152,6 +149,7 @@ export default function Profile() {
       if (!hasNameChange && !hasEmailChange && !hasPasswordChange) {
         toast.info("Tidak ada perubahan yang dilakukan");
         setIsLoading(false);
+        setShowConfirmDialog(false);
         return;
       }
 
@@ -191,6 +189,9 @@ export default function Profile() {
           newPassword: "",
           confirmPassword: "",
         }));
+
+        // Close dialog
+        setShowConfirmDialog(false);
       }
     } catch (error: any) {
       console.error("Update error:", error);
@@ -206,69 +207,11 @@ export default function Profile() {
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       <div className="max-w-3xl mx-auto w-full">
-        <div className="mb-6">
-          <div className="flex items-center space-x-3 mb-2">
-            <ShieldCheck className="h-8 w-8 text-[#FDFB03]" />
-            <h1 className="text-2xl font-bold text-gray-900">Profil</h1>
-          </div>
-          <p className="text-gray-600 text-sm">
-            Kelola informasi profil dan keamanan Anda
-          </p>
-        </div>
+        <ProfilePageHeader />
 
         <div className="max-w-2xl mx-auto">
           {isLoadingData ? (
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-40 mb-2" />
-                <Skeleton className="h-4 w-64" />
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Nama Field Skeleton */}
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-
-                {/* Email Field Skeleton */}
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-20 mb-2" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-
-                {/* Separator Skeleton */}
-                <Skeleton className="h-px w-full my-6" />
-
-                {/* Password Section Header Skeleton */}
-                <div className="space-y-4">
-                  <Skeleton className="h-6 w-40" />
-                  <Skeleton className="h-4 w-72" />
-                </div>
-
-                {/* Current Password Skeleton */}
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-40 mb-2" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-
-                {/* New Password Skeleton */}
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32 mb-2" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-
-                {/* Confirm Password Skeleton */}
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-48 mb-2" />
-                  <Skeleton className="h-10 w-full" />
-                </div>
-
-                {/* Button Skeleton */}
-                <div className="flex justify-end pt-4">
-                  <Skeleton className="h-10 w-40" />
-                </div>
-              </CardContent>
-            </Card>
+            <ProfileFormSkeleton />
           ) : (
             <Card>
               <CardHeader>
@@ -282,171 +225,17 @@ export default function Profile() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Nama Field */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="name"
-                      className="flex items-center space-x-2"
-                    >
-                      <User className="h-4 w-4 text-gray-500" />
-                      <span>Nama Lengkap</span>
-                    </Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      type="text"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      placeholder="Masukkan nama lengkap"
-                      required
-                      className="focus-visible:ring-[#FDFB03]"
-                    />
-                  </div>
-
-                  {/* Email Field */}
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email"
-                      className="flex items-center space-x-2"
-                    >
-                      <Mail className="h-4 w-4 text-gray-500" />
-                      <span>Email</span>
-                    </Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      placeholder="admin@brocode.com"
-                      required
-                      className="focus-visible:ring-[#FDFB03]"
-                    />
-                  </div>
+                  <ProfileInfoForm
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
 
                   <Separator className="my-6" />
 
-                  {/* Password Section */}
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2">
-                      <KeyRound className="h-5 w-5 text-[#FDFB03]" />
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Ubah Password
-                      </h3>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Kosongkan jika tidak ingin mengubah password
-                    </p>
-
-                    {/* Current Password */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="currentPassword"
-                        className="flex items-center space-x-2"
-                      >
-                        <Lock className="h-4 w-4 text-gray-500" />
-                        <span>Password Saat Ini</span>
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="currentPassword"
-                          name="currentPassword"
-                          type={showCurrentPassword ? "text" : "password"}
-                          value={formData.currentPassword}
-                          onChange={handleInputChange}
-                          placeholder="Masukkan password saat ini"
-                          className="pr-10 focus-visible:ring-[#FDFB03]"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() =>
-                            setShowCurrentPassword(!showCurrentPassword)
-                          }
-                        >
-                          {showCurrentPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* New Password */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="newPassword"
-                        className="flex items-center space-x-2"
-                      >
-                        <Lock className="h-4 w-4 text-gray-500" />
-                        <span>Password Baru</span>
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="newPassword"
-                          name="newPassword"
-                          type={showNewPassword ? "text" : "password"}
-                          value={formData.newPassword}
-                          onChange={handleInputChange}
-                          placeholder="Masukkan password baru (min. 6 karakter)"
-                          className="pr-10 focus-visible:ring-[#FDFB03]"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                        >
-                          {showNewPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Confirm Password */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="confirmPassword"
-                        className="flex items-center space-x-2"
-                      >
-                        <Lock className="h-4 w-4 text-gray-500" />
-                        <span>Konfirmasi Password Baru</span>
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={formData.confirmPassword}
-                          onChange={handleInputChange}
-                          placeholder="Konfirmasi password baru"
-                          className="pr-10 focus-visible:ring-[#FDFB03]"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
+                  <PasswordSection
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
 
                   {/* Submit Button */}
                   <div className="flex justify-end pt-4">
@@ -455,17 +244,8 @@ export default function Profile() {
                       disabled={isLoading}
                       className="bg-[#FDFB03] hover:bg-yellow-400 text-black font-medium"
                     >
-                      {isLoading ? (
-                        <>
-                          <span className="animate-spin mr-2">⏳</span>
-                          Menyimpan...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="mr-2 h-4 w-4" />
-                          Simpan Perubahan
-                        </>
-                      )}
+                      <Save className="mr-2 h-4 w-4" />
+                      Simpan Perubahan
                     </Button>
                   </div>
                 </form>
@@ -474,6 +254,14 @@ export default function Profile() {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmSaveDialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        onConfirm={handleConfirmSave}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

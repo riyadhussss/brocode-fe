@@ -1,12 +1,18 @@
 {
   "app": {
-    "[project]/src/app/user/profile/page": [
+    "[project]/src/app/admin/dashboard/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
-    "[project]/src/app/user/reservasi/page": [
+    "[project]/src/app/admin/manajemen-admin/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
-    "[project]/src/app/user/riwayat-reservasi/page": [
+    "[project]/src/app/admin/manajemen-capster/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/manajemen-kasir/page": [
+      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
+    ],
+    "[project]/src/app/admin/profile/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ]
   },

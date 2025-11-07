@@ -96,7 +96,7 @@ export default function AturJadwal() {
   const fetchActiveBarbers = async () => {
     try {
       setLoadingBarbers(true);
-      const response = await capsterService.getActiveBarbers();
+      const response = await capsterService.getActiveCapsters();
 
       if (response.success && response.data && response.data.length > 0) {
         // Urutkan barbers berdasarkan nama (A-Z, 0-9)

@@ -1,6 +1,8 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/user/profile/page": "app/user/profile/page.js",
-  "/user/reservasi/page": "app/user/reservasi/page.js",
-  "/user/riwayat-reservasi/page": "app/user/riwayat-reservasi/page.js"
+  "/admin/dashboard/page": "app/admin/dashboard/page.js",
+  "/admin/manajemen-admin/page": "app/admin/manajemen-admin/page.js",
+  "/admin/manajemen-capster/page": "app/admin/manajemen-capster/page.js",
+  "/admin/manajemen-kasir/page": "app/admin/manajemen-kasir/page.js",
+  "/admin/profile/page": "app/admin/profile/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }
