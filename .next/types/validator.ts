@@ -171,10 +171,10 @@ type LayoutConfig<Route extends LayoutRoutes = LayoutRoutes> = {
   type __Unused = __Check
 }
 
-// Validate ../../src/app/kasir/riwayat-reservasi-kasir/page.tsx
+// Validate ../../src/app/kasir/riwayat-reservasi/page.tsx
 {
-  type __IsExpected<Specific extends AppPageConfig<"/kasir/riwayat-reservasi-kasir">> = Specific
-  const handler = {} as typeof import("../../src/app/kasir/riwayat-reservasi-kasir/page.js")
+  type __IsExpected<Specific extends AppPageConfig<"/kasir/riwayat-reservasi">> = Specific
+  const handler = {} as typeof import("../../src/app/kasir/riwayat-reservasi/page.js")
   type __Check = __IsExpected<typeof handler>
   // @ts-ignore
   type __Unused = __Check

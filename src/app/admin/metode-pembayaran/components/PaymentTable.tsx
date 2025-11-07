@@ -33,15 +33,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Search, ChevronDown } from "lucide-react";
 
-interface DataTableProps<TData, TValue> {
+interface PaymentTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTable<TData, TValue>({
+export function PaymentTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+}: PaymentTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

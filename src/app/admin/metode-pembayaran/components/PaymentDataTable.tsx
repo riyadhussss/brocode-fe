@@ -13,16 +13,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { ChevronDown, Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -31,17 +24,27 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { Search, ChevronDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-interface DataTableProps<TData, TValue> {
+interface PaymentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onAddNew?: () => void;
 }
 
-export function DataTable<TData, TValue>({
+export function PaymentDataTable<TData, TValue>({
   columns,
   data,
-}: DataTableProps<TData, TValue>) {
+  onAddNew,
+}: PaymentDataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -67,32 +70,22 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="w-full h-full flex flex-col">
-      {/* Header Actions */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4 flex-shrink-0">
-        {/* Search Input */}
-        <div className="w-full md:flex-1 lg:flex-initial lg:w-96">
-          <div className="relative">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              placeholder="Cari nama bank atau pemilik..."
-              value={
-                (table.getColumn("bankName")?.getFilterValue() as string) ?? ""
-              }
-              onChange={(event) =>
-                table.getColumn("bankName")?.setFilterValue(event.target.value)
-              }
-              className="pl-8 w-full"
-            />
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          {/* Column visibility dropdown */}
+    <div className="w-full">
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Cari metode pembayaran..."
+          value={
+            (table.getColumn("bankName")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("bankName")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+        <div className="ml-auto flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex-1 md:flex-initial">
+              <Button variant="outline">
                 Kolom <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -116,18 +109,22 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+          {onAddNew && (
+            <Button onClick={onAddNew}>
+              <Plus className="mr-2 h-4 w-4" />
+              Tambah Metode
+            </Button>
+          )}
         </div>
       </div>
-
-      {/* Table */}
-      <div className="rounded-md border overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table className="min-w-full">
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="font-medium">
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -135,45 +132,42 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-gray-50"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center text-gray-500"
-                  >
-                    Tidak ada data metode pembayaran.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  Tidak ada data.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between py-4 flex-shrink-0">
+      <div className="flex items-center justify-between py-4">
         {/* Pagination Size Selector */}
         <div className="flex items-center space-x-2">
           <p className="text-sm text-muted-foreground">Baris per halaman:</p>
