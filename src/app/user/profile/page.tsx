@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaUser,
   FaEnvelope,
@@ -10,6 +10,8 @@ import {
   FaSave,
   FaEdit,
 } from "react-icons/fa";
+import { toast } from "sonner";
+import { profileService } from "@/app/lib/services/profile.service";
 
 // Interface untuk form data
 interface FormData {
@@ -25,23 +27,57 @@ export default function UpdateAkun() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Current admin data (dummy)
-  const [currentAdmin] = useState({
-    name: "Admin User",
-    email: "admin@brocode.com",
-    role: "Administrator",
+  // Current user data
+  const [currentUser, setCurrentUser] = useState({
+    name: "",
+    email: "",
+    role: "",
   });
 
   const [formData, setFormData] = useState<FormData>({
-    name: currentAdmin.name,
-    email: currentAdmin.email,
+    name: "",
+    email: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+
+  // Fetch profile data on component mount
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        setIsLoadingData(true);
+
+        const response = await profileService.getProfile();
+
+        if (response.success && response.data) {
+          const profileData = {
+            name: response.data.name,
+            email: response.data.email,
+            role: response.data.role,
+          };
+
+          setCurrentUser(profileData);
+          setFormData((prev) => ({
+            ...prev,
+            name: profileData.name,
+            email: profileData.email,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        toast.error("Gagal memuat data profil");
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchProfileData();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,34 +91,34 @@ export default function UpdateAkun() {
   };
 
   const validateForm = () => {
-    if (!formData.name) {
-      setErrorMessage("Nama tidak boleh kosong");
+    if (!formData.name.trim()) {
+      toast.error("Nama tidak boleh kosong");
       return false;
     }
 
     if (!formData.email) {
-      setErrorMessage("Email tidak boleh kosong");
+      toast.error("Email tidak boleh kosong");
       return false;
     }
 
     if (!formData.email.includes("@")) {
-      setErrorMessage("Format email tidak valid");
+      toast.error("Format email tidak valid");
       return false;
     }
 
     if (formData.newPassword) {
       if (!formData.currentPassword) {
-        setErrorMessage("Password saat ini diperlukan untuk mengubah password");
+        toast.error("Password saat ini diperlukan untuk mengubah password");
         return false;
       }
 
       if (formData.newPassword.length < 6) {
-        setErrorMessage("Password baru minimal 6 karakter");
+        toast.error("Password baru minimal 6 karakter");
         return false;
       }
 
       if (formData.newPassword !== formData.confirmPassword) {
-        setErrorMessage("Konfirmasi password tidak cocok");
+        toast.error("Konfirmasi password tidak cocok");
         return false;
       }
     }
@@ -100,39 +136,135 @@ export default function UpdateAkun() {
     setSuccessMessage("");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Check if there are any changes
+      const hasNameChange = formData.name !== currentUser.name;
+      const hasEmailChange = formData.email !== currentUser.email;
+      const hasPasswordChange = formData.newPassword !== "";
 
-      // TODO: Implement actual API call here
-      console.log("Update data:", formData);
+      if (!hasNameChange && !hasEmailChange && !hasPasswordChange) {
+        toast.info("Tidak ada perubahan yang dilakukan");
+        setIsLoading(false);
+        return;
+      }
 
-      setSuccessMessage("Akun berhasil diperbarui!");
+      // Prepare update data
+      const updateData = {
+        name: formData.name,
+        email: formData.email,
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+      };
 
-      // Clear password fields after successful update
-      setFormData((prev) => ({
-        ...prev,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      }));
-    } catch (error) {
-      setErrorMessage("Terjadi kesalahan saat memperbarui akun");
+      // Call API to update profile
+      const response = await profileService.updateProfile(updateData);
+
+      if (response.success && response.data) {
+        toast.success("Profil berhasil diperbarui!");
+        setSuccessMessage("Akun berhasil diperbarui!");
+
+        const updatedProfileData = {
+          name: response.data.name,
+          email: response.data.email,
+          role: response.data.role,
+        };
+
+        // Update current user data
+        setCurrentUser(updatedProfileData);
+
+        // Update formData dengan data terbaru dari server
+        setFormData((prev) => ({
+          ...prev,
+          name: response.data!.name,
+          email: response.data!.email,
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }));
+      }
+    } catch (error: any) {
+      console.error("Update error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Terjadi kesalahan saat memperbarui profil";
+      toast.error(errorMessage);
+      setErrorMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Update Akun
-            </h1>
-            <p className="text-gray-600">Kelola informasi akun admin Anda</p>
+  // Show loading skeleton
+  if (isLoadingData) {
+    return (
+      <div className="h-full bg-gray-50 p-6 flex flex-col">
+        <div className="max-w-3xl mx-auto w-full">
+          <div className="mb-6">
+            <div className="h-8 w-48 bg-gray-200 animate-pulse rounded mb-2"></div>
+            <div className="h-4 w-64 bg-gray-200 animate-pulse rounded"></div>
           </div>
 
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+              <div className="p-6 border-b border-gray-100">
+                <div className="h-7 w-56 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Name Field Skeleton */}
+                <div>
+                  <div className="h-5 w-32 bg-gray-200 animate-pulse rounded mb-2"></div>
+                  <div className="h-11 w-full bg-gray-200 animate-pulse rounded"></div>
+                </div>
+
+                {/* Email Field Skeleton */}
+                <div>
+                  <div className="h-5 w-20 bg-gray-200 animate-pulse rounded mb-2"></div>
+                  <div className="h-11 w-full bg-gray-200 animate-pulse rounded"></div>
+                </div>
+
+                {/* Divider */}
+                <div className="h-px w-full bg-gray-200"></div>
+
+                {/* Password Fields Skeleton */}
+                <div>
+                  <div className="h-6 w-40 bg-gray-200 animate-pulse rounded mb-2"></div>
+                  <div className="h-4 w-72 bg-gray-200 animate-pulse rounded mb-4"></div>
+                </div>
+
+                <div>
+                  <div className="h-5 w-40 bg-gray-200 animate-pulse rounded mb-2"></div>
+                  <div className="h-11 w-full bg-gray-200 animate-pulse rounded"></div>
+                </div>
+
+                <div>
+                  <div className="h-5 w-32 bg-gray-200 animate-pulse rounded mb-2"></div>
+                  <div className="h-11 w-full bg-gray-200 animate-pulse rounded"></div>
+                </div>
+
+                <div>
+                  <div className="h-5 w-44 bg-gray-200 animate-pulse rounded mb-2"></div>
+                  <div className="h-11 w-full bg-gray-200 animate-pulse rounded"></div>
+                </div>
+
+                {/* Button Skeleton */}
+                <div className="h-11 w-full bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
+      <div className="max-w-3xl mx-auto w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Update Akun</h1>
+          <p className="text-gray-600 text-sm">Kelola informasi akun Anda</p>
+        </div>
+
+        <div className="max-w-2xl mx-auto">
           {/* Update Form */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-100">
             <div className="p-6 border-b border-gray-100">
@@ -346,7 +478,7 @@ export default function UpdateAkun() {
             </form>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -1,15 +1,12 @@
 {
   "app": {
-    "[project]/src/app/(auth)/login/page": [
+    "[project]/src/app/user/profile/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
-    "[project]/src/app/kasir/atur-jadwal/page": [
+    "[project]/src/app/user/reservasi/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ],
-    "[project]/src/app/kasir/dashboard/page": [
-      "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
-    ],
-    "[project]/src/app/kasir/manajemen-reservasi/page": [
+    "[project]/src/app/user/riwayat-reservasi/page": [
       "static/media/e8f2fbee2754df70-s.p.9b7a96b4.woff2"
     ]
   },

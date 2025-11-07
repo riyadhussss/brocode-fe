@@ -1,18 +1,35 @@
-  "use client";
+"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaUser,
   FaCut,
-  FaStickyNote,
   FaCalendarAlt,
-  FaCheckCircle,
+  FaClipboardList,
+  FaCreditCard,
 } from "react-icons/fa";
+import { reservationService } from "@/app/lib/services/reservation.service";
+import { packageService } from "@/app/lib/services/package.service";
+import { capsterService } from "@/app/lib/services/capster.service";
+import { scheduleService } from "@/app/lib/services/schedule.service";
+import { Package } from "@/app/lib/types/package";
+import { Barber } from "@/app/lib/types/capster";
+import { Schedule } from "@/app/lib/types/schedule";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import ReservationStepper from "@/components/user/reservasi/ReservationStepper";
+import Step1PersonalInfo from "@/components/user/reservasi/Step1PersonalInfo";
+import Step2PackageSelection from "@/components/user/reservasi/Step2PackageSelection";
+import Step3CapsterSchedule from "@/components/user/reservasi/Step3CapsterSchedule";
+import Step4Confirmation from "@/components/user/reservasi/Step4Confirmation";
+import Step5Payment from "@/components/user/reservasi/Step5Payment";
+import ReservationSuccess from "@/components/user/reservasi/ReservationSuccess";
 
 // Interface untuk form reservasi
 interface ReservationForm {
   nama: string;
   nomorHP: string;
+  email: string;
   capster: string;
   layanan: string;
   tanggal: string;
@@ -20,50 +37,21 @@ interface ReservationForm {
   catatan: string;
 }
 
-// Data capster
-const capsterList = [
-  { id: "1", nama: "Andi Wijaya", spesialisasi: "Hair Cut & Styling" },
-  { id: "2", nama: "Budi Santoso", spesialisasi: "Hair Cut & Beard" },
-  { id: "3", nama: "Charlie Rahman", spesialisasi: "Premium Styling" },
-  { id: "4", nama: "David Hakim", spesialisasi: "Hair Treatment" },
+// Steps configuration
+const steps = [
+  { id: 1, label: "Isi Data", icon: FaUser },
+  { id: 2, label: "Pilih Layanan", icon: FaCut },
+  { id: 3, label: "Pilih Capster & Jadwal", icon: FaCalendarAlt },
+  { id: 4, label: "Konfirmasi Reservasi", icon: FaClipboardList },
+  { id: 5, label: "Pembayaran", icon: FaCreditCard },
 ];
 
-// Data layanan
-const layananList = [
-  { id: "1", nama: "Haircut Regular", harga: 25000 },
-  { id: "2", nama: "Haircut Premium", harga: 50000 },
-  { id: "3", nama: "Hair Wash", harga: 15000 },
-  { id: "4", nama: "Beard Trim", harga: 20000 },
-  { id: "5", nama: "Hair Styling", harga: 30000 },
-  { id: "6", nama: "Face Treatment", harga: 45000 },
-];
-
-// Data waktu tersedia
-const waktuList = [
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-];
-
-export default function User() {
+export default function ReservasiPage() {
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ReservationForm>({
     nama: "",
     nomorHP: "",
+    email: "",
     capster: "",
     layanan: "",
     tanggal: "",
@@ -72,12 +60,83 @@ export default function User() {
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isBookingForSelf, setIsBookingForSelf] = useState(false);
+  const [isLoadingAuto, setIsLoadingAuto] = useState(false);
+  const [packages, setPackages] = useState<Package[]>([]);
+  const [isLoadingPackages, setIsLoadingPackages] = useState(false);
+  const [isSavingManualData, setIsSavingManualData] = useState(false);
+  const [capsters, setCapsters] = useState<Barber[]>([]);
+  const [isLoadingCapsters, setIsLoadingCapsters] = useState(false);
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>("");
+
+  // Fetch active packages and capsters on component mount
+  useEffect(() => {
+    fetchActivePackages();
+    fetchActiveCapsters();
+  }, []);
+
+  const fetchActivePackages = async () => {
+    setIsLoadingPackages(true);
+    try {
+      const response = await packageService.getActivePackages();
+      if (response.success && response.data) {
+        setPackages(response.data);
+      } else {
+        toast.error("Gagal memuat paket layanan");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoadingPackages(false);
+    }
+  };
+
+  const fetchActiveCapsters = async () => {
+    setIsLoadingCapsters(true);
+    try {
+      const response = await capsterService.getActiveCapsters();
+      if (response.success && response.data) {
+        setCapsters(response.data);
+      } else {
+        toast.error("Gagal memuat daftar capster");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoadingCapsters(false);
+    }
+  };
+
+  const fetchAvailableSchedules = async (capsterId: string) => {
+    setIsLoadingSchedules(true);
+    setSchedules([]);
+    setSelectedDate("");
+    setFormData((prev) => ({ ...prev, tanggal: "", waktu: "" }));
+
+    try {
+      const response = await scheduleService.getAvailableSchedulesByIdBarber(
+        capsterId
+      );
+      if (response.success && response.data) {
+        setSchedules(response.data);
+      } else {
+        toast.error("Gagal memuat jadwal");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoadingSchedules(false);
+    }
+  };
 
   // Handle input changes
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -86,322 +145,247 @@ export default function User() {
     }));
   };
 
-  // Calculate total price
-  const calculateTotal = () => {
-    if (!formData.layanan) return 0;
-    const layanan = layananList.find((l) => l.id === formData.layanan);
-    return layanan?.harga || 0;
+  // Handle checkbox for booking for self
+  const handleBookingForSelfChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const checked = e.target.checked;
+    setIsBookingForSelf(checked);
+
+    if (checked) {
+      setIsLoadingAuto(true);
+      try {
+        const response = await reservationService.reservationAuto({
+          bookingType: "self",
+        });
+        if (response.success && response.data) {
+          setFormData((prev) => ({
+            ...prev,
+            nama: response.data.customerData.name,
+            nomorHP: response.data.customerData.phone,
+            email: response.data.customerData.email,
+          }));
+        } else {
+          toast.error("Gagal memuat data");
+          setIsBookingForSelf(false);
+        }
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        toast.error(errorMessage);
+        setIsBookingForSelf(false);
+      } finally {
+        setIsLoadingAuto(false);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        nama: "",
+        nomorHP: "",
+        email: "",
+      }));
+    }
   };
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
+  // Handle manual input blur (save to API)
+  const handleManualInputBlur = async () => {
+    if (
+      !isBookingForSelf &&
+      formData.nama &&
+      formData.nomorHP &&
+      formData.email
+    ) {
+      setIsSavingManualData(true);
+      try {
+        await reservationService.reservationOther({
+          name: formData.nama,
+          phone: formData.nomorHP,
+          email: formData.email,
+          bookingType: "other",
+        });
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        toast.error(errorMessage);
+      } finally {
+        setIsSavingManualData(false);
+      }
+    }
+  };
+
+  // Handle capster selection
+  const handleCapsterSelect = (capsterId: string) => {
+    setFormData((prev) => ({ ...prev, capster: capsterId }));
+    fetchAvailableSchedules(capsterId);
+  };
+
+  // Handle date selection
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+    setFormData((prev) => ({ ...prev, tanggal: date, waktu: "" }));
+  };
+
+  // Handle time selection
+  const handleTimeSelect = (time: string) => {
+    setFormData((prev) => ({ ...prev, waktu: time }));
+  };
+
+  // Handle package selection
+  const handlePackageSelect = (packageId: string) => {
+    setFormData((prev) => ({ ...prev, layanan: packageId }));
+  };
+
+  // Validation for each step
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        if (!formData.nama || !formData.nomorHP || !formData.email) {
+          toast.error("Mohon lengkapi semua field");
+          return false;
+        }
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+          toast.error("Format email tidak valid");
+          return false;
+        }
+        return true;
+      case 2:
+        if (!formData.layanan) {
+          toast.error("Mohon pilih layanan");
+          return false;
+        }
+        return true;
+      case 3:
+        if (!formData.capster) {
+          toast.error("Mohon pilih capster");
+          return false;
+        }
+        if (!formData.tanggal) {
+          toast.error("Mohon pilih tanggal");
+          return false;
+        }
+        if (!formData.waktu) {
+          toast.error("Mohon pilih waktu");
+          return false;
+        }
+        return true;
+      case 4:
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  // Handle next step
+  const handleNextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  // Handle previous step
+  const handlePreviousStep = () => {
+    setCurrentStep((prev) => prev - 1);
   };
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // Basic validation
-    if (
-      !formData.nama ||
-      !formData.nomorHP ||
-      !formData.capster ||
-      !formData.layanan ||
-      !formData.tanggal ||
-      !formData.waktu
-    ) {
-      alert("Mohon lengkapi semua field yang wajib diisi!");
-      return;
-    }
-
-    // Simulate API call
+  const handleSubmit = () => {
     console.log("Form submitted:", formData);
+    toast.success("Reservasi berhasil dibuat!");
     setShowSuccess(true);
-
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setShowSuccess(false);
-      setFormData({
-        nama: "",
-        nomorHP: "",
-        capster: "",
-        layanan: "",
-        tanggal: "",
-        waktu: "",
-        catatan: "",
-      });
-    }, 3000);
   };
 
-  // Get minimum date (today)
-  const getMinDate = () => {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  };
+  if (showSuccess) {
+    return <ReservationSuccess />;
+  }
+
+  const selectedPackage = packages.find((pkg) => pkg._id === formData.layanan);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="mx-auto max-w-4xl">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Buat Reservasi
-            </h1>
-            <p className="text-gray-600">
-              Lengkapi form di bawah untuk membuat reservasi baru
-            </p>
-          </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 text-center">
+          Reservasi Layanan
+        </h1>
 
-          {/* Success Message */}
-          {showSuccess && (
-            <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <FaCheckCircle className="text-green-600 mr-3" />
-                <div>
-                  <h3 className="text-green-800 font-semibold">
-                    Reservasi Berhasil!
-                  </h3>
-                  <p className="text-green-700">
-                    Reservasi Anda telah dikirim dan menunggu konfirmasi.
-                  </p>
-                </div>
-              </div>
-            </div>
+        {/* Stepper */}
+        <ReservationStepper steps={steps} currentStep={currentStep} />
+
+        {/* Step Content */}
+        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
+          {currentStep === 1 && (
+            <Step1PersonalInfo
+              formData={formData}
+              isBookingForSelf={isBookingForSelf}
+              isLoadingAuto={isLoadingAuto}
+              isSavingManualData={isSavingManualData}
+              onInputChange={handleInputChange}
+              onBookingForSelfChange={handleBookingForSelfChange}
+              onManualInputBlur={handleManualInputBlur}
+            />
           )}
 
-          {/* Reservation Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information Section */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <FaUser className="mr-2 text-[#FDFB03]" />
-                  Informasi Pribadi
-                </h2>
+          {currentStep === 2 && (
+            <Step2PackageSelection
+              packages={packages}
+              selectedPackage={formData.layanan}
+              isLoadingPackages={isLoadingPackages}
+              onPackageSelect={handlePackageSelect}
+            />
+          )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Nama */}
-                  <div>
-                    <label
-                      htmlFor="nama"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Nama Lengkap *
-                    </label>
-                    <input
-                      type="text"
-                      id="nama"
-                      name="nama"
-                      value={formData.nama}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      placeholder="Masukkan nama lengkap"
-                      required
-                    />
-                  </div>
+          {currentStep === 3 && (
+            <Step3CapsterSchedule
+              capsters={capsters}
+              selectedCapster={formData.capster}
+              schedules={schedules}
+              selectedDate={selectedDate}
+              selectedTime={formData.waktu}
+              isLoadingCapsters={isLoadingCapsters}
+              isLoadingSchedules={isLoadingSchedules}
+              onCapsterSelect={handleCapsterSelect}
+              onDateSelect={handleDateSelect}
+              onTimeSelect={handleTimeSelect}
+            />
+          )}
 
-                  {/* Nomor HP */}
-                  <div>
-                    <label
-                      htmlFor="nomorHP"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Nomor HP *
-                    </label>
-                    <input
-                      type="tel"
-                      id="nomorHP"
-                      name="nomorHP"
-                      value={formData.nomorHP}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      placeholder="Contoh: 081234567890"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
+          {currentStep === 4 && (
+            <Step4Confirmation
+              formData={formData}
+              packages={packages}
+              capsters={capsters}
+              onCatatanChange={handleInputChange}
+            />
+          )}
 
-              {/* Service Selection Section */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <FaCut className="mr-2 text-[#FDFB03]" />
-                  Pilihan Layanan
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Pilih Capster */}
-                  <div>
-                    <label
-                      htmlFor="capster"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Pilih Capster *
-                    </label>
-                    <select
-                      id="capster"
-                      name="capster"
-                      value={formData.capster}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      required
-                    >
-                      <option value="">Pilih Capster</option>
-                      {capsterList.map((capster) => (
-                        <option key={capster.id} value={capster.id}>
-                          {capster.nama} - {capster.spesialisasi}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Pilih Layanan */}
-                  <div>
-                    <label
-                      htmlFor="layanan"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Pilih Layanan *
-                    </label>
-                    <select
-                      id="layanan"
-                      name="layanan"
-                      value={formData.layanan}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      required
-                    >
-                      <option value="">Pilih Layanan</option>
-                      {layananList.map((layanan) => (
-                        <option key={layanan.id} value={layanan.id}>
-                          {layanan.nama} - {formatCurrency(layanan.harga)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Total Harga */}
-                {formData.layanan && (
-                  <div className="mt-4 p-4 bg-[#FDFB03] bg-opacity-20 rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-900">
-                        Harga Layanan:
-                      </span>
-                      <span className="text-xl font-bold text-gray-900">
-                        {formatCurrency(calculateTotal())}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Schedule Section */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <FaCalendarAlt className="mr-2 text-[#FDFB03]" />
-                  Jadwal Reservasi
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Pilih Tanggal */}
-                  <div>
-                    <label
-                      htmlFor="tanggal"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Pilih Tanggal *
-                    </label>
-                    <input
-                      type="date"
-                      id="tanggal"
-                      name="tanggal"
-                      value={formData.tanggal}
-                      onChange={handleInputChange}
-                      min={getMinDate()}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      required
-                    />
-                  </div>
-
-                  {/* Pilih Waktu */}
-                  <div>
-                    <label
-                      htmlFor="waktu"
-                      className="block text-sm font-medium text-gray-700 mb-2"
-                    >
-                      Pilih Waktu *
-                    </label>
-                    <select
-                      id="waktu"
-                      name="waktu"
-                      value={formData.waktu}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors"
-                      required
-                    >
-                      <option value="">Pilih Waktu</option>
-                      {waktuList.map((waktu) => (
-                        <option key={waktu} value={waktu}>
-                          {waktu}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Notes Section */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <FaStickyNote className="mr-2 text-[#FDFB03]" />
-                  Catatan Tambahan
-                </h2>
-
-                <div>
-                  <label
-                    htmlFor="catatan"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Catatan (Opsional)
-                  </label>
-                  <textarea
-                    id="catatan"
-                    name="catatan"
-                    value={formData.catatan}
-                    onChange={handleInputChange}
-                    rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FDFB03] focus:border-transparent transition-colors resize-none"
-                    placeholder="Tambahkan catatan khusus atau preferensi gaya rambut..."
-                  />
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-6 border-t border-gray-200">
-                <button
-                  type="submit"
-                  className="w-full bg-[#FDFB03] hover:bg-yellow-400 text-black font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2"
-                >
-                  <FaCheckCircle />
-                  <span>Buat Reservasi</span>
-                </button>
-
-                <p className="text-sm text-gray-500 text-center mt-3">
-                  Dengan membuat reservasi, Anda menyetujui untuk datang tepat
-                  waktu sesuai jadwal yang dipilih.
-                </p>
-              </div>
-            </form>
-          </div>
+          {currentStep === 5 && (
+            <Step5Payment
+              selectedPackage={selectedPackage}
+              onSubmit={handleSubmit}
+            />
+          )}
         </div>
-      </main>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between">
+          {currentStep > 1 && (
+            <button
+              onClick={handlePreviousStep}
+              className="px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
+            >
+              Kembali
+            </button>
+          )}
+
+          {currentStep < 5 && (
+            <button
+              onClick={handleNextStep}
+              className="ml-auto px-6 py-3 bg-[#FDFB03] text-black rounded-lg font-semibold hover:bg-[#FDFB03]/80 transition-colors"
+            >
+              Selanjutnya
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -59,7 +59,7 @@ export interface DeleteCapsterResponse {
 }
 
 // Response untuk mendapatkan daftar barber yang aktif saja
-export interface GetActiveBarbersResponse {
+export interface GetActiveCapstersResponse {
   success: boolean;
   message: string;
   data: Barber[];

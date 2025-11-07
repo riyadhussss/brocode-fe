@@ -7,7 +7,7 @@ import {
   EditCapsterRequest,
   EditCapsterResponse,
   DeleteCapsterResponse,
-  GetActiveBarbersResponse,
+  GetActiveCapstersResponse,
 } from "../types/capster";
 
 export const capsterService = {
@@ -63,7 +63,7 @@ export const capsterService = {
     return response.data;
   },
 
-  getActiveBarbers: async (): Promise<GetActiveBarbersResponse> => {
+  getActiveCapsters: async (): Promise<GetActiveCapstersResponse> => {
     const response = await api.get("/barbers/active");
     return response.data;
   }

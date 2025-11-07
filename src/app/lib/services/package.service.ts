@@ -1,3 +1,4 @@
+import { get } from "http";
 import api from "../api";
 import {
   GetPackagesResponse,
@@ -7,9 +8,14 @@ import {
   EditPackageRequest,
   EditPackageResponse,
   DeletePackageResponse,
+  GetActivePackageResponse,
 } from "../types/package";
 
 export const packageService = {
+  getActivePackages: async (): Promise<GetActivePackageResponse> => {
+    const response = await api.get("/packages/active");
+    return response.data;
+  },
   getPackages: async (): Promise<GetPackagesResponse> => {
     const response = await api.get("/packages");
     return response.data;

@@ -1,3 +1,14 @@
+export interface Package {
+  _id: string;
+  name: string;
+  price: number;
+  description: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  packageId: string;
+  __v: number;
+}
 export interface GetPackagesResponse {
   success: boolean;
   message: string;
@@ -81,4 +92,11 @@ export interface EditPackageResponse {
 export interface DeletePackageResponse {
   success: boolean;
   message: string;
+}
+
+export interface GetActivePackageResponse {
+  success: boolean;
+  message: string;
+  data?: Package[];
+  count?: number;
 }
