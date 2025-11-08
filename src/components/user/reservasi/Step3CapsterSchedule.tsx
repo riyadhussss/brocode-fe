@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface Step3Props {
   capsters: Barber[];
@@ -23,7 +24,7 @@ interface Step3Props {
   isLoadingSchedules: boolean;
   onCapsterSelect: (capsterId: string) => void;
   onDateSelect: (date: string) => void;
-  onTimeSelect: (time: string) => void;
+  onTimeSelect: (time: string, scheduleId: string) => void;
 }
 
 export default function Step3CapsterSchedule({
@@ -207,17 +208,23 @@ export default function Step3CapsterSchedule({
               {availableTimeSlots.length > 0 ? (
                 <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
                   {availableTimeSlots.map((schedule) => (
-                    <button
+                    <Button
                       key={schedule._id}
-                      onClick={() => onTimeSelect(schedule.timeSlot)}
-                      className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                      onClick={() =>
+                        onTimeSelect(schedule.timeSlot, schedule._id)
+                      }
+                      variant={
                         selectedTime === schedule.timeSlot
-                          ? "border-[#FDFB03] bg-[#FDFB03] text-black font-semibold"
-                          : "border-gray-300 hover:border-[#FDFB03]/50"
-                      }`}
+                          ? "default"
+                          : "outline"
+                      }
+                      className={cn(
+                        selectedTime === schedule.timeSlot &&
+                          "bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80 border-[#FDFB03]"
+                      )}
                     >
                       {schedule.timeSlot}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               ) : (

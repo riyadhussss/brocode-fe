@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Package } from "@/app/lib/types/package";
 import { Barber } from "@/app/lib/types/capster";
+import { reservationService } from "@/app/lib/services/reservation.service";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Step4Props {
   formData: {
@@ -12,18 +17,29 @@ interface Step4Props {
     tanggal: string;
     waktu: string;
     catatan: string;
+    scheduleId: string;
   };
   packages: Package[];
   capsters: Barber[];
+  isBookingForSelf: boolean;
   onCatatanChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onReservationCreated: (reservationId: string) => void;
+  onNextStep: () => void;
+  onPreviousStep: () => void;
 }
 
 export default function Step4Confirmation({
   formData,
   packages,
   capsters,
+  isBookingForSelf,
   onCatatanChange,
+  onReservationCreated,
+  onNextStep,
+  onPreviousStep,
 }: Step4Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const selectedPackage = packages.find((pkg) => pkg._id === formData.layanan);
   const selectedCapster = capsters.find((cap) => cap._id === formData.capster);
 
@@ -36,6 +52,48 @@ export default function Step4Confirmation({
       month: "long",
       day: "numeric",
     });
+  };
+
+  // Find scheduleId from selected date and time
+  const getScheduleId = () => {
+    return formData.scheduleId;
+  };
+
+  const handleConfirmReservation = async () => {
+    setIsSubmitting(true);
+
+    try {
+      // Prepare request body according to AddReservationRequest interface
+      const requestBody = {
+        packageId: formData.layanan,
+        barberId: formData.capster,
+        scheduleId: formData.scheduleId,
+        notes: formData.catatan || undefined,
+        name: formData.nama,
+        phone: formData.nomorHP,
+        email: formData.email,
+        isOwnProfile: isBookingForSelf,
+      };
+
+      const response = await reservationService.addReservation(requestBody);
+
+      if (response.success && response.data?.reservation) {
+        toast.success(response.message || "Reservasi berhasil dibuat!");
+
+        // Pass reservation ID to parent component
+        onReservationCreated(response.data.reservation._id);
+
+        // Move to next step (Payment)
+        onNextStep();
+      } else {
+        toast.error("Gagal membuat reservasi");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -94,7 +152,36 @@ export default function Step4Confirmation({
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FDFB03]"
           placeholder="Tambahkan catatan jika ada"
           rows={4}
+          disabled={isSubmitting}
         />
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3 pt-4">
+        <Button
+          onClick={onPreviousStep}
+          disabled={isSubmitting}
+          variant="outline"
+          size="lg"
+        >
+          Kembali
+        </Button>
+
+        <Button
+          onClick={handleConfirmReservation}
+          disabled={isSubmitting}
+          className="flex-1 bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80"
+          size="lg"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              Memproses...
+            </>
+          ) : (
+            "Konfirmasi & Lanjut ke Pembayaran"
+          )}
+        </Button>
       </div>
     </div>
   );

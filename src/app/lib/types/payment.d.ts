@@ -150,3 +150,59 @@ export interface DeletePaymentMethodResponse {
     type: "bank_transfer" | "e_wallet";
   };
 }
+
+// 🧾💰 Get Payment Methods (Customer)
+export interface GetPaymentMethodForCustomerResponse {
+  success: boolean;
+  message: string;
+  data: {
+    bankAccounts: BankAccountCustomer[];
+    eWallets: EWalletCustomer[];
+  };
+}
+
+export interface BankAccountCustomer {
+  id: string;
+  optionId: string;
+  name: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
+export interface EWalletCustomer {
+  id: string;
+  optionId: string;
+  name: string;
+  walletType: string;
+  walletNumber: string;
+  walletName: string;
+}
+
+export interface UploadPaymentProofRequest {
+  reservationId: string;
+  paymentMethod: "bank_transfer" | "e_wallet";
+  selectedAccount: {
+    bankName?: string;
+    accountNumber?: string;
+    accountName?: string;
+    walletType?: string;
+    walletNumber?: string;
+    walletName?: string;
+  };
+  paymentProof: File;
+}
+
+export interface UploadPaymentProofResponse {
+  success: boolean;
+  message: string;
+  data: {
+    paymentId: string;
+    reservationId: string;
+    reservationStatus: "pending" | "confirmed" | "cancelled";
+    paymentStatus: "pending" | "verified" | "rejected";
+    proofUrl: string;
+    amount: number;
+    paymentMethod: "bank_transfer" | "e_wallet";
+  };
+}

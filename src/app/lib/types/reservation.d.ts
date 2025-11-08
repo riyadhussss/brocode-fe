@@ -50,6 +50,67 @@ export interface AddReservationRequest {
   packageId: string;
   barberId: string;
   scheduleId: string;
-  notes?: string;
-  customerData: CustomerData;
+  notes?: string; // optional
+  name: string;
+  phone: string;
+  email: string;
+  isOwnProfile: boolean;
+}
+
+export interface AddReservationResponse {
+  success: boolean;
+  message: string;
+  data: {
+    reservation: {
+      _id: string;
+      reservationId: string;
+      customer: {
+        _id: string;
+        name: string;
+        email: string;
+        phone: string;
+        userId: string;
+      };
+      customerName: string;
+      customerPhone: string;
+      customerEmail: string;
+      package: {
+        _id: string;
+        name: string;
+        price: number;
+      };
+      barber: {
+        _id: string;
+        name: string;
+        barberId: string;
+      };
+      schedule: {
+        _id: string;
+        date: string;
+        timeSlot: string;
+        scheduled_time: string;
+      };
+      totalPrice: number;
+      notes?: string;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+      __v: number;
+    };
+    customerInfo: {
+      isNewCustomer: boolean;
+      customer: {
+        _id: string;
+        name: string;
+        email: string;
+        phone: string;
+        password: string;
+        role: string;
+        createdAt: string;
+        updatedAt: string;
+        userId: string;
+        __v: number;
+      };
+    };
+  };
 }

@@ -17,6 +17,7 @@ import { Barber } from "@/app/lib/types/capster";
 import { Schedule } from "@/app/lib/types/schedule";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
+import { Button } from "@/components/ui/button";
 import ReservationStepper from "@/components/user/reservasi/ReservationStepper";
 import Step1PersonalInfo from "@/components/user/reservasi/Step1PersonalInfo";
 import Step2PackageSelection from "@/components/user/reservasi/Step2PackageSelection";
@@ -35,6 +36,7 @@ interface ReservationForm {
   tanggal: string;
   waktu: string;
   catatan: string;
+  scheduleId: string; // Added to store selected schedule ID
 }
 
 // Steps configuration
@@ -57,6 +59,7 @@ export default function ReservasiPage() {
     tanggal: "",
     waktu: "",
     catatan: "",
+    scheduleId: "", // Initialize scheduleId
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
@@ -70,6 +73,7 @@ export default function ReservasiPage() {
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [reservationId, setReservationId] = useState<string>(""); // Store created reservation ID
 
   // Fetch active packages and capsters on component mount
   useEffect(() => {
@@ -224,8 +228,12 @@ export default function ReservasiPage() {
   };
 
   // Handle time selection
-  const handleTimeSelect = (time: string) => {
-    setFormData((prev) => ({ ...prev, waktu: time }));
+  const handleTimeSelect = (time: string, scheduleId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      waktu: time,
+      scheduleId: scheduleId,
+    }));
   };
 
   // Handle package selection
@@ -288,9 +296,12 @@ export default function ReservasiPage() {
   };
 
   // Handle form submission
+  const handleReservationCreated = (id: string) => {
+    setReservationId(id);
+  };
+
   const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    toast.success("Reservasi berhasil dibuat!");
+    toast.success("Pembayaran berhasil!");
     setShowSuccess(true);
   };
 
@@ -353,13 +364,18 @@ export default function ReservasiPage() {
               formData={formData}
               packages={packages}
               capsters={capsters}
+              isBookingForSelf={isBookingForSelf}
               onCatatanChange={handleInputChange}
+              onReservationCreated={handleReservationCreated}
+              onNextStep={handleNextStep}
+              onPreviousStep={handlePreviousStep}
             />
           )}
 
           {currentStep === 5 && (
             <Step5Payment
               selectedPackage={selectedPackage}
+              reservationId={reservationId}
               onSubmit={handleSubmit}
             />
           )}
@@ -367,22 +383,20 @@ export default function ReservasiPage() {
 
         {/* Navigation Buttons */}
         <div className="flex justify-between">
-          {currentStep > 1 && (
-            <button
-              onClick={handlePreviousStep}
-              className="px-6 py-3 border-2 border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
-            >
+          {currentStep > 1 && currentStep !== 4 && (
+            <Button onClick={handlePreviousStep} variant="outline" size="lg">
               Kembali
-            </button>
+            </Button>
           )}
 
-          {currentStep < 5 && (
-            <button
+          {currentStep < 4 && (
+            <Button
               onClick={handleNextStep}
-              className="ml-auto px-6 py-3 bg-[#FDFB03] text-black rounded-lg font-semibold hover:bg-[#FDFB03]/80 transition-colors"
+              className="ml-auto bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80"
+              size="lg"
             >
               Selanjutnya
-            </button>
+            </Button>
           )}
         </div>
       </div>
