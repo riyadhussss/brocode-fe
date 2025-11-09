@@ -1,4 +1,6 @@
 {
+  "/(auth)/login/page": "app/(auth)/login/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/kasir/dashboard/page": "app/kasir/dashboard/page.js",
   "/user/reservasi/page": "app/user/reservasi/page.js"
 }

@@ -11,8 +11,10 @@ import {
   GetPaymentMethodForCustomerResponse,
   UploadPaymentProofRequest,
   UploadPaymentProofResponse,
+  VerifyPaymentRequest,
+  VerifyPaymentResponse,
 } from "../types/payment";
-import { get } from "http";
+import { verify } from "crypto";
 
 export const paymentService = {
   getPaymentMethods: async (): Promise<GetPaymentMethodsResponse> => {
@@ -69,6 +71,14 @@ export const paymentService = {
         "Content-Type": "multipart/form-data",
       },
     });
+    return response.data;
+  },
+
+  verifyPayment: async (
+    id: string,
+    data: VerifyPaymentRequest
+  ): Promise<VerifyPaymentResponse> => {
+    const response = await api.patch(`/payments/${id}/verify`, data);
     return response.data;
   },
 };

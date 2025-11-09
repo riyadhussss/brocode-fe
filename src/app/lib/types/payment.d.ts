@@ -206,3 +206,24 @@ export interface UploadPaymentProofResponse {
     paymentMethod: "bank_transfer" | "e_wallet";
   };
 }
+
+export interface VerifyPaymentRequest {
+  status: "verified" | "rejected";
+  verificationNote?: string;
+}
+
+export interface VerifyPaymentResponse {
+  success: boolean;
+  message: string;
+  data: {
+    paymentId: string;
+    reservationId: string;
+    paymentStatus: "verified" | "rejected";
+    reservationStatus: string;
+    scheduleStatus: "booked" | "available";
+    verificationNote?: string;
+    actionTaken: string;
+    cashierId: string;
+    verifiedAt: string;
+  };
+}

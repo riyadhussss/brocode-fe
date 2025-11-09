@@ -7,6 +7,7 @@ import {
   ReservationOtherResponse,
   AddReservationRequest,
   AddReservationResponse,
+  CheckReservationsResponse,
 } from "../types/reservation";
 
 export const reservationService = {
@@ -28,6 +29,11 @@ export const reservationService = {
     data: AddReservationRequest
   ): Promise<AddReservationResponse> => {
     const response = await api.post(`/reservations`, data);
+    return response.data;
+  },
+
+  checkReservations: async (): Promise<CheckReservationsResponse> => {
+    const response = await api.get(`payments/pending`);
     return response.data;
   },
 };

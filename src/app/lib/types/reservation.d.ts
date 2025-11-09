@@ -114,3 +114,82 @@ export interface AddReservationResponse {
     };
   };
 }
+
+/* ================================
+   ✅ Check Reservations Response
+   ================================ */
+
+export interface CheckReservationsResponse {
+  success: boolean;
+  message: string;
+  data: PaymentRecord[];
+  count: number;
+  summary: {
+    pending: number;
+    verified: number;
+    rejected: number;
+  };
+}
+
+export interface PaymentRecord {
+  paymentId: string;
+  _id: string;
+  amount: number;
+  paymentMethod: "bank_transfer" | "e_wallet";
+  status: "pending" | "verified" | "rejected";
+  proofOfPayment: ProofOfPayment;
+  bankAccount?: BankAccountInfo;
+  eWallet?: EWalletInfo;
+  reservation: ReservationSummary;
+  customer: CustomerSummary;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProofOfPayment {
+  url: string;
+  originalName: string;
+}
+
+export interface BankAccountInfo {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+}
+
+export interface EWalletInfo {
+  walletType: string;
+  walletNumber: string;
+  walletName: string;
+}
+
+export interface ReservationSummary {
+  _id: string;
+  reservationId: string;
+  status: "pending" | "confirmed" | "cancelled";
+  totalPrice: number;
+  customerName: string;
+  customerPhone: string;
+  createdAt: string;
+  package: {
+    name: string;
+    price: number;
+    description: string;
+  };
+  barber: {
+    name: string;
+  };
+  schedule: {
+    scheduled_time: string;
+  };
+  customer: CustomerSummary;
+}
+
+export interface CustomerSummary {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  userId: string;
+}
+
