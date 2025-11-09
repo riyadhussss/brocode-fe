@@ -1,4 +1,3 @@
-import { add } from "date-fns";
 import api from "../api";
 import {
   GetPaymentMethodsResponse,
@@ -14,7 +13,6 @@ import {
   VerifyPaymentRequest,
   VerifyPaymentResponse,
 } from "../types/payment";
-import { verify } from "crypto";
 
 export const paymentService = {
   getPaymentMethods: async (): Promise<GetPaymentMethodsResponse> => {
