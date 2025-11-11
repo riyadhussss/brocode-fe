@@ -29,17 +29,16 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Jangan log error 400 untuk menghindari noise di console
-    if (error.response?.status !== 400) {
-      console.error("❌ API Error:", {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        url: error.config?.url,
-        method: error.config?.method,
-        requestData: error.config?.data,
-      });
-    }
+    // Log semua error untuk debugging
+    console.error("❌ API Error:", {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method,
+      requestData: error.config?.data,
+    });
 
     if (error.response?.status === 404) {
       console.error("🔍 Resource not found:", error.config?.url);

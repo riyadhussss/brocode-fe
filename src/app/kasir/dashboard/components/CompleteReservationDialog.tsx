@@ -28,7 +28,8 @@ export default function CompleteReservationDialog({
   if (!reservation) return null;
 
   const handleConfirm = () => {
-    onConfirm(reservation.reservationId);
+    // Gunakan _id untuk API endpoint, bukan reservationId
+    onConfirm(reservation._id);
     onOpenChange(false);
   };
 
@@ -37,38 +38,38 @@ export default function CompleteReservationDialog({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Konfirmasi Penyelesaian Reservasi</AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2">
-            <p>
-              Apakah Anda yakin ingin menandai reservasi ini sebagai{" "}
-              <span className="font-semibold text-foreground">selesai</span>?
-            </p>
-            <div className="mt-4 p-4 bg-muted rounded-lg space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Customer:</span>
-                <span className="font-medium text-foreground">
-                  {reservation.customerName}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Layanan:</span>
-                <span className="font-medium text-foreground">
-                  {reservation.package.name}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Capster:</span>
-                <span className="font-medium text-foreground">
-                  {reservation.barber.name}
-                </span>
-              </div>
-            </div>
-            <p className="mt-4 text-sm">
-              Tindakan ini akan mengubah status reservasi menjadi{" "}
-              <span className="font-semibold text-foreground">completed</span>{" "}
-              dan tidak dapat dibatalkan.
-            </p>
+          <AlertDialogDescription>
+            Apakah Anda yakin ingin menandai reservasi ini sebagai{" "}
+            <span className="font-semibold text-foreground">selesai</span>?
           </AlertDialogDescription>
         </AlertDialogHeader>
+        <div className="space-y-4">
+          <div className="p-4 bg-muted rounded-lg space-y-2">
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Customer:</span>
+              <span className="font-medium text-foreground">
+                {reservation.customerName}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Layanan:</span>
+              <span className="font-medium text-foreground">
+                {reservation.package.name}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Capster:</span>
+              <span className="font-medium text-foreground">
+                {reservation.barber.name}
+              </span>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Tindakan ini akan mengubah status reservasi menjadi{" "}
+            <span className="font-semibold text-foreground">completed</span> dan
+            tidak dapat dibatalkan.
+          </p>
+        </div>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirm}>

@@ -18,7 +18,7 @@ import { ViewReservasiDialog } from "./components/ViewReservasiDialog";
 import { historyService } from "@/app/lib/services/history.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
-export default function RiwayatReservasi() {
+export default function RiwayatReservasiCustomer() {
   const [reservasis, setReservasis] = useState<BaseHistoryData[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewDialog, setViewDialog] = useState<{
@@ -38,7 +38,7 @@ export default function RiwayatReservasi() {
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const response = await historyService.getAdminHistory();
+      const response = await historyService.getCustomerHistory();
       if (response.success && response.data) {
         setReservasis(response.data);
         setSummary({
@@ -74,10 +74,10 @@ export default function RiwayatReservasi() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Riwayat Reservasi
+              Riwayat Reservasi Saya
             </h1>
             <p className="text-gray-600 text-sm">
-              Lihat dan kelola riwayat reservasi pelanggan
+              Lihat semua riwayat reservasi yang telah Anda buat
             </p>
           </div>
           <Button onClick={handleRefresh} variant="outline" disabled={loading}>
@@ -153,7 +153,7 @@ export default function RiwayatReservasi() {
           <CardHeader className="flex-shrink-0">
             <CardTitle>Daftar Riwayat Reservasi</CardTitle>
             <CardDescription>
-              Berikut adalah daftar semua riwayat reservasi pelanggan
+              Berikut adalah daftar semua riwayat reservasi Anda
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col min-h-0">
@@ -169,8 +169,8 @@ export default function RiwayatReservasi() {
               <DataTable
                 columns={columns}
                 data={reservasis}
-                filterColumn="customerName"
-                filterPlaceholder="Cari berdasarkan nama pelanggan..."
+                filterColumn="package.name"
+                filterPlaceholder="Cari berdasarkan paket layanan..."
               />
             )}
           </CardContent>

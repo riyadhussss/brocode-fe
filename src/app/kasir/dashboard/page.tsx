@@ -102,6 +102,8 @@ export default function DashboardKasir() {
 
   const handleCompleteReservation = async (reservationId: string) => {
     try {
+      console.log("🔄 Completing reservation:", reservationId);
+
       const response = await reservationService.setReservationStatus(
         reservationId,
         {
@@ -110,13 +112,18 @@ export default function DashboardKasir() {
         }
       );
 
+      console.log("✅ Complete response:", response);
+
       if (response.success) {
         toast.success("Reservasi berhasil ditandai sebagai selesai");
         fetchConfirmedReservations(); // Refresh data
       } else {
-        toast.error("Gagal menandai reservasi sebagai selesai");
+        toast.error(
+          response.message || "Gagal menandai reservasi sebagai selesai"
+        );
       }
     } catch (error) {
+      console.error("❌ Complete reservation error:", error);
       const errorMessage = getErrorMessage(error);
       toast.error(errorMessage);
     }

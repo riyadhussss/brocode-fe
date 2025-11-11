@@ -44,7 +44,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  filterColumn = "nama",
+  filterColumn = "customerName",
   filterPlaceholder = "Cari berdasarkan nama...",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -68,6 +68,11 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
+    },
+    columnResizeMode: "onChange",
+    defaultColumn: {
+      minSize: 60,
+      maxSize: 500,
     },
   });
 
@@ -135,7 +140,15 @@ export function DataTable<TData, TValue>({
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="font-medium">
+                    <TableHead
+                      key={header.id}
+                      className="font-medium"
+                      style={{
+                        width: header.getSize(),
+                        minWidth: header.getSize(),
+                        maxWidth: header.getSize(),
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -156,7 +169,14 @@ export function DataTable<TData, TValue>({
                     className="hover:bg-gray-50"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        style={{
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.getSize(),
+                          maxWidth: cell.column.getSize(),
+                        }}
+                      >
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -205,9 +225,9 @@ export function DataTable<TData, TValue>({
                   }
                 }}
               >
-                <DropdownMenuRadioItem value="5">5</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="10">10</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="15">15</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="20">20</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="50">50</DropdownMenuRadioItem>
                 <DropdownMenuRadioItem value="all">
                   Semua ({data.length})
                 </DropdownMenuRadioItem>
