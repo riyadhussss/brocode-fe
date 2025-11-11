@@ -140,18 +140,6 @@ export default function ReservationDetailDialog({
             </h3>
             <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
               <div>
-                <p className="text-sm text-muted-foreground">ID Reservasi</p>
-                <p className="font-medium">
-                  {reservation.reservation.reservationId}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Status Reservasi
-                </p>
-                {getReservationStatusBadge(reservation.reservation.status)}
-              </div>
-              <div>
                 <p className="text-sm text-muted-foreground">Tanggal Dibuat</p>
                 <p className="font-medium">
                   {format(
@@ -160,6 +148,12 @@ export default function ReservationDetailDialog({
                     { locale: id }
                   )}
                 </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Status Reservasi
+                </p>
+                {getReservationStatusBadge(reservation.reservation.status)}
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
@@ -200,13 +194,6 @@ export default function ReservationDetailDialog({
                   <p className="font-medium">{reservation.customer.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">User ID</p>
-                  <p className="font-medium">{reservation.customer.userId}</p>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -216,7 +203,7 @@ export default function ReservationDetailDialog({
           <div className="space-y-3">
             <h3 className="font-semibold text-lg flex items-center gap-2">
               <Scissors className="h-5 w-5" />
-              Layanan & Jadwal
+              Layanan
             </h3>
             <div className="grid grid-cols-1 gap-3 p-4 bg-muted/50 rounded-lg">
               <div>
@@ -229,15 +216,33 @@ export default function ReservationDetailDialog({
                 </p>
               </div>
               <div>
+                <p className="text-sm text-muted-foreground">Harga</p>
+                <p className="font-semibold text-lg text-primary">
+                  {formatCurrency(reservation.reservation.package.price)}
+                </p>
+              </div>
+              <div>
                 <p className="text-sm text-muted-foreground">Capster</p>
                 <p className="font-medium">
                   {reservation.reservation.barber.name}
                 </p>
               </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Schedule Info */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Jadwal
+            </h3>
+            <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Jadwal</p>
+                  <p className="text-sm text-muted-foreground">Tanggal</p>
                   <p className="font-medium">
                     {format(
                       new Date(reservation.reservation.schedule.scheduled_time),
@@ -283,56 +288,63 @@ export default function ReservationDetailDialog({
                     : "E-Wallet"}
                 </p>
               </div>
-              {reservation.bankAccount && (
-                <>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Bank</p>
-                    <p className="font-medium">
-                      {reservation.bankAccount.bankName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Nomor Rekening
-                    </p>
-                    <p className="font-medium">
-                      {reservation.bankAccount.accountNumber}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Nama Pemilik Rekening
-                    </p>
-                    <p className="font-medium">
-                      {reservation.bankAccount.accountName}
-                    </p>
-                  </div>
-                </>
-              )}
-              {reservation.eWallet && (
-                <>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Tipe E-Wallet
-                    </p>
-                    <p className="font-medium">
-                      {reservation.eWallet.walletType}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Nomor</p>
-                    <p className="font-medium">
-                      {reservation.eWallet.walletNumber}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Nama</p>
-                    <p className="font-medium">
-                      {reservation.eWallet.walletName}
-                    </p>
-                  </div>
-                </>
-              )}
+
+              {/* Bank Transfer Details */}
+              {reservation.paymentMethod === "bank_transfer" &&
+                reservation.bankAccount && (
+                  <>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Bank</p>
+                      <p className="font-medium">
+                        {reservation.bankAccount.bankName}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Nomor Rekening
+                      </p>
+                      <p className="font-medium">
+                        {reservation.bankAccount.accountNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Nama Pemilik Rekening
+                      </p>
+                      <p className="font-medium">
+                        {reservation.bankAccount.accountName}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+              {/* E-Wallet Details */}
+              {reservation.paymentMethod === "e_wallet" &&
+                reservation.eWallet && (
+                  <>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Tipe E-Wallet
+                      </p>
+                      <p className="font-medium">
+                        {reservation.eWallet.walletType}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nomor</p>
+                      <p className="font-medium">
+                        {reservation.eWallet.walletNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nama</p>
+                      <p className="font-medium">
+                        {reservation.eWallet.walletName}
+                      </p>
+                    </div>
+                  </>
+                )}
+
               <div className="pt-2 border-t">
                 <p className="text-sm text-muted-foreground">
                   Total Pembayaran
@@ -356,9 +368,7 @@ export default function ReservationDetailDialog({
                     alt={reservation.proofOfPayment.originalName}
                     className="w-full rounded-lg border"
                   />
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {reservation.proofOfPayment.originalName}
-                  </p>
+
                 </div>
               </div>
             </>

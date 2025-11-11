@@ -113,10 +113,6 @@ export default function Step1PersonalInfo({
           </div>
         </>
       )}
-
-      {isSavingManualData && (
-        <p className="text-sm text-gray-500">Menyimpan data...</p>
-      )}
     </div>
   );
 }

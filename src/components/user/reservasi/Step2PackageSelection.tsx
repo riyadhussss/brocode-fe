@@ -20,9 +20,9 @@ export default function Step2PackageSelection({
       <h2 className="text-2xl font-bold mb-6">Pilih Layanan</h2>
 
       {isLoadingPackages ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="border rounded-lg p-4">
+            <div key={i} className="border rounded-lg p-6">
               <Skeleton className="h-6 w-3/4 mb-2" />
               <Skeleton className="h-8 w-1/2 mb-3" />
               <Skeleton className="h-4 w-full mb-1" />
@@ -32,25 +32,29 @@ export default function Step2PackageSelection({
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {packages.map((pkg) => (
             <div
               key={pkg._id}
               onClick={() => onPackageSelect(pkg._id)}
-              className={`border-2 rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg ${
+              className={`border-2 rounded-lg p-6 cursor-pointer transition-all hover:shadow-lg ${
                 selectedPackage === pkg._id
                   ? "border-[#FDFB03] bg-[#FDFB03]/10"
                   : "border-gray-200 hover:border-[#FDFB03]/50"
               }`}
             >
-              {/* Nama Paket dan Harga di atas */}
-              <h3 className="font-semibold text-lg mb-1">{pkg.name}</h3>
-              <p className="text-xl font-bold text-[#FDFB03] mb-3">
+              {/* Nama Paket */}
+              <h3 className="font-bold text-xl mb-3">{pkg.name}</h3>
+
+              {/* Harga dengan warna hitam dan lebih besar */}
+              <p className="text-3xl font-bold text-black mb-4">
                 Rp {pkg.price.toLocaleString("id-ID")}
               </p>
 
-              {/* Deskripsi di bawah */}
-              <p className="text-sm text-gray-600">{pkg.description}</p>
+              {/* Deskripsi */}
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {pkg.description}
+              </p>
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { History, Plus } from "lucide-react";
+import { History, Plus, Home} from "lucide-react";
 
 import { NavMain } from "@/components/admin/sidebar/nav-main";
 import { NavUser } from "@/components/admin/sidebar/nav-user";
@@ -22,7 +22,7 @@ const data = {
   },
 
   items: [
-    // { name: "Dashboard", url: "/user/dashboard", icon: Home },
+    { name: "Dashboard", url: "/user/dashboard", icon: Home },
     {
       name: "Reservasi",
       url: "/user/reservasi",

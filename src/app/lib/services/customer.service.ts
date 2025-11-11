@@ -1,3 +1,4 @@
+import { get } from "http";
 import api from "../api";
 import {
   GetCustomerByIdResponse,
@@ -7,6 +8,7 @@ import {
   AddCustomerResponse,
   EditCustomerRequest,
   EditCustomerResponse,
+  GetCustomerReservationsResponse,
 } from "../types/customer";
 
 export const customerService = {
@@ -39,4 +41,10 @@ export const customerService = {
     const response = await api.put(`/customers/${id}`, data);
     return response.data;
   },
+
+  getCustomerReservations:
+    async (): Promise<GetCustomerReservationsResponse> => {
+      const response = await api.get(`reservations/my-reservations`);
+      return response.data;
+    },
 };

@@ -28,7 +28,6 @@ export default function ManajemenAdmin() {
     [] as unknown as GetAdminsResponse["data"]
   );
   const [loading, setLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
@@ -62,7 +61,6 @@ export default function ManajemenAdmin() {
 
       if (response && response.success && response.data) {
         setAdminsData(response.data);
-        setTotalCount(response.count || response.data.length);
 
         toast.success(`Berhasil memuat ${response.data.length} data admin`);
       } else {
@@ -73,7 +71,6 @@ export default function ManajemenAdmin() {
       const errorMessage = getErrorMessage(error);
 
       setAdminsData([] as unknown as GetAdminsResponse["data"]);
-      setTotalCount(0);
 
       toast.error("Gagal memuat data admin", {
         description:

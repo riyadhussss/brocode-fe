@@ -1,79 +1,51 @@
-export interface ReservationAutoRequest {
-  bookingType: "self";
+export interface InputCustomerRequest {
+  name: string;
+  phone: string;
+  email: string;
 }
 
-export interface ReservationAutoResponse {
+export interface InputCustomerResponse {
   success: boolean;
   message: string;
   data: {
-    bookingType: "self";
     customerData: {
       name: string;
       phone: string;
       email: string;
+    };
+    submittedBy: {
       userId: string;
-      isOwnProfile: boolean;
-    };
-  };
-}
-
-export interface ReservationOtherRequest {
-  name: string;
-  phone: string;
-  email: string;
-  bookingType: "other";
-}
-
-export interface ReservationOtherResponse {
-  success: boolean;
-  message: string;
-  data: {
-    bookingType: "other";
-    customerData: {
       name: string;
-      phone: string;
-      email?: string;
-      userId?: string;
-      isOwnProfile: boolean;
     };
+    nextStep: string;
   };
-}
-
-export interface CustomerData {
-  name: string;
-  phone: string;
-  email: string;
-  isOwnProfile: boolean;
 }
 
 export interface AddReservationRequest {
   packageId: string;
   barberId: string;
   scheduleId: string;
-  notes?: string; // optional
+  notes?: string;
   name: string;
   phone: string;
   email: string;
-  isOwnProfile: boolean;
 }
 
 export interface AddReservationResponse {
-  success: boolean;
+  success: true;
   message: string;
   data: {
     reservation: {
-      _id: string;
-      reservationId: string;
-      customer: {
-        _id: string;
-        name: string;
-        email: string;
-        phone: string;
-        userId: string;
-      };
+      customer: null;
       customerName: string;
       customerPhone: string;
       customerEmail: string;
+      createdBy: {
+        _id: string;
+        name: string;
+        email: string;
+        userId: string;
+      };
       package: {
         _id: string;
         name: string;
@@ -86,38 +58,81 @@ export interface AddReservationResponse {
       };
       schedule: {
         _id: string;
-        date: string;
+        date: string; // ISO date string
         timeSlot: string;
-        scheduled_time: string;
+        scheduled_time: string; // ISO date string
       };
       totalPrice: number;
-      notes?: string;
+      notes: string;
       status: string;
-      createdAt: string;
-      updatedAt: string;
+      _id: string;
+      createdAt: string; // ISO date string
+      updatedAt: string; // ISO date string
+      reservationId: string;
       __v: number;
     };
-    customerInfo: {
-      isNewCustomer: boolean;
-      customer: {
+    info: {
+      createdBy: {
         _id: string;
         name: string;
         email: string;
-        phone: string;
-        password: string;
-        role: string;
-        createdAt: string;
-        updatedAt: string;
         userId: string;
-        __v: number;
       };
+      isManualBooking: boolean;
     };
   };
 }
 
+export interface SetReservationStatusRequest {
+  status: string;
+  notes: string;
+}
+
+export type SetReservationStatusResponse = {
+  success: boolean
+  message: string
+  data: {
+    _id: string
+    customer: {
+      _id: string
+      name: string
+      email: string
+      phone: string
+      userId: string
+    } | null
+    customerName: string
+    customerPhone: string
+    customerEmail: string
+    createdBy: string
+    package: {
+      _id: string
+      name: string
+      price: number
+    }
+    barber: {
+      _id: string
+      name: string
+    }
+    schedule: {
+      _id: string
+      scheduled_time: string
+    }
+    totalPrice: number
+    notes: string
+    status: string
+    createdAt: string
+    updatedAt: string
+    reservationId: string
+    __v: number
+    confirmedAt: string
+    confirmedBy: string
+  }
+}
+
+
 /* ================================
-   ✅ Check Reservations Response
-   ================================ */
+✅ Check Reservations Response
+  ================================ */
 
 export interface CheckReservationsResponse {
   success: boolean;
@@ -193,3 +208,85 @@ export interface CustomerSummary {
   userId: string;
 }
 
+// Cek Jadwal yang sudah dikonfirmasi pembayarannya
+export interface CheckConfirmedReservationsResponse {
+  success: boolean;
+  message: string;
+  data: Reservation[];
+  count: number;
+}
+
+export interface Reservation {
+  _id: string;
+  reservationId: string;
+  status: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  notes?: string;
+  totalPrice: number;
+  customer: Customer | null;
+  createdBy?: UserReference;
+  package: PackageInfo;
+  barber: BarberInfo;
+  schedule: ScheduleInfo;
+  confirmedBy?: UserReference;
+  payment?: PaymentInfo | null;
+  finalStatus: string;
+  statusDescription: string;
+  createdAt: string;
+  updatedAt: string;
+  confirmedAt?: string;
+}
+
+export interface Customer {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  userId: string;
+}
+
+export interface UserReference {
+  _id?: string;
+  name: string;
+  email?: string;
+  userId?: string;
+  role?: string;
+}
+
+export interface PackageInfo {
+  _id: string;
+  name: string;
+  price: number;
+  description?: string;
+}
+
+export interface BarberInfo {
+  _id: string;
+  name: string;
+  phone: string;
+}
+
+export interface ScheduleInfo {
+  _id: string;
+  date: string;
+  timeSlot: string;
+  scheduled_time: string;
+}
+
+export interface PaymentInfo {
+  paymentId: string;
+  amount: number;
+  paymentMethod: string;
+  status: string;
+  verificationNote?: string;
+  verifiedAt?: string;
+  verifiedBy?: VerifiedBy;
+}
+
+export interface VerifiedBy {
+  name: string;
+  role: string;
+  userId: string;
+}

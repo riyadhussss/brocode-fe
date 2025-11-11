@@ -74,6 +74,7 @@ export default function ReservasiPage() {
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [reservationId, setReservationId] = useState<string>(""); // Store created reservation ID
+  const [customerDataSubmitted, setCustomerDataSubmitted] = useState(false); // Track if customer data is submitted via inputCustomer
 
   // Fetch active packages and capsters on component mount
   useEffect(() => {
@@ -150,27 +151,38 @@ export default function ReservasiPage() {
   };
 
   // Handle checkbox for booking for self
-  const handleBookingForSelfChange = async (
+  const handleBookingForSelfChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const checked = e.target.checked;
     setIsBookingForSelf(checked);
 
     if (checked) {
+      // User checked the box - Load data from cookies
       setIsLoadingAuto(true);
       try {
-        const response = await reservationService.reservationAuto({
-          bookingType: "self",
-        });
-        if (response.success && response.data) {
+        // Get individual cookie values
+        const getCookie = (name: string) => {
+          const value = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith(name + "="));
+          return value ? decodeURIComponent(value.split("=")[1]) : null;
+        };
+
+        const name = getCookie("name");
+        const phone = getCookie("phone");
+        const email = getCookie("email");
+
+        if (name && phone && email) {
           setFormData((prev) => ({
             ...prev,
-            nama: response.data.customerData.name,
-            nomorHP: response.data.customerData.phone,
-            email: response.data.customerData.email,
+            nama: name,
+            nomorHP: phone,
+            email: email,
           }));
+          setCustomerDataSubmitted(true); // Mark as submitted since it's self
         } else {
-          toast.error("Gagal memuat data");
+          toast.error("Data profil tidak lengkap di cookies");
           setIsBookingForSelf(false);
         }
       } catch (error) {
@@ -181,38 +193,21 @@ export default function ReservasiPage() {
         setIsLoadingAuto(false);
       }
     } else {
+      // User unchecked the box - clear form for manual input
       setFormData((prev) => ({
         ...prev,
         nama: "",
         nomorHP: "",
         email: "",
       }));
+      setCustomerDataSubmitted(false); // Reset submission flag
     }
   };
 
-  // Handle manual input blur (save to API)
+  // Handle manual input blur - NO LONGER NEEDED, removed API call
   const handleManualInputBlur = async () => {
-    if (
-      !isBookingForSelf &&
-      formData.nama &&
-      formData.nomorHP &&
-      formData.email
-    ) {
-      setIsSavingManualData(true);
-      try {
-        await reservationService.reservationOther({
-          name: formData.nama,
-          phone: formData.nomorHP,
-          email: formData.email,
-          bookingType: "other",
-        });
-      } catch (error) {
-        const errorMessage = getErrorMessage(error);
-        toast.error(errorMessage);
-      } finally {
-        setIsSavingManualData(false);
-      }
-    }
+    // This function is now empty - API call moved to handleNextStep
+    // Keeping the function to avoid breaking the component interface
   };
 
   // Handle capster selection
@@ -284,8 +279,33 @@ export default function ReservasiPage() {
   };
 
   // Handle next step
-  const handleNextStep = () => {
-    if (validateStep(currentStep)) {
+  const handleNextStep = async () => {
+    if (!validateStep(currentStep)) {
+      return;
+    }
+
+    // If on Step 1 and manual input (not booking for self), submit customer data first
+    if (currentStep === 1 && !isBookingForSelf && !customerDataSubmitted) {
+      setIsSavingManualData(true);
+      try {
+        const response = await reservationService.inputCustomer({
+          name: formData.nama,
+          phone: formData.nomorHP,
+          email: formData.email,
+        });
+
+        if (response.success && response.data) {
+          setCustomerDataSubmitted(true);
+          setCurrentStep((prev) => prev + 1); // Move to next step
+        }
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        toast.error(errorMessage);
+      } finally {
+        setIsSavingManualData(false);
+      }
+    } else {
+      // For other steps or if already submitted, just move to next step
       setCurrentStep((prev) => prev + 1);
     }
   };
@@ -376,6 +396,7 @@ export default function ReservasiPage() {
             <Step5Payment
               selectedPackage={selectedPackage}
               reservationId={reservationId}
+              isBookingForSelf={isBookingForSelf}
               onSubmit={handleSubmit}
             />
           )}

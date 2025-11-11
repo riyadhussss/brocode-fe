@@ -14,21 +14,30 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createColumns } from "./components/columns";
-import { DataTable } from "./components/data-table";
+import { createColumns } from "./components/Columns";
+import { createConfirmedColumns } from "./components/ConfirmedColumns";
+import { DataTable } from "./components/DataTable";
 import ReservationDetailDialog from "./components/ReservationDetailDialog";
+import CompleteReservationDialog from "./components/CompleteReservationDialog";
 import { reservationService } from "@/app/lib/services/reservation.service";
-import { PaymentRecord } from "@/app/lib/types/reservation";
+import { PaymentRecord, Reservation } from "@/app/lib/types/reservation";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardKasir() {
   const [reservations, setReservations] = useState<PaymentRecord[]>([]);
+  const [confirmedReservations, setConfirmedReservations] = useState<
+    Reservation[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingConfirmed, setIsLoadingConfirmed] = useState(true);
   const [selectedReservation, setSelectedReservation] =
     useState<PaymentRecord | null>(null);
+  const [selectedConfirmedReservation, setSelectedConfirmedReservation] =
+    useState<Reservation | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
   const [summary, setSummary] = useState({
     pending: 0,
     verified: 0,
@@ -38,6 +47,7 @@ export default function DashboardKasir() {
 
   useEffect(() => {
     fetchReservations();
+    fetchConfirmedReservations();
   }, []);
 
   const fetchReservations = async () => {
@@ -63,12 +73,57 @@ export default function DashboardKasir() {
     }
   };
 
+  const fetchConfirmedReservations = async () => {
+    setIsLoadingConfirmed(true);
+    try {
+      const response = await reservationService.checkConfirmedReservations();
+      if (response.success && response.data) {
+        setConfirmedReservations(response.data);
+      } else {
+        toast.error("Gagal memuat data reservasi terkonfirmasi");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    } finally {
+      setIsLoadingConfirmed(false);
+    }
+  };
+
   const handleViewDetail = (reservation: PaymentRecord) => {
     setSelectedReservation(reservation);
     setIsDialogOpen(true);
   };
 
+  const handleOpenCompleteDialog = (reservation: Reservation) => {
+    setSelectedConfirmedReservation(reservation);
+    setIsCompleteDialogOpen(true);
+  };
+
+  const handleCompleteReservation = async (reservationId: string) => {
+    try {
+      const response = await reservationService.setReservationStatus(
+        reservationId,
+        {
+          status: "completed",
+          notes: "Reservasi selesai",
+        }
+      );
+
+      if (response.success) {
+        toast.success("Reservasi berhasil ditandai sebagai selesai");
+        fetchConfirmedReservations(); // Refresh data
+      } else {
+        toast.error("Gagal menandai reservasi sebagai selesai");
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
+    }
+  };
+
   const columns = createColumns(handleViewDetail);
+  const confirmedColumns = createConfirmedColumns(handleOpenCompleteDialog);
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       <div className="mb-6">
@@ -190,6 +245,32 @@ export default function DashboardKasir() {
             )}
           </CardContent>
         </Card>
+
+        {/* Confirmed Reservations Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Konfirmasi Reservasi</CardTitle>
+            <CardDescription>
+              Daftar reservasi yang sudah terkonfirmasi
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingConfirmed ? (
+              <div className="space-y-3">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : (
+              <DataTable
+                columns={confirmedColumns}
+                data={confirmedReservations}
+              />
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       {/* Reservation Detail Dialog */}
@@ -198,6 +279,14 @@ export default function DashboardKasir() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onVerificationSuccess={fetchReservations}
+      />
+
+      {/* Complete Reservation Dialog */}
+      <CompleteReservationDialog
+        reservation={selectedConfirmedReservation}
+        open={isCompleteDialogOpen}
+        onOpenChange={setIsCompleteDialogOpen}
+        onConfirm={handleCompleteReservation}
       />
     </div>
   );

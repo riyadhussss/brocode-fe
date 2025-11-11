@@ -1,11 +1,12 @@
 import api from "@/app/lib/api";
 import {
+  LoginData,
   LoginResponse,
+  RegisterData,
   RegisterResponse,
   VerifyToken,
   VerifyTokenResponse,
-} from "@/app/lib/types/user";
-import { LoginData, RegisterData } from "@/app/lib/types/user";
+} from "@/app/lib/types/auth";
 import Cookies from "js-cookie";
 
 export const authService = {

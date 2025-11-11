@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface Step5Props {
   selectedPackage: Package | undefined;
   reservationId: string;
+  isBookingForSelf: boolean; // 🆕 Tambahkan prop ini
   onSubmit: () => void;
 }
 
@@ -31,6 +32,7 @@ type PaymentMethodUnion = BankAccountCustomer | EWalletCustomer;
 export default function Step5Payment({
   selectedPackage,
   reservationId,
+  isBookingForSelf, // 🆕 Destructure prop ini
   onSubmit,
 }: Step5Props) {
   const [paymentType, setPaymentType] = useState<PaymentMethodType>("");
@@ -128,39 +130,39 @@ export default function Step5Payment({
       return;
     }
 
-    setIsUploading(true);
+    // 🆕 Construct selectedAccount based on payment type
+    const selectedAccount =
+      paymentType === "bank_transfer" && "bankName" in selectedMethodDetails
+        ? {
+            bankName: selectedMethodDetails.bankName,
+            accountNumber: selectedMethodDetails.accountNumber,
+            accountName: selectedMethodDetails.accountName,
+          }
+        : paymentType === "e_wallet" && "walletType" in selectedMethodDetails
+        ? {
+            walletType: selectedMethodDetails.walletType,
+            walletNumber: selectedMethodDetails.walletNumber,
+            walletName: selectedMethodDetails.walletName,
+          }
+        : {};
+
+    // Debug log
+    console.log("=== PAYMENT DEBUG ===");
+    console.log("isBookingForSelf:", isBookingForSelf);
+    console.log(
+      "bookingType yang akan dikirim:",
+      isBookingForSelf ? "self" : "other"
+    );
+    console.log("reservationId:", reservationId);
+    console.log("selectedAccount:", selectedAccount);
+    console.log("===================");
+
     try {
-      // Prepare selected account data based on payment type
-      const selectedAccount: {
-        bankName?: string;
-        accountNumber?: string;
-        accountName?: string;
-        walletType?: string;
-        walletNumber?: string;
-        walletName?: string;
-      } = {};
-
-      if (
-        paymentType === "bank_transfer" &&
-        "accountNumber" in selectedMethodDetails
-      ) {
-        selectedAccount.bankName = selectedMethodDetails.bankName;
-        selectedAccount.accountNumber = selectedMethodDetails.accountNumber;
-        selectedAccount.accountName = selectedMethodDetails.accountName;
-      } else if (
-        paymentType === "e_wallet" &&
-        "walletNumber" in selectedMethodDetails
-      ) {
-        selectedAccount.walletType = selectedMethodDetails.walletType;
-        selectedAccount.walletNumber = selectedMethodDetails.walletNumber;
-        selectedAccount.walletName = selectedMethodDetails.walletName;
-      }
-
-      // Call upload payment proof API
+      setIsUploading(true);
       const response = await paymentService.uploadPaymentProof({
-        reservationId: reservationId,
+        reservationId,
         paymentMethod: paymentType,
-        selectedAccount: selectedAccount,
+        selectedAccount,
         paymentProof: proofFile,
       });
 
@@ -319,7 +321,7 @@ export default function Step5Payment({
                 <p className="text-sm text-gray-600">
                   Total yang harus dibayar
                 </p>
-                <p className="font-bold text-2xl text-[#FDFB03]">
+                <p className="font-bold text-2xl text-black">
                   Rp {selectedPackage?.price.toLocaleString("id-ID")}
                 </p>
               </div>

@@ -1,27 +1,20 @@
-import { add } from "date-fns";
 import api from "../api";
 import {
-  ReservationAutoRequest,
-  ReservationAutoResponse,
-  ReservationOtherRequest,
-  ReservationOtherResponse,
+  InputCustomerRequest,
+  InputCustomerResponse,
   AddReservationRequest,
   AddReservationResponse,
   CheckReservationsResponse,
+  CheckConfirmedReservationsResponse,
+  SetReservationStatusRequest,
+  SetReservationStatusResponse,
 } from "../types/reservation";
 
 export const reservationService = {
-  reservationAuto: async (
-    data: ReservationAutoRequest
-  ): Promise<ReservationAutoResponse> => {
-    const response = await api.post(`/reservations/set-booking-type`, data);
-    return response.data;
-  },
-
-  reservationOther: async (
-    data: ReservationOtherRequest
-  ): Promise<ReservationOtherResponse> => {
-    const response = await api.post(`/reservations/set-booking-type`, data);
+  inputCustomer: async (
+    data: InputCustomerRequest
+  ): Promise<InputCustomerResponse> => {
+    const response = await api.post(`reservations/customer-data`, data);
     return response.data;
   },
 
@@ -34,6 +27,23 @@ export const reservationService = {
 
   checkReservations: async (): Promise<CheckReservationsResponse> => {
     const response = await api.get(`payments/pending`);
+    return response.data;
+  },
+
+  checkConfirmedReservations:
+    async (): Promise<CheckConfirmedReservationsResponse> => {
+      const response = await api.get(`reservations?status=confirmed`);
+      return response.data;
+    },
+
+  setReservationStatus: async (
+    reservationId: string,
+    data: SetReservationStatusRequest
+  ): Promise<SetReservationStatusResponse> => {
+    const response = await api.patch(
+      `reservations/${reservationId}/status`,
+      data
+    );
     return response.data;
   },
 };

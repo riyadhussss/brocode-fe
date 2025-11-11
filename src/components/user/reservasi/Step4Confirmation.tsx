@@ -63,7 +63,7 @@ export default function Step4Confirmation({
     setIsSubmitting(true);
 
     try {
-      // Prepare request body according to AddReservationRequest interface
+      // Prepare request body - including name, phone, email from Step 1
       const requestBody = {
         packageId: formData.layanan,
         barberId: formData.capster,
@@ -72,10 +72,18 @@ export default function Step4Confirmation({
         name: formData.nama,
         phone: formData.nomorHP,
         email: formData.email,
-        isOwnProfile: isBookingForSelf,
       };
 
+      console.log("=== CREATE RESERVATION DEBUG ===");
+      console.log("requestBody:", requestBody);
+      console.log("================================");
+
       const response = await reservationService.addReservation(requestBody);
+
+      console.log("=== RESERVATION CREATED ===");
+      console.log("response:", response);
+      console.log("reservation ID:", response.data?.reservation?._id);
+      console.log("===========================");
 
       if (response.success && response.data?.reservation) {
         toast.success(response.message || "Reservasi berhasil dibuat!");
@@ -133,8 +141,8 @@ export default function Step4Confirmation({
           </div>
           <div>
             <p className="text-sm text-gray-600">Total Harga</p>
-            <p className="font-semibold text-[#FDFB03] text-xl">
-              Rp {selectedPackage?.price.toLocaleString("id-ID") || "0"}
+            <p className="font-semibold text-black text-xl">
+              Rp{selectedPackage?.price.toLocaleString("id-ID") || "0"}
             </p>
           </div>
         </div>

@@ -76,3 +76,51 @@ export interface DeleteCustomerResponse {
   success: boolean;
   message: string;
 }
+
+/* ================================
+   ✅ User Reservations Response
+   ================================ */
+
+export interface UserReservation {
+  _id: string;
+  customer: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  package: {
+    _id: string;
+    name: string;
+    price: number;
+    description: string;
+  };
+  barber: {
+    _id: string;
+    name: string;
+    phone: string;
+  };
+  schedule: {
+    _id: string;
+    date: string;
+    timeSlot: string;
+    scheduled_time: string;
+  };
+  totalPrice: number;
+  notes?: string;
+  status: "pending" | "confirmed" | "cancelled";
+  createdAt: string;
+  updatedAt: string;
+  reservationId: string;
+  __v: number;
+  confirmedAt?: string;
+  confirmedBy?: string;
+  paymentMethod?: string;
+  isWalkIn?: boolean;
+  isOwnProfile?: boolean;
+}
+
+export interface GetCustomerReservationsResponse {
+  success: boolean;
+  message: string;
+  data: UserReservation[];
+  count: number;
+}
