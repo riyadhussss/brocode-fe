@@ -4,17 +4,20 @@ export default function TentangKami() {
   return (
     <div
       id="tentang-kami"
-      className="relative min-h-[90vh] flex items-center px-6 bg-[url('/assets/Homepage/2.png')] bg-cover bg-center bg-no-repeat "
+      className="relative min-h-[90vh] flex items-center px-4 sm:px-6 lg:px-8 py-16 sm:py-20 bg-[url('/assets/Homepage/2.png')] bg-cover bg-center bg-no-repeat"
     >
-      <div className="absolute inset-0 bg-black/76 backdrop-blur-sm"></div>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
       <div className="container mx-auto relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Div Kiri - Tentang Kami */}
-          <div className="text-white">
-            <h1 className="text-4xl font-bold mb-6 text-[#FDFB03] font-montserrat">
+          <div className="text-white max-w-2xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-[#FDFB03] font-montserrat tracking-wide drop-shadow-lg">
               Tentang Kami
             </h1>
-            <p className="text-lg leading-relaxed font-montserrat">
+
+            <p className="text-sm sm:text-base md:text-lg leading-relaxed font-montserrat text-gray-100">
               Brocode Aceh Barbershop adalah destinasi terpercaya untuk
               perawatan rambut dan grooming pria di Aceh. Dengan pengalaman
               bertahun-tahun, kami berkomitmen memberikan pelayanan terbaik
@@ -28,13 +31,13 @@ export default function TentangKami() {
           </div>
 
           {/* Div Kanan - Logo */}
-          <div className="flex justify-center lg:justify-end">
+          <div className="flex justify-center lg:justify-end mt-8 lg:mt-0">
             <Image
               src={"/assets/logo.png"}
               alt="Logo Brocode Aceh"
-              width={300}
-              height={120}
-              className="filter drop-shadow-2xl"
+              width={340}
+              height={140}
+              className="filter drop-shadow-2xl w-48 sm:w-64 md:w-72 lg:w-[340px] h-auto transition-transform duration-300 hover:scale-105"
             />
           </div>
         </div>

@@ -1,68 +1,71 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { useState, useEffect, useCallback } from "react";
 import { paymentService } from "@/app/lib/services/payment.service";
+import { toast } from "sonner";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
-import type { PaymentMethodRowData } from "../../columns";
+import type { PaymentMethodRowData } from "../PaymentTableColumns";
 
 export function usePaymentMethods() {
   const [paymentData, setPaymentData] = useState<PaymentMethodRowData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data metode pembayaran dari API
-  const fetchPaymentMethodsData = async () => {
+  const fetchPaymentMethods = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Fetch data dari API
       const response = await paymentService.getPaymentMethods();
 
-      // Transform data dari API ke format tabel menggunakan response.data.all
-      const transformedData: PaymentMethodRowData[] = response.data.all.map(
-        (option) => ({
-          _id: option._id,
-          bankName: option.name, // Nama bank/e-wallet
-          type:
-            option.type === "bank_transfer"
-              ? ("bank" as const)
-              : ("e-wallet" as const),
-          accountNumber:
-            option.type === "bank_transfer"
-              ? option.accountNumber
-              : option.phoneNumber,
-          accountHolder:
-            option.type === "bank_transfer"
-              ? option.accountName
-              : option.walletName,
-          isActive: option.isActive ?? true, // Default true jika undefined
-        })
-      );
+      if (response.success && response.data) {
+        const { bank_transfer = [], e_wallet = [] } = response.data.grouped;
 
-      setPaymentData(transformedData);
-      toast.success(
-        `Data metode pembayaran berhasil dimuat (${transformedData.length} metode)`
-      );
+        // Transform bank accounts
+        const transformedBanks: PaymentMethodRowData[] = bank_transfer.map(
+          (bank) => ({
+            _id: bank._id,
+            type: "bank" as const,
+            bankName: bank.name,
+            accountNumber: bank.accountNumber,
+            accountHolder: bank.accountName,
+            isActive: bank.isActive,
+          })
+        );
+
+        // Transform e-wallets
+        const transformedEWallets: PaymentMethodRowData[] = e_wallet.map(
+          (ewallet) => ({
+            _id: ewallet._id,
+            type: "e-wallet" as const,
+            bankName: ewallet.name,
+            accountNumber: ewallet.phoneNumber,
+            accountHolder: ewallet.walletName,
+            isActive: ewallet.isActive,
+          })
+        );
+
+        // Combine both arrays
+        const combinedData = [...transformedBanks, ...transformedEWallets];
+        setPaymentData(combinedData);
+      } else {
+        // Jika tidak ada data atau response gagal, set ke array kosong
+        setPaymentData([]);
+      }
     } catch (error) {
-      console.error("❌ Payment methods fetch error:", error);
+      console.error("Error fetching payment methods:", error);
       const errorMessage = getErrorMessage(error);
-
+      toast.error(`Gagal memuat data: ${errorMessage}`);
+      // Set ke array kosong saat error
       setPaymentData([]);
-      toast.error("Gagal memuat data metode pembayaran", {
-        description:
-          errorMessage || "Silakan coba lagi atau hubungi administrator",
-      });
     } finally {
       setLoading(false);
     }
-  };
-
-  // Load data saat komponen mount
-  useEffect(() => {
-    fetchPaymentMethodsData();
   }, []);
 
-  // Calculate stats
+  useEffect(() => {
+    fetchPaymentMethods();
+  }, [fetchPaymentMethods]);
+
+  // Calculate totals
   const totalBank = paymentData.filter((p) => p.type === "bank").length;
   const totalEWallet = paymentData.filter((p) => p.type === "e-wallet").length;
 
@@ -71,6 +74,6 @@ export function usePaymentMethods() {
     loading,
     totalBank,
     totalEWallet,
-    refetch: fetchPaymentMethodsData,
+    refetch: fetchPaymentMethods,
   };
 }

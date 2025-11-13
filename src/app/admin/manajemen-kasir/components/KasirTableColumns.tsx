@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 
 // ✅ Type untuk kasir sesuai dengan API response
 export type KasirRowData = {
@@ -27,7 +27,6 @@ export type KasirRowData = {
 // ✅ Type untuk callback functions
 type KasirActionsCallbacks = {
   onDelete?: (kasir: KasirRowData) => void;
-  onView?: (kasir: KasirRowData) => void;
   onEdit?: (kasir: KasirRowData) => void;
 };
 
@@ -84,17 +83,6 @@ export const createColumns = (
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                if (callbacks?.onView) {
-                  callbacks.onView(kasir);
-                }
-              }}
-              className="cursor-pointer"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Lihat Detail
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
                 if (callbacks?.onEdit) {
                   callbacks.onEdit(kasir);
                 }
@@ -104,7 +92,6 @@ export const createColumns = (
               <Edit className="mr-2 h-4 w-4" />
               Edit Kasir
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 if (callbacks?.onDelete) {

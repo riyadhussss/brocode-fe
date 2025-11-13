@@ -9,7 +9,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   CapsterPageHeader,
@@ -18,7 +17,6 @@ import {
   CapsterDataTable,
   createColumns,
   AddCapsterDialog,
-  ViewCapsterDialog,
   EditCapsterDialog,
   DeleteCapsterDialog,
 } from "./components";
@@ -30,13 +28,6 @@ export default function ManajemenCapster() {
   const [capsterData, setCapsterData] = useState<CapsterRowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [viewDialog, setViewDialog] = useState<{
-    open: boolean;
-    capster: CapsterRowData | null;
-  }>({
-    open: false,
-    capster: null,
-  });
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
     capster: CapsterRowData | null;
@@ -91,10 +82,6 @@ export default function ManajemenCapster() {
     fetchCapsters();
   };
 
-  const handleViewClick = (capster: CapsterRowData) => {
-    setViewDialog({ open: true, capster });
-  };
-
   const handleEditClick = (capster: CapsterRowData) => {
     setEditDialog({ open: true, capster });
   };
@@ -137,7 +124,6 @@ export default function ManajemenCapster() {
   const columns = useMemo(
     () =>
       createColumns({
-        onView: handleViewClick,
         onEdit: handleEditClick,
         onDelete: handleDeleteClick,
       }),
@@ -238,13 +224,6 @@ export default function ManajemenCapster() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSuccess={handleSuccess}
-      />
-
-      {/* View Capster Dialog */}
-      <ViewCapsterDialog
-        open={viewDialog.open}
-        onOpenChange={(open) => setViewDialog((prev) => ({ ...prev, open }))}
-        capster={viewDialog.capster}
       />
 
       {/* Edit Capster Dialog */}

@@ -103,7 +103,7 @@ export const createColumns = (
     accessorKey: "createdBy.name",
     header: "Kasir",
     cell: ({ row }) => (
-      <div className="font-medium">{row.original.createdBy.name}</div>
+      <div className="font-medium">{row.original.createdBy?.name || "N/A"}</div>
     ),
     size: 150,
   },

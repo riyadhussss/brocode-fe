@@ -1,6 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
@@ -11,7 +18,6 @@ import {
   LayananDataTable,
   createColumns,
   AddLayananDialog,
-  ViewLayananDialog,
   EditLayananDialog,
   DeleteLayananDialog,
 } from "./components";
@@ -21,10 +27,6 @@ export default function ManajemenLayanan() {
   const [layananData, setLayananData] = useState<LayananRowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [viewDialog, setViewDialog] = useState<{
-    open: boolean;
-    layanan: LayananRowData | null;
-  }>({ open: false, layanan: null });
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
     layanan: LayananRowData | null;
@@ -67,11 +69,6 @@ export default function ManajemenLayanan() {
     fetchPackages();
   };
 
-  // ✅ Handle view layanan
-  const handleViewClick = (layanan: LayananRowData) => {
-    setViewDialog({ open: true, layanan });
-  };
-
   // ✅ Handle edit layanan
   const handleEditClick = (layanan: LayananRowData) => {
     setEditDialog({ open: true, layanan });
@@ -90,7 +87,6 @@ export default function ManajemenLayanan() {
   const columns = useMemo(
     () =>
       createColumns({
-        onView: handleViewClick,
         onEdit: handleEditClick,
         onDelete: handleDeleteClick,
       }),
@@ -99,31 +95,37 @@ export default function ManajemenLayanan() {
 
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
+      {/* Page Header */}
       <LayananPageHeader loading={loading} onRefresh={handleRefresh} />
 
-      {loading ? (
-        <LayananTableSkeleton />
-      ) : (
-        <LayananDataTable
-          columns={columns}
-          data={layananData}
-          onAddNew={handleAddNew}
-        />
-      )}
+      {/* Data Table */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <Card className="flex-1 flex flex-col">
+          <CardHeader>
+            <CardTitle>Daftar Layanan</CardTitle>
+            <CardDescription>
+              Berikut adalah daftar semua layanan yang terdaftar dalam sistem
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
+            {loading ? (
+              <LayananTableSkeleton />
+            ) : (
+              <LayananDataTable
+                columns={columns}
+                data={layananData}
+                onAddNew={handleAddNew}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Dialogs */}
       <AddLayananDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSuccess={handleSuccess}
-      />
-
-      <ViewLayananDialog
-        open={viewDialog.open}
-        onOpenChange={(open: boolean) =>
-          setViewDialog({ open, layanan: open ? viewDialog.layanan : null })
-        }
-        layanan={viewDialog.layanan}
       />
 
       <EditLayananDialog

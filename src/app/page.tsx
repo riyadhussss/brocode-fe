@@ -1,8 +1,8 @@
 import React from "react";
-import Layanan from "@/components/homepage/Layanan";
-import TentangKami from "@/components/homepage/TentangKami";
+import Layanan from "@/app/homepage/Layanan";
+import TentangKami from "@/app/homepage/TentangKami";
 import Footer from "@/components/Footer";
-import HomeSection from "@/components/homepage/Section";
+import HomeSection from "@/app/homepage/Section";
 import { Navbar1 } from "@/components/navbar1";
 
 export default function Home() {
@@ -23,5 +23,5 @@ export default function Home() {
         <Footer />
       </div>
     </>
-  );  
+  );
 }

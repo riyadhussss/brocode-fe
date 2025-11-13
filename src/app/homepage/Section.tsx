@@ -21,15 +21,19 @@ export default function HomeSection() {
             alt="Brocode Aceh Barbershop Logo"
             width={200}
             height={200}
-            className="object-contain w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64"
+            className="object-contain w-36 h-36 sm:w-44 sm:h-44 md:w-52 md:h-52 lg:w-60 lg:h-60 xl:w-64 xl:h-64"
             priority
           />
         </div>
 
         {/* Div kedua - H1 */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#FDFB03] text-center tracking-wide drop-shadow-lg">
-            <div id="EnakinKepala">#ENAKINKEPALA</div>
+          <h1
+            id="EnakinKepala"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-[#FDFB03] text-center tracking-wide drop-shadow-lg"
+          >
+            {" "}
+            #ENAKINKEPALA
           </h1>
         </div>
 

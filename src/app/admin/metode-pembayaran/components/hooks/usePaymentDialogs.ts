@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { PaymentMethodRowData } from "../../columns";
+import type { PaymentMethodRowData } from "../PaymentTableColumns";
 
 export function usePaymentDialogs() {
   const [showAddDialog, setShowAddDialog] = useState(false);

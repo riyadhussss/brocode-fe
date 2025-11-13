@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 import { GetAdminsResponse } from "@/app/lib/types/admin";
 
 // ✅ Type untuk data row - mengambil tipe dari elemen array data
@@ -19,7 +19,6 @@ type AdminRowData = GetAdminsResponse["data"][number];
 // ✅ Type untuk callback functions
 type AdminActionsCallbacks = {
   onDelete?: (admin: AdminRowData) => void;
-  onView?: (admin: AdminRowData) => void;
   onEdit?: (admin: AdminRowData) => void;
 };
 
@@ -76,17 +75,6 @@ export const createColumns = (
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                if (callbacks?.onView) {
-                  callbacks.onView(admin);
-                }
-              }}
-              className="cursor-pointer"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Lihat Detail
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
                 if (callbacks?.onEdit) {
                   callbacks.onEdit(admin);
                 }
@@ -96,7 +84,6 @@ export const createColumns = (
               <Edit className="mr-2 h-4 w-4" />
               Edit Admin
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 if (callbacks?.onDelete) {

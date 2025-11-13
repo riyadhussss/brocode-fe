@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 
 export type UserRowData = {
   _id: string;
@@ -25,7 +25,6 @@ export type UserRowData = {
 
 type UserActionsCallbacks = {
   onDelete?: (user: UserRowData) => void;
-  onView?: (user: UserRowData) => void;
   onEdit?: (user: UserRowData) => void;
 };
 
@@ -78,14 +77,6 @@ export const createColumns = (
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => callbacks?.onView?.(user)}
-              className="cursor-pointer"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Lihat Detail
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => callbacks?.onEdit?.(user)}
               className="cursor-pointer"

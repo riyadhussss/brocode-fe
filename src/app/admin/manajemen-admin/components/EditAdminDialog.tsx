@@ -28,30 +28,12 @@ interface EditAdminDialogProps {
   onSuccess: () => void;
 }
 
-// ✅ Zod schema untuk validasi edit admin - semua field opsional
+// ✅ Zod schema untuk validasi edit admin - lebih sederhana
 const editAdminSchema = z
   .object({
-    name: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || val.length >= 3,
-        "Nama minimal 3 karakter jika diisi"
-      ),
-    email: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || z.string().email().safeParse(val).success,
-        "Email tidak valid jika diisi"
-      ),
-    password: z
-      .string()
-      .optional()
-      .refine(
-        (val) => !val || val.length >= 6,
-        "Password minimal 6 karakter jika diisi"
-      ),
+    name: z.string().min(3, "Nama minimal 3 karakter"),
+    email: z.string().email("Email tidak valid"),
+    password: z.string().optional(),
     confirmPassword: z.string().optional(),
   })
   .refine(
@@ -116,6 +98,7 @@ export function EditAdminDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!admin) return;
 
     setErrors({});
@@ -136,31 +119,15 @@ export function EditAdminDialog({
     setLoading(true);
 
     try {
-      // ✅ Prepare data untuk API - hanya kirim field yang diubah dan tidak kosong
-      const updateData: Partial<EditAdminRequest> = {};
+      // ✅ Prepare data untuk API - dengan safety check
+      const updateData: EditAdminRequest = {
+        name: (formData.name || "").trim(),
+        email: (formData.email || "").trim(),
+      };
 
-      // Hanya kirim name jika diubah dan tidak kosong
-      if (formData.name && formData.name.trim().length > 0) {
-        updateData.name = formData.name;
-      }
-
-      // Hanya kirim email jika diubah dan tidak kosong
-      if (formData.email && formData.email.trim().length > 0) {
-        updateData.email = formData.email;
-      }
-
-      // Hanya kirim password jika diisi
-      if (formData.password && formData.password.length > 0) {
-        updateData.password = formData.password;
-      }
-
-      // Pastikan ada minimal 1 field yang diupdate
-      if (Object.keys(updateData).length === 0) {
-        toast.error("Tidak ada perubahan", {
-          description: "Silakan ubah minimal satu field untuk update",
-        });
-        setLoading(false);
-        return;
+      // Hanya tambahkan password jika diisi
+      if (formData.password && formData.password.trim().length > 0) {
+        updateData.password = formData.password.trim();
       }
 
       const response = await adminService.editAdmin(admin._id, updateData);
@@ -175,25 +142,7 @@ export function EditAdminDialog({
         throw new Error(response?.message || "Gagal mengupdate admin");
       }
     } catch (error) {
-      console.error("❌ Error updating admin:", error);
-
-      // Handle field-specific errors dari backend
-      if (error && typeof error === "object" && "response" in error) {
-        const responseError = error as {
-          response?: { data?: { errors?: Record<string, string> } };
-        };
-        if (responseError.response?.data?.errors) {
-          const backendErrors: Partial<Record<keyof EditAdminForm, string>> =
-            {};
-          Object.entries(responseError.response.data.errors).forEach(
-            ([key, value]) => {
-              backendErrors[key as keyof EditAdminForm] = value as string;
-            }
-          );
-          setErrors(backendErrors);
-        }
-      }
-
+      console.error("Error updating admin:", error);
       toast.error("Gagal mengupdate admin", {
         description: getErrorMessage(error),
       });
@@ -215,7 +164,7 @@ export function EditAdminDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           {/* Nama */}
           <div className="space-y-2">
             <Label htmlFor="edit-name">Nama Lengkap</Label>
@@ -292,27 +241,31 @@ export function EditAdminDialog({
               )}
             </div>
           )}
+        </div>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => handleOpenChange(false)}
-              disabled={loading}
-              className="w-full sm:w-auto"
-            >
-              Batal
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full sm:w-auto"
-            >
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {loading ? "Menyimpan..." : "Simpan Perubahan"}
-            </Button>
-          </DialogFooter>
-        </form>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleOpenChange(false)}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
+            Batal
+          </Button>
+          <Button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              handleSubmit(e as any);
+            }}
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading ? "Menyimpan..." : "Simpan Perubahan"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

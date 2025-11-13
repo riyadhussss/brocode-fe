@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // ✅ Type untuk layanan sesuai dengan API response
@@ -29,7 +29,6 @@ export type LayananRowData = {
 // ✅ Type untuk callback functions
 type LayananActionsCallbacks = {
   onDelete?: (layanan: LayananRowData) => void;
-  onView?: (layanan: LayananRowData) => void;
   onEdit?: (layanan: LayananRowData) => void;
 };
 
@@ -121,17 +120,6 @@ export const createColumns = (
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
-                if (callbacks?.onView) {
-                  callbacks.onView(layanan);
-                }
-              }}
-              className="cursor-pointer"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Lihat Detail
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
                 if (callbacks?.onEdit) {
                   callbacks.onEdit(layanan);
                 }
@@ -141,7 +129,6 @@ export const createColumns = (
               <Edit className="mr-2 h-4 w-4" />
               Edit Layanan
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
                 if (callbacks?.onDelete) {

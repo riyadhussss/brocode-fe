@@ -1,6 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
@@ -11,7 +18,6 @@ import {
   CustomerDataTable,
   createColumns,
   AddCustomerDialog,
-  ViewCustomerDialog,
   EditCustomerDialog,
   DeleteCustomerDialog,
 } from "./components";
@@ -30,13 +36,6 @@ export default function ManajemenUser() {
     open: false,
     user: null,
     loading: false,
-  });
-  const [viewDialog, setViewDialog] = useState<{
-    open: boolean;
-    user: UserRowData | null;
-  }>({
-    open: false,
-    user: null,
   });
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
@@ -111,36 +110,6 @@ export default function ManajemenUser() {
     await fetchCustomersData();
   };
 
-  // ✅ Handle view user
-  const handleViewClick = async (user: UserRowData) => {
-    try {
-      const response = await customerService.getCustomerById(user._id);
-
-      if (response && response.success && response.data) {
-        setViewDialog({
-          open: true,
-          user: {
-            _id: response.data._id,
-            name: response.data.name,
-            email: response.data.email,
-            phone: response.data.phone,
-            userId: response.data.userId,
-            role: response.data.role,
-            createdAt: response.data.createdAt,
-            updatedAt: response.data.updatedAt,
-          },
-        });
-      } else {
-        throw new Error(response?.message || "Gagal mengambil detail customer");
-      }
-    } catch (error) {
-      const errorMessage = getErrorMessage(error);
-      toast.error("Gagal memuat detail customer", {
-        description: errorMessage,
-      });
-    }
-  };
-
   // ✅ Handle edit user
   const handleEditClick = (user: UserRowData) => {
     setEditDialog({
@@ -200,7 +169,6 @@ export default function ManajemenUser() {
   const columns = useMemo(
     () =>
       createColumns({
-        onView: handleViewClick,
         onEdit: handleEditClick,
         onDelete: handleDeleteClick,
       }),
@@ -212,17 +180,31 @@ export default function ManajemenUser() {
 
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
+      {/* Page Header */}
       <CustomerPageHeader loading={loading} onRefresh={handleRefresh} />
 
-      {loading ? (
-        <CustomerTableSkeleton />
-      ) : (
-        <CustomerDataTable
-          columns={columns}
-          data={userData}
-          onAddNew={handleAddNew}
-        />
-      )}
+      {/* Data Table */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <Card className="flex-1 flex flex-col">
+          <CardHeader>
+            <CardTitle>Daftar User</CardTitle>
+            <CardDescription>
+              Berikut adalah daftar semua user yang terdaftar dalam sistem
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex-1 flex flex-col min-h-0">
+            {loading ? (
+              <CustomerTableSkeleton />
+            ) : (
+              <CustomerDataTable
+                columns={columns}
+                data={userData}
+                onAddNew={handleAddNew}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <DeleteCustomerDialog
@@ -235,17 +217,6 @@ export default function ManajemenUser() {
         onConfirm={handleDeleteConfirm}
         customerName={deleteDialog.user?.name || ""}
         loading={deleteDialog.loading}
-      />
-
-      {/* View Dialog */}
-      <ViewCustomerDialog
-        open={viewDialog.open}
-        onOpenChange={(open) => {
-          if (!open) {
-            setViewDialog({ open: false, user: null });
-          }
-        }}
-        customer={viewDialog.user}
       />
 
       {/* Add Customer Dialog */}

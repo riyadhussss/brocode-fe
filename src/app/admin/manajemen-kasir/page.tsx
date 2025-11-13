@@ -16,7 +16,6 @@ import {
   KasirDataTable,
   createColumns,
   AddKasirDialog,
-  ViewKasirDialog,
   EditKasirDialog,
   DeleteKasirDialog,
 } from "./components";
@@ -28,13 +27,6 @@ export default function ManajemenKasir() {
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [viewDialog, setViewDialog] = useState<{
-    open: boolean;
-    kasir: KasirRowData | null;
-  }>({
-    open: false,
-    kasir: null,
-  });
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
     kasir: KasirRowData | null;
@@ -100,11 +92,6 @@ export default function ManajemenKasir() {
     await fetchKasirData();
   };
 
-  // ✅ Handle view kasir
-  const handleViewClick = (kasir: KasirRowData) => {
-    setViewDialog({ open: true, kasir });
-  };
-
   // ✅ Handle edit kasir
   const handleEditClick = (kasir: KasirRowData) => {
     setEditDialog({ open: true, kasir });
@@ -155,7 +142,6 @@ export default function ManajemenKasir() {
   const columns = useMemo(
     () =>
       createColumns({
-        onView: handleViewClick,
         onEdit: handleEditClick,
         onDelete: handleDeleteClick,
       }),
@@ -195,13 +181,6 @@ export default function ManajemenKasir() {
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSuccess={handleAddSuccess}
-      />
-
-      {/* View Kasir Dialog */}
-      <ViewKasirDialog
-        open={viewDialog.open}
-        onOpenChange={(open) => setViewDialog({ open, kasir: null })}
-        kasir={viewDialog.kasir}
       />
 
       {/* Edit Kasir Dialog */}

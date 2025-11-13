@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Trash2, Edit } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 
 // ✅ Type untuk capster sesuai dengan API response
 export type CapsterRowData = {
@@ -29,7 +29,6 @@ export type CapsterRowData = {
 // ✅ Type untuk callback functions
 type CapsterActionsCallbacks = {
   onDelete?: (capster: CapsterRowData) => void;
-  onView?: (capster: CapsterRowData) => void;
   onEdit?: (capster: CapsterRowData) => void;
 };
 
@@ -100,20 +99,12 @@ export const createColumns = (
             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => callbacks?.onView?.(capster)}
-              className="cursor-pointer"
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              Lihat Detail
-            </DropdownMenuItem>
-            <DropdownMenuItem
               onClick={() => callbacks?.onEdit?.(capster)}
               className="cursor-pointer"
             >
               <Edit className="mr-2 h-4 w-4" />
               Edit Capster
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => callbacks?.onDelete?.(capster)}
               className="cursor-pointer text-red-600 focus:text-red-600"
