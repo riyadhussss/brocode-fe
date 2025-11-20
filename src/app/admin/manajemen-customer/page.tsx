@@ -21,28 +21,28 @@ import {
   EditCustomerDialog,
   DeleteCustomerDialog,
 } from "./components";
-import type { UserRowData } from "./components/CustomerTableColumns";
+import type { CustomerRowData } from "./components/CustomerTableColumns";
 
-export default function ManajemenUser() {
-  const [userData, setUserData] = useState<UserRowData[]>([]);
+export default function ManajemenCustomer() {
+  const [customerData, setCustomerData] = useState<CustomerRowData[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
-    user: UserRowData | null;
+    customer: CustomerRowData | null;
     loading: boolean;
   }>({
     open: false,
-    user: null,
+    customer: null,
     loading: false,
   });
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
-    user: UserRowData | null;
+    customer: CustomerRowData | null;
   }>({
     open: false,
-    user: null,
+    customer: null,
   });
 
   // ✅ Fetch data customers
@@ -53,8 +53,8 @@ export default function ManajemenUser() {
       const response = await customerService.getCustomers();
 
       if (response && response.success && response.data) {
-        // Transform data dari API ke format UserRowData
-        const transformedData: UserRowData[] = response.data.map(
+        // Transform data dari API ke format CustomerRowData
+        const transformedData: CustomerRowData[] = response.data.map(
           (customer) => ({
             _id: customer._id,
             name: customer.name,
@@ -67,7 +67,7 @@ export default function ManajemenUser() {
           })
         );
 
-        setUserData(transformedData);
+        setCustomerData(transformedData);
         setTotalCount(response.count || transformedData.length);
 
         toast.success(
@@ -80,7 +80,7 @@ export default function ManajemenUser() {
       console.error("❌ Customers fetch error:", error);
       const errorMessage = getErrorMessage(error);
 
-      setUserData([]);
+      setCustomerData([]);
       setTotalCount(0);
 
       toast.error("Gagal memuat data customer", {
@@ -110,11 +110,11 @@ export default function ManajemenUser() {
     await fetchCustomersData();
   };
 
-  // ✅ Handle edit user
-  const handleEditClick = (user: UserRowData) => {
+  // ✅ Handle edit customer
+  const handleEditClick = (customer: CustomerRowData) => {
     setEditDialog({
       open: true,
-      user: user,
+      customer: customer,
     });
   };
 
@@ -122,32 +122,32 @@ export default function ManajemenUser() {
     fetchCustomersData();
   };
 
-  // ✅ Handle delete user
-  const handleDeleteClick = (user: UserRowData) => {
+  // ✅ Handle delete customer
+  const handleDeleteClick = (customer: CustomerRowData) => {
     setDeleteDialog({
       open: true,
-      user: user,
+      customer: customer,
       loading: false,
     });
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteDialog.user) return;
+    if (!deleteDialog.customer) return;
 
     setDeleteDialog((prev) => ({ ...prev, loading: true }));
 
     try {
       const response = await customerService.deleteCustomer(
-        deleteDialog.user._id
+        deleteDialog.customer._id
       );
 
       if (response?.success) {
         toast.success("Customer berhasil dihapus", {
-          description: `${deleteDialog.user.name} telah dihapus dari sistem`,
+          description: `${deleteDialog.customer.name} telah dihapus dari sistem`,
         });
 
         // Close dialog
-        setDeleteDialog({ open: false, user: null, loading: false });
+        setDeleteDialog({ open: false, customer: null, loading: false });
 
         // Refresh data
         fetchCustomersData();
@@ -176,7 +176,7 @@ export default function ManajemenUser() {
   );
 
   // ✅ Stats calculation
-  const totalUsers = userData.length;
+  const totalCustomers = customerData.length;
 
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
@@ -187,9 +187,9 @@ export default function ManajemenUser() {
       <div className="flex-1 flex flex-col min-h-0">
         <Card className="flex-1 flex flex-col">
           <CardHeader>
-            <CardTitle>Daftar User</CardTitle>
+            <CardTitle>Daftar Customer</CardTitle>
             <CardDescription>
-              Berikut adalah daftar semua user yang terdaftar dalam sistem
+              Berikut adalah daftar semua customer yang terdaftar dalam sistem
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col min-h-0">
@@ -198,7 +198,7 @@ export default function ManajemenUser() {
             ) : (
               <CustomerDataTable
                 columns={columns}
-                data={userData}
+                data={customerData}
                 onAddNew={handleAddNew}
               />
             )}
@@ -211,11 +211,11 @@ export default function ManajemenUser() {
         open={deleteDialog.open}
         onOpenChange={(open) => {
           if (!open) {
-            setDeleteDialog({ open: false, user: null, loading: false });
+            setDeleteDialog({ open: false, customer: null, loading: false });
           }
         }}
         onConfirm={handleDeleteConfirm}
-        customerName={deleteDialog.user?.name || ""}
+        customerName={deleteDialog.customer?.name || ""}
         loading={deleteDialog.loading}
       />
 
@@ -231,10 +231,10 @@ export default function ManajemenUser() {
         open={editDialog.open}
         onOpenChange={(open) => {
           if (!open) {
-            setEditDialog({ open: false, user: null });
+            setEditDialog({ open: false, customer: null });
           }
         }}
-        customer={editDialog.user}
+        customer={editDialog.customer}
         onSuccess={handleEditSuccess}
       />
     </div>

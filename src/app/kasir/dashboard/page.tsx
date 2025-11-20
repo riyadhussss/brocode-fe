@@ -45,6 +45,37 @@ export default function DashboardKasir() {
     total: 0,
   });
 
+  const statCards = [
+    {
+      title: "Total Pesanan",
+      value: summary.total,
+      icon: FaShoppingCart,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+    },
+    {
+      title: "Pembayaran Pending",
+      value: summary.pending,
+      icon: FaClock,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-100",
+    },
+    {
+      title: "Terverifikasi",
+      value: summary.verified,
+      icon: FaCheckCircle,
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+    },
+    {
+      title: "Ditolak",
+      value: summary.rejected,
+      icon: FaTimesCircle,
+      color: "text-red-600",
+      bgColor: "bg-red-100",
+    },
+  ];
+
   useEffect(() => {
     fetchReservations();
     fetchConfirmedReservations();
@@ -145,89 +176,30 @@ export default function DashboardKasir() {
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Total Pesanan */}
-          <Card className="border-l-4 border-l-blue-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wide">
-                    Total Pesanan
-                  </p>
+          {statCards.map((card, index) => {
+            const Icon = card.icon;
+            return (
+              <Card key={index} className="hover:shadow-lg transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-gray-600">
+                    {card.title}
+                  </CardTitle>
+                  <div className={`p-2 rounded-lg ${card.bgColor}`}>
+                    <Icon className={`h-5 w-5 ${card.color}`} />
+                  </div>
+                </CardHeader>
+                <CardContent>
                   {isLoading ? (
-                    <Skeleton className="h-9 w-16" />
+                    <Skeleton className="h-10 w-20" />
                   ) : (
-                    <p className="text-3xl font-bold">{summary.total}</p>
+                    <div className="text-3xl font-bold text-gray-900">
+                      {card.value}
+                    </div>
                   )}
-                </div>
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <FaShoppingCart className="text-blue-600 text-xl" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pesanan Pending */}
-          <Card className="border-l-4 border-l-yellow-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wide">
-                    Pembayaran Pending
-                  </p>
-                  {isLoading ? (
-                    <Skeleton className="h-9 w-16" />
-                  ) : (
-                    <p className="text-3xl font-bold">{summary.pending}</p>
-                  )}
-                </div>
-                <div className="p-3 bg-yellow-100 rounded-full">
-                  <FaClock className="text-yellow-600 text-xl" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pesanan Terverifikasi */}
-          <Card className="border-l-4 border-l-green-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wide">
-                    Terverifikasi
-                  </p>
-                  {isLoading ? (
-                    <Skeleton className="h-9 w-16" />
-                  ) : (
-                    <p className="text-3xl font-bold">{summary.verified}</p>
-                  )}
-                </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <FaCheckCircle className="text-green-600 text-xl" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pembayaran Ditolak */}
-          <Card className="border-l-4 border-l-red-500">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1 uppercase tracking-wide">
-                    Ditolak
-                  </p>
-                  {isLoading ? (
-                    <Skeleton className="h-9 w-16" />
-                  ) : (
-                    <p className="text-3xl font-bold">{summary.rejected}</p>
-                  )}
-                </div>
-                <div className="p-3 bg-red-100 rounded-full">
-                  <FaTimesCircle className="text-red-600 text-xl" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Recent Orders Table */}

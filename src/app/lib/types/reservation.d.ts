@@ -89,46 +89,45 @@ export interface SetReservationStatusRequest {
 }
 
 export type SetReservationStatusResponse = {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   data: {
-    _id: string
+    _id: string;
     customer: {
-      _id: string
-      name: string
-      email: string
-      phone: string
-      userId: string
-    } | null
-    customerName: string
-    customerPhone: string
-    customerEmail: string
-    createdBy: string
+      _id: string;
+      name: string;
+      email: string;
+      phone: string;
+      userId: string;
+    } | null;
+    customerName: string;
+    customerPhone: string;
+    customerEmail: string;
+    createdBy: string;
     package: {
-      _id: string
-      name: string
-      price: number
-    }
+      _id: string;
+      name: string;
+      price: number;
+    };
     barber: {
-      _id: string
-      name: string
-    }
+      _id: string;
+      name: string;
+    };
     schedule: {
-      _id: string
-      scheduled_time: string
-    }
-    totalPrice: number
-    notes: string
-    status: string
-    createdAt: string
-    updatedAt: string
-    reservationId: string
-    __v: number
-    confirmedAt: string
-    confirmedBy: string
-  }
-}
-
+      _id: string;
+      scheduled_time: string;
+    };
+    totalPrice: number;
+    notes: string;
+    status: string;
+    createdAt: string;
+    updatedAt: string;
+    reservationId: string;
+    __v: number;
+    confirmedAt: string;
+    confirmedBy: string;
+  };
+};
 
 /* ================================
 ✅ Check Reservations Response
@@ -258,14 +257,14 @@ export interface UserReference {
 export interface PackageInfo {
   _id: string;
   name: string;
-  price: number;
+  price?: number;
   description?: string;
 }
 
 export interface BarberInfo {
   _id: string;
   name: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface ScheduleInfo {
@@ -290,3 +289,109 @@ export interface VerifiedBy {
   role: string;
   userId: string;
 }
+
+export type AddOnSiteReservationRequest = {
+  customerName: string;
+  customerPhone: string;
+  packageId: string;
+  barberId: string;
+  scheduleId: string;
+  paymentMethod: "cash" | "bank_transfer" | "qris" | string;
+  serviceNotes?: string;
+};
+
+export type UserInfo = {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  userId: string;
+};
+
+export type PackageDetail = {
+  _id: string;
+  name: string;
+  price: number;
+  description: string;
+  packageId: string;
+};
+
+export type BarberDetail = {
+  _id: string;
+  name: string;
+  barberId: string;
+};
+
+export type ScheduleDetail = {
+  _id: string;
+  date: string;
+  timeSlot: string;
+  scheduled_time: string;
+};
+
+export type OnSiteReservation = {
+  _id: string;
+  reservationId: string;
+
+  customer: string | null;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+
+  createdBy: UserInfo;
+
+  package: PackageDetail;
+  barber: BarberDetail;
+  schedule: ScheduleDetail;
+
+  totalPrice: number;
+  notes: string;
+
+  status: "pending" | "confirmed" | "completed" | "cancelled";
+
+  confirmedBy: UserInfo;
+  confirmedAt: string;
+
+  completedAt: string;
+  completedBy: UserInfo | null;
+
+  isWalkIn: boolean;
+
+  serviceNotes: string;
+  paymentMethod: string;
+
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
+
+export type OnSiteReservationSummary = {
+  reservationId: string;
+  customerName: string;
+  customerPhone: string;
+  package: string;
+  barber: string;
+  schedule: string;
+  totalPrice: number;
+  paymentMethod: string;
+  serviceNotes: string;
+  completedAt: string;
+  completedBy: string;
+};
+
+export type OnSiteReservationInfo = {
+  isWalkIn: boolean;
+  directCompletion: boolean;
+  paymentProcessed: boolean;
+  scheduleCompleted: boolean;
+};
+
+export type AddOnSiteReservationResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    reservation: OnSiteReservation;
+    summary: OnSiteReservationSummary;
+    info: OnSiteReservationInfo;
+  };
+};

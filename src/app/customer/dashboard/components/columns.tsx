@@ -23,12 +23,12 @@ export const createColumns = (
   {
     accessorKey: "package.name",
     header: "Paket Layanan",
-    cell: ({ row }) => row.original.package.name,
+    cell: ({ row }) => row.original.package?.name || "N/A",
   },
   {
     accessorKey: "barber.name",
     header: "Capster",
-    cell: ({ row }) => row.original.barber.name,
+    cell: ({ row }) => row.original.barber?.name || "N/A",
   },
   {
     accessorKey: "schedule.scheduled_time",

@@ -54,13 +54,13 @@ export default function CompleteReservationDialog({
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Layanan:</span>
               <span className="font-medium text-foreground">
-                {reservation.package.name}
+                {reservation.package?.name || "N/A"}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Capster:</span>
               <span className="font-medium text-foreground">
-                {reservation.barber.name}
+                {reservation.barber?.name || "N/A"}
               </span>
             </div>
           </div>

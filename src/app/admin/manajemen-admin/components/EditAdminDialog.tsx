@@ -133,7 +133,7 @@ export function EditAdminDialog({
       const response = await adminService.editAdmin(admin._id, updateData);
 
       if (response?.success) {
-        toast.success("Admin berhasil diupdate", {
+        toast.success("Admin berhasil diperbarui", {
           description: `Data admin telah diperbarui`,
         });
         handleOpenChange(false);
@@ -255,9 +255,9 @@ export function EditAdminDialog({
           </Button>
           <Button
             type="button"
-            onClick={(e) => {
+            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
               e.preventDefault();
-              handleSubmit(e as any);
+              handleSubmit(e);
             }}
             disabled={loading}
             className="w-full sm:w-auto"

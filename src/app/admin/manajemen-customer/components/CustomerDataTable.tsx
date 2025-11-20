@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
           {onAddNew && (
             <Button onClick={onAddNew} className="flex-1 md:flex-initial">
               <Plus className="mr-2 h-4 w-4" />
-              Tambah User
+              Tambah Customer
             </Button>
           )}
         </div>

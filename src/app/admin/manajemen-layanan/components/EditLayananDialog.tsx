@@ -24,7 +24,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { packageService } from "@/app/lib/services/package.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
-import type { LayananRowData } from "./columns";
+import type { LayananRowData } from "./LayananTableColumns";
 
 interface EditLayananDialogProps {
   open: boolean;
@@ -205,9 +205,7 @@ export function EditLayananDialog({
           <div className="grid gap-4 py-4">
             {/* Nama Layanan */}
             <div className="grid gap-2">
-              <Label htmlFor="name">
-                Nama Layanan <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="name">Nama Layanan</Label>
               <Input
                 id="name"
                 name="name"
@@ -224,9 +222,7 @@ export function EditLayananDialog({
 
             {/* Harga */}
             <div className="grid gap-2">
-              <Label htmlFor="price">
-                Harga (Rp) <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="price">Harga (Rp)</Label>
               <Input
                 id="price"
                 name="price"
@@ -245,9 +241,7 @@ export function EditLayananDialog({
 
             {/* Deskripsi */}
             <div className="grid gap-2">
-              <Label htmlFor="description">
-                Deskripsi <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="description">Deskripsi</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -265,9 +259,7 @@ export function EditLayananDialog({
 
             {/* Status Aktif */}
             <div className="grid gap-2">
-              <Label htmlFor="isActive">
-                Status <span className="text-red-500">*</span>
-              </Label>
+              <Label htmlFor="isActive">Status</Label>
               <Select
                 value={String(formData.isActive)}
                 onValueChange={(value) =>

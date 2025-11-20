@@ -95,13 +95,13 @@ export const createColumns = (
     id: "packageName",
     accessorFn: (row) => row.package.name,
     header: "Paket Layanan",
-    cell: ({ row }) => <div>{row.original.package.name}</div>,
+    cell: ({ row }) => <div>{row.original.package?.name || "N/A"}</div>,
     size: 180,
   },
   {
     accessorKey: "barber.name",
     header: "Capster",
-    cell: ({ row }) => <div>{row.original.barber.name}</div>,
+    cell: ({ row }) => <div>{row.original.barber?.name || "N/A"}</div>,
     size: 130,
   },
   {

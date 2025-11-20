@@ -106,7 +106,8 @@ export interface UserReservation {
   };
   totalPrice: number;
   notes?: string;
-  status: "pending" | "confirmed" | "cancelled";
+  status: "pending" | "confirmed" | "cancelled" | "completed";
+  paymentStatus?: "pending" | "verified" | "rejected";
   createdAt: string;
   updatedAt: string;
   reservationId: string;
@@ -123,4 +124,18 @@ export interface GetCustomerReservationsResponse {
   message: string;
   data: UserReservation[];
   count: number;
+  summary?: {
+    total: number;
+    reservationStatus: {
+      pending: number;
+      confirmed: number;
+    };
+    paymentStatus: {
+      verified: number;
+      pending: number;
+      rejected: number;
+      notUploaded: number;
+    };
+    statusFilter: [pending, confirmed];
+  };
 }

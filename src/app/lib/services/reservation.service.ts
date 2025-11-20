@@ -8,6 +8,8 @@ import {
   CheckConfirmedReservationsResponse,
   SetReservationStatusRequest,
   SetReservationStatusResponse,
+  AddOnSiteReservationRequest,
+  AddOnSiteReservationResponse,
 } from "../types/reservation";
 
 export const reservationService = {
@@ -44,6 +46,13 @@ export const reservationService = {
       `reservations/${reservationId}/status`,
       data
     );
+    return response.data;
+  },
+
+  addOnSiteReservation: async (
+    data: AddOnSiteReservationRequest
+  ): Promise<AddOnSiteReservationResponse> => {
+    const response = await api.post(`cashiers/walk-in-reservation`, data);
     return response.data;
   },
 };

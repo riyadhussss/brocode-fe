@@ -53,7 +53,7 @@ export default function Layanan() {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-[#FDFB03] to-[#FFD700] mb-2 sm:mb-3 md:mb-4 font-montserrat">
           LAYANAN KAMI
         </h1>
-        <p className="text-center text-gray-400 mb-6 sm:mb-10 md:mb-12 font-montserrat text-sm sm:text-base">
+        <p className="text-center text-white mb-6 sm:mb-10 md:mb-12 font-montserrat text-sm sm:text-base">
           Pilih layanan terbaik untuk penampilan sempurna Anda
         </p>
 
@@ -121,7 +121,7 @@ export default function Layanan() {
                               </p>
                             </div>
                           </div>
-                          <p className="text-gray-400 font-montserrat leading-relaxed text-sm sm:text-base">
+                          <p className="text-white font-montserrat leading-relaxed text-sm sm:text-base">
                             {pkg.description}
                           </p>
                         </CardContent>

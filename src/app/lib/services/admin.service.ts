@@ -41,7 +41,7 @@ export const adminService = {
     id: string,
     data: Partial<EditAdminRequest>
   ): Promise<EditAdminResponse> => {
-    const response = await api.put(`/admins/${id}`, data);
+    const response = await api.patch(`/admins/${id}`, data);
     return response.data;
   },
 

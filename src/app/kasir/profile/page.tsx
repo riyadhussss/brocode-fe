@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { profileService } from "@/app/lib/services/profile.service";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import Cookies from "js-cookie";
 import {
   ProfilePageHeader,
@@ -73,8 +74,8 @@ export default function Profile() {
           }));
         }
       } catch (error) {
-        console.error("Error fetching profile data:", error);
-        toast.error("Gagal memuat data profil");
+        const errorMessage = getErrorMessage(error);
+        toast.error("Gagal memuat data profil", { description: errorMessage });
       } finally {
         setIsLoadingData(false);
       }
@@ -192,12 +193,9 @@ export default function Profile() {
         // Close dialog
         setShowConfirmDialog(false);
       }
-    } catch (error: any) {
-      console.error("Update error:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Terjadi kesalahan saat memperbarui profil";
-      toast.error(errorMessage);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error("Gagal memperbarui profil", { description: errorMessage });
     } finally {
       setIsLoading(false);
     }

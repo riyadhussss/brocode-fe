@@ -1,21 +1,14 @@
 import api from "../api";
 import {
-  DashboardResponse,
   GetCashiersResponse,
   AddCashierRequest,
   AddCashierResponse,
   EditCashierRequest,
   EditCashierResponse,
-  getCashierByIdResponse,
   DeleteCashierResponse,
 } from "../types/cashier";
 
 export const cashierService = {
-  // getDashboardCashier: async (): Promise<DashboardResponse> => {
-  //   const response = await api.get("/dashboard/cashier");
-  //   return response.data;
-
-  // },
   getCashiers: async (): Promise<GetCashiersResponse> => {
     const response = await api.get("/cashiers");
     return response.data;

@@ -34,7 +34,8 @@ export default function ManajemenLayanan() {
   const [deleteDialog, setDeleteDialog] = useState<{
     open: boolean;
     layanan: LayananRowData | null;
-  }>({ open: false, layanan: null });
+    loading: boolean;
+  }>({ open: false, layanan: null, loading: false });
 
   // ✅ Fetch packages data
   const fetchPackages = async () => {
@@ -76,7 +77,29 @@ export default function ManajemenLayanan() {
 
   // ✅ Handle delete layanan
   const handleDeleteClick = (layanan: LayananRowData) => {
-    setDeleteDialog({ open: true, layanan });
+    setDeleteDialog({ open: true, layanan, loading: false });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.layanan) return;
+
+    setDeleteDialog((prev) => ({ ...prev, loading: true }));
+
+    try {
+      await packageService.deletePackage(deleteDialog.layanan._id);
+
+      toast.success("Layanan berhasil dihapus", {
+        description: `${deleteDialog.layanan.name} telah dihapus dari sistem`,
+      });
+      setDeleteDialog({ open: false, layanan: null, loading: false });
+      fetchPackages();
+    } catch (error) {
+      console.error("Error deleting layanan:", error);
+      toast.error("Gagal menghapus layanan", {
+        description: getErrorMessage(error),
+      });
+      setDeleteDialog((prev) => ({ ...prev, loading: false }));
+    }
   };
 
   const handleSuccess = () => {
@@ -139,11 +162,10 @@ export default function ManajemenLayanan() {
 
       <DeleteLayananDialog
         open={deleteDialog.open}
-        onOpenChange={(open: boolean) =>
-          setDeleteDialog({ open, layanan: open ? deleteDialog.layanan : null })
-        }
-        layanan={deleteDialog.layanan}
-        onSuccess={handleSuccess}
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
+        onConfirm={handleDeleteConfirm}
+        layananName={deleteDialog.layanan?.name || ""}
+        loading={deleteDialog.loading}
       />
     </div>
   );

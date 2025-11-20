@@ -12,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
   CapsterPageHeader,
-  CapsterTableSkeleton,
   CapsterStats,
   CapsterDataTable,
   createColumns,

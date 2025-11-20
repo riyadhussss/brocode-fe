@@ -28,26 +28,29 @@ export const createConfirmedColumns = (
   {
     accessorKey: "customerName",
     header: "Customer",
-    cell: ({ row }) => <div>{row.original.customerName}</div>,
+    cell: ({ row }) => <div>{row.original.customerName || "N/A"}</div>,
     size: 150,
   },
   {
     accessorKey: "package.name",
     header: "Layanan",
-    cell: ({ row }) => <div>{row.original.package.name}</div>,
+    cell: ({ row }) => <div>{row.original.package?.name || "N/A"}</div>,
     size: 180,
   },
   {
     accessorKey: "barber.name",
     header: "Capster",
-    cell: ({ row }) => <div>{row.original.barber.name}</div>,
+    cell: ({ row }) => <div>{row.original.barber?.name || "N/A"}</div>,
     size: 130,
   },
   {
     accessorKey: "schedule.scheduled_time",
     header: "Jadwal",
     cell: ({ row }) => {
-      const scheduledTime = row.original.schedule.scheduled_time;
+      const scheduledTime = row.original.schedule?.scheduled_time;
+      if (!scheduledTime) {
+        return <div>N/A</div>;
+      }
       return (
         <div>
           <div className="font-medium">
@@ -80,7 +83,9 @@ export const createConfirmedColumns = (
     cell: ({ row }) => {
       const amount = row.getValue("totalPrice") as number;
       return (
-        <div className="text-right font-medium">{formatCurrency(amount)}</div>
+        <div className="text-right font-medium">
+          {formatCurrency(amount || 0)}
+        </div>
       );
     },
     size: 130,

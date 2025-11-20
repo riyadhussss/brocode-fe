@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import { profileService } from "@/app/lib/services/profile.service";
+import { getErrorMessage } from "@/app/lib/getErrorMessage";
 
 // Interface untuk form data
 interface FormData {
@@ -69,8 +70,8 @@ export default function UpdateAkun() {
           }));
         }
       } catch (error) {
-        console.error("Error fetching profile data:", error);
-        toast.error("Gagal memuat data profil");
+        const errorMessage = getErrorMessage(error);
+        toast.error("Gagal memuat data profil", { description: errorMessage });
       } finally {
         setIsLoadingData(false);
       }
@@ -181,12 +182,9 @@ export default function UpdateAkun() {
           confirmPassword: "",
         }));
       }
-    } catch (error: any) {
-      console.error("Update error:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Terjadi kesalahan saat memperbarui profil";
-      toast.error(errorMessage);
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      toast.error("Gagal memperbarui profil", { description: errorMessage });
       setErrorMessage(errorMessage);
     } finally {
       setIsLoading(false);

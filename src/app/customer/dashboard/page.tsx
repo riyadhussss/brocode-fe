@@ -17,9 +17,11 @@ import { UserReservation } from "@/app/lib/types/customer";
 import { DataTable } from "./components/data-table";
 import { createColumns } from "./components/columns";
 import ReservationDetailDialog from "./components/ReservationDetailDialog";
+import { Button } from "@/components/ui/button";
 
 interface ReservationStats {
   total: number;
+  pending: number;
   accepted: number;
   rejected: number;
   completed: number;
@@ -28,6 +30,7 @@ interface ReservationStats {
 export default function UserDashboard() {
   const [stats, setStats] = useState<ReservationStats>({
     total: 0,
+    pending: 0,
     accepted: 0,
     rejected: 0,
     completed: 0,
@@ -50,24 +53,39 @@ export default function UserDashboard() {
       if (response.success && response.data) {
         setReservations(response.data);
 
-        // Calculate stats from actual data
-        const total = response.count;
-        const accepted = response.data.filter(
-          (r) => r.status === "confirmed"
-        ).length;
-        const rejected = response.data.filter(
-          (r) => r.status === "cancelled"
-        ).length;
-        const pending = response.data.filter(
-          (r) => r.status === "pending"
-        ).length;
+        // Use summary if available, otherwise calculate from data
+        if (response.summary) {
+          setStats({
+            total: response.summary.total,
+            pending: response.summary.paymentStatus.pending,
+            accepted: response.summary.paymentStatus.verified,
+            rejected: response.summary.paymentStatus.rejected,
+            completed: response.summary.reservationStatus.confirmed,
+          });
+        } else {
+          // Fallback: Calculate stats from actual data
+          const total = response.count;
+          const pendingPayment = response.data.filter(
+            (r) => r.paymentStatus === "pending"
+          ).length;
+          const verifiedPayment = response.data.filter(
+            (r) => r.paymentStatus === "verified"
+          ).length;
+          const rejectedPayment = response.data.filter(
+            (r) => r.paymentStatus === "rejected"
+          ).length;
+          const completedReservation = response.data.filter(
+            (r) => r.status === "completed"
+          ).length;
 
-        setStats({
-          total,
-          accepted,
-          rejected,
-          completed: accepted, // Assuming confirmed = completed
-        });
+          setStats({
+            total,
+            pending: pendingPayment,
+            accepted: verifiedPayment,
+            rejected: rejectedPayment,
+            completed: completedReservation,
+          });
+        }
       } else {
         toast.error("Gagal memuat data dashboard");
       }
@@ -95,6 +113,13 @@ export default function UserDashboard() {
       bgColor: "bg-blue-50",
     },
     {
+      title: "Pesanan Pending",
+      value: stats.pending,
+      icon: Package,
+      color: "text-yellow-600",
+      bgColor: "bg-yellow-50",
+    },
+    {
       title: "Pesanan Diterima",
       value: stats.accepted,
       icon: CheckCircle,
@@ -111,25 +136,44 @@ export default function UserDashboard() {
     {
       title: "Pesanan Selesai",
       value: stats.completed,
-      icon: Package,
+      icon: CheckCircle,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-1">
-            Selamat datang! Lihat ringkasan pesanan Anda di sini
-          </p>
-        </div>
+    <div className="h-full bg-gray-50 p-6 flex flex-col">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Dashboard</h1>
+        <p className="text-gray-600 text-sm">
+          Selamat datang! Lihat ringkasan pesanan Anda di sini
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        {/* Reservation CTA */}
+        <Card className="bg-black text-white border-none">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold mb-2">
+                  Ingin membuat reservasi?
+                </h2>
+                <p className="text-blue-50">
+                  Pilih paket layanan, pilih capster favorit, dan tentukan
+                  jadwal Anda
+                </p>
+              </div>
+              <Button variant={"yellow"} size={"lg"}>
+                <a href="/customer/reservasi">Buat Reservasi</a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {statCards.map((card, index) => {
             const Icon = card.icon;
             return (

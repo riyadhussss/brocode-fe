@@ -244,7 +244,6 @@ export function EditPaymentDialog({
               <div className="grid gap-2">
                 <Label htmlFor="name">
                   Nama {formData.type === "bank_transfer" ? "Bank" : "E-Wallet"}
-                  <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="name"
@@ -266,9 +265,7 @@ export function EditPaymentDialog({
               {formData.type === "bank_transfer" && (
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="accountNumber">
-                      Nomor Rekening<span className="text-red-500">*</span>
-                    </Label>
+                    <Label htmlFor="accountNumber">Nomor Rekening</Label>
                     <Input
                       id="accountNumber"
                       placeholder="Contoh: 1234567890"
@@ -285,10 +282,7 @@ export function EditPaymentDialog({
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="accountName">
-                      Nama Pemilik Rekening
-                      <span className="text-red-500">*</span>
-                    </Label>
+                    <Label htmlFor="accountName">Nama Pemilik Rekening</Label>
                     <Input
                       id="accountName"
                       placeholder="Contoh: PT Barbershop Indonesia"
@@ -310,10 +304,7 @@ export function EditPaymentDialog({
               {formData.type === "e_wallet" && (
                 <>
                   <div className="grid gap-2">
-                    <Label htmlFor="phoneNumber">
-                      Nomor Telepon/Wallet
-                      <span className="text-red-500">*</span>
-                    </Label>
+                    <Label htmlFor="phoneNumber">Nomor Telepon/Wallet</Label>
                     <Input
                       id="phoneNumber"
                       placeholder="Contoh: 081234567890"
@@ -330,9 +321,7 @@ export function EditPaymentDialog({
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="walletName">
-                      Nama Pemilik Wallet<span className="text-red-500">*</span>
-                    </Label>
+                    <Label htmlFor="walletName">Nama Pemilik Wallet</Label>
                     <Input
                       id="walletName"
                       placeholder="Contoh: PT Barbershop Indonesia"

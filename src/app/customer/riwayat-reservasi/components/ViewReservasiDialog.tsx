@@ -138,10 +138,10 @@ export function ViewReservasiDialog({
               <div className="flex-1">
                 <p className="text-sm text-gray-500 mb-1">Paket Layanan</p>
                 <p className="font-medium text-gray-900">
-                  {reservasi.package.name}
+                  {reservasi.package?.name || "N/A"}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {reservasi.package.description}
+                  {reservasi.package?.description || "Tidak ada deskripsi"}
                 </p>
               </div>
             </div>

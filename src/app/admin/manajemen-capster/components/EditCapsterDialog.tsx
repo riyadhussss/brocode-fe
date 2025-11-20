@@ -24,7 +24,7 @@ import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { capsterService } from "@/app/lib/services/capster.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
-import { CapsterRowData } from "./columns";
+import { CapsterRowData } from "./CapsterTableColumns";
 import { EditCapsterRequest } from "@/app/lib/types/capster";
 
 interface EditCapsterDialogProps {
@@ -269,7 +269,7 @@ export function EditCapsterDialog({
             {/* Nama Capster */}
             <div className="grid gap-2">
               <Label htmlFor="name">
-                Nama Capster <span className="text-red-500">*</span>
+                Nama Capster
               </Label>
               <Input
                 id="name"
@@ -288,7 +288,7 @@ export function EditCapsterDialog({
             {/* Nomor HP */}
             <div className="grid gap-2">
               <Label htmlFor="phone">
-                Nomor HP <span className="text-red-500">*</span>
+                Nomor HP
               </Label>
               <Input
                 id="phone"
@@ -308,7 +308,7 @@ export function EditCapsterDialog({
             {/* Status */}
             <div className="grid gap-2">
               <Label htmlFor="isActive">
-                Status <span className="text-red-500">*</span>
+                Status
               </Label>
               <Select
                 value={String(formData.isActive)}
@@ -332,7 +332,7 @@ export function EditCapsterDialog({
 
             {/* Upload Foto */}
             <div className="grid gap-2">
-              <Label htmlFor="edit-photo">Foto Capster (Opsional)</Label>
+              <Label htmlFor="edit-photo">Foto Capster</Label>
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Input

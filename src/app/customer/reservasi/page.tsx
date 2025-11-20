@@ -18,13 +18,13 @@ import { Schedule } from "@/app/lib/types/schedule";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import { Button } from "@/components/ui/button";
-import ReservationStepper from "@/components/user/reservasi/ReservationStepper";
-import Step1PersonalInfo from "@/components/user/reservasi/Step1PersonalInfo";
-import Step2PackageSelection from "@/components/user/reservasi/Step2PackageSelection";
-import Step3CapsterSchedule from "@/components/user/reservasi/Step3CapsterSchedule";
-import Step4Confirmation from "@/components/user/reservasi/Step4Confirmation";
-import Step5Payment from "@/components/user/reservasi/Step5Payment";
-import ReservationSuccess from "@/components/user/reservasi/ReservationSuccess";
+import ReservationStepper from "@/components/customer/reservasi/ReservationStepper";
+import Step1PersonalInfo from "@/components/customer/reservasi/Step1PersonalInfo";
+import Step2PackageSelection from "@/components/customer/reservasi/Step2PackageSelection";
+import Step3CapsterSchedule from "@/components/customer/reservasi/Step3CapsterSchedule";
+import Step4Confirmation from "@/components/customer/reservasi/Step4Confirmation";
+import Step5Payment from "@/components/customer/reservasi/Step5Payment";
+import ReservationSuccess from "@/components/customer/reservasi/ReservationSuccess";
 
 // Interface untuk form reservasi
 interface ReservationForm {

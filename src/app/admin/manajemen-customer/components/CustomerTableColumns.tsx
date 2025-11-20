@@ -7,12 +7,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 
-export type UserRowData = {
+export type CustomerRowData = {
   _id: string;
   name: string;
   email: string;
@@ -23,14 +22,14 @@ export type UserRowData = {
   updatedAt: string;
 };
 
-type UserActionsCallbacks = {
-  onDelete?: (user: UserRowData) => void;
-  onEdit?: (user: UserRowData) => void;
+type CustomerActionsCallbacks = {
+  onDelete?: (customer: CustomerRowData) => void;
+  onEdit?: (customer: CustomerRowData) => void;
 };
 
 export const createColumns = (
-  callbacks?: UserActionsCallbacks
-): ColumnDef<UserRowData>[] => [
+  callbacks?: CustomerActionsCallbacks
+): ColumnDef<CustomerRowData>[] => [
   {
     id: "nomor",
     header: "No",
@@ -66,7 +65,7 @@ export const createColumns = (
     id: "actions",
     header: "Aksi",
     cell: ({ row }) => {
-      const user = row.original;
+      const customer = row.original;
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -78,19 +77,18 @@ export const createColumns = (
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Aksi</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => callbacks?.onEdit?.(user)}
+              onClick={() => callbacks?.onEdit?.(customer)}
               className="cursor-pointer"
             >
               <Edit className="mr-2 h-4 w-4" />
-              Edit User
+              Edit Customer
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => callbacks?.onDelete?.(user)}
+              onClick={() => callbacks?.onDelete?.(customer)}
               className="cursor-pointer text-red-600 focus:text-red-600"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              Hapus User
+              Hapus Customer
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

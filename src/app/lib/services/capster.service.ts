@@ -1,4 +1,3 @@
-import { get } from "http";
 import api from "../api";
 import {
   GetCapstersResponse,

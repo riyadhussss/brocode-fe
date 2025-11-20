@@ -3,15 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
@@ -126,13 +118,13 @@ export const createColumns = (
   {
     accessorKey: "package.name",
     header: "Paket Layanan",
-    cell: ({ row }) => <div>{row.original.package.name}</div>,
+    cell: ({ row }) => <div>{row.original.package?.name || "N/A"}</div>,
     size: 180,
   },
   {
     accessorKey: "barber.name",
     header: "Capster",
-    cell: ({ row }) => <div>{row.original.barber.name}</div>,
+    cell: ({ row }) => <div>{row.original.barber?.name || "N/A"}</div>,
     size: 130,
   },
   {

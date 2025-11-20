@@ -31,7 +31,7 @@ export function DeleteCapsterDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+          <AlertDialogTitle>Hapus Tukang Pangkas</AlertDialogTitle>
           <AlertDialogDescription>
             Tindakan ini tidak dapat dibatalkan. Ini akan menghapus capster{" "}
             <span className="font-semibold text-gray-900">{capsterName}</span>{" "}

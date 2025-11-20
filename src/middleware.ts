@@ -44,8 +44,8 @@ export function middleware(request: NextRequest) {
       admin: "/admin/dashboard",
       cashier: "/kasir/dashboard",
       kasir: "/kasir/dashboard",
-      customer: "/user/reservasi",
-      user: "/user/reservasi",
+      customer: "/customer/dashboard",
+      user: "/customer/dashboard",
     };
 
     const redirectPath = redirectMap[role || ""] || "/login";
@@ -58,8 +58,8 @@ export function middleware(request: NextRequest) {
       admin: ["/admin"],
       cashier: ["/kasir"],
       kasir: ["/kasir"],
-      customer: ["/user"],
-      user: ["/user"],
+      customer: ["/customer"],
+      user: ["/customer"],
     };
 
     const allowedPaths = roleAccess[role] || [];
@@ -71,8 +71,8 @@ export function middleware(request: NextRequest) {
         admin: "/admin/dashboard",
         cashier: "/kasir/dashboard",
         kasir: "/kasir/dashboard",
-        customer: "/user/reservasi",
-        user: "/user/reservasi",
+        customer: "/customer/dashboard",
+        user: "/customer/dashboard",
       };
       const redirectPath = redirectMap[role] || "/login";
       return NextResponse.redirect(new URL(redirectPath, request.url));

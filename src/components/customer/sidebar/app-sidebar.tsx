@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { History, Plus, Home} from "lucide-react";
+import { History, Plus, Home } from "lucide-react";
 
 import { NavMain } from "@/components/admin/sidebar/nav-main";
 import { NavUser } from "@/components/admin/sidebar/nav-user";
@@ -16,21 +16,16 @@ import { NavFooter } from "./nav-footer";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "Admin",
-    email: "Admin@brocode.com",
-  },
-
   items: [
-    { name: "Dashboard", url: "/user/dashboard", icon: Home },
+    { name: "Dashboard", url: "/customer/dashboard", icon: Home },
     {
       name: "Reservasi",
-      url: "/user/reservasi",
+      url: "/customer/reservasi",
       icon: Plus,
     },
     {
       name: "Riwayat Reservasi",
-      url: "/user/riwayat-reservasi",
+      url: "/customer/riwayat-reservasi",
       icon: History,
     },
   ],
@@ -40,7 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarHeader>
       {/* <Separator className="bg-gray-700" /> */}
       <SidebarContent>

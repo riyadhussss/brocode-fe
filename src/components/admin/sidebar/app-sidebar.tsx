@@ -25,11 +25,6 @@ import { NavFooter } from "./nav-footer";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "Admin",
-    email: "Admin@brocode.com",
-  },
-
   items: [
     { name: "Dashboard", url: "/admin/dashboard", icon: Home },
     {
@@ -48,7 +43,11 @@ const data = {
       url: "/admin/manajemen-layanan",
       icon: SquareMenu,
     },
-    { name: "Manajemen User", url: "/admin/manajemen-user", icon: User },
+    {
+      name: "Manajemen Customer",
+      url: "/admin/manajemen-customer",
+      icon: User,
+    },
     {
       name: "Metode Pembayaran",
       url: "/admin/metode-pembayaran",
@@ -66,7 +65,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarHeader>
       {/* <Separator className="bg-gray-700" /> */}
       <SidebarContent>

@@ -28,10 +28,11 @@ export default function ReservationDetailDialog({
   if (!reservation) return null;
 
   const getStatusBadge = (
-    status: "pending" | "confirmed" | "cancelled"
+    status: "pending" | "confirmed" | "cancelled" | "completed"
   ): "default" | "success" | "destructive" => {
     switch (status) {
       case "confirmed":
+      case "completed":
         return "success";
       case "cancelled":
         return "destructive";
@@ -41,7 +42,7 @@ export default function ReservationDetailDialog({
   };
 
   const getStatusText = (
-    status: "pending" | "confirmed" | "cancelled"
+    status: "pending" | "confirmed" | "cancelled" | "completed"
   ): string => {
     switch (status) {
       case "pending":
@@ -50,6 +51,8 @@ export default function ReservationDetailDialog({
         return "Dikonfirmasi";
       case "cancelled":
         return "Dibatalkan";
+      case "completed":
+        return "Selesai";
       default:
         return status;
     }
@@ -153,10 +156,10 @@ export default function ReservationDetailDialog({
               <div>
                 <p className="text-sm text-muted-foreground">Paket Layanan</p>
                 <p className="font-semibold text-lg">
-                  {reservation.package.name}
+                  {reservation.package?.name || "N/A"}
                 </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {reservation.package.description}
+                  {reservation.package?.description || "Tidak ada deskripsi"}
                 </p>
               </div>
               <div>
@@ -180,7 +183,7 @@ export default function ReservationDetailDialog({
               <div>
                 <p className="text-sm text-muted-foreground">Capster</p>
                 <p className="font-semibold text-lg">
-                  {reservation.barber.name}
+                  {reservation.barber?.name || "N/A"}
                 </p>
               </div>
               <div className="flex items-center gap-2">

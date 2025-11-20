@@ -78,7 +78,10 @@ export const createColumns = (
     cell: ({ row }) => {
       const isActive = row.getValue("isActive") as boolean;
       return (
-        <Badge variant={isActive ? "default" : "secondary"}>
+        <Badge
+          variant={isActive ? "default" : "destructive"}
+          className={isActive ? "bg-green-500 hover:bg-green-600" : ""}
+        >
           {isActive ? "Aktif" : "Tidak Aktif"}
         </Badge>
       );

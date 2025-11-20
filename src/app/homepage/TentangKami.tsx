@@ -17,7 +17,7 @@ export default function TentangKami() {
               Tentang Kami
             </h1>
 
-            <p className="text-sm sm:text-base md:text-lg leading-relaxed font-montserrat text-gray-100">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white leading-relaxed drop-shadow-md font-normal">
               Brocode Aceh Barbershop adalah destinasi terpercaya untuk
               perawatan rambut dan grooming pria di Aceh. Dengan pengalaman
               bertahun-tahun, kami berkomitmen memberikan pelayanan terbaik
