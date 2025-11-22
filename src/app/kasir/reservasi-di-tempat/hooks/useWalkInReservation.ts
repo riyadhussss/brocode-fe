@@ -50,7 +50,7 @@ export const useWalkInReservation = () => {
     try {
       const [packagesRes, barbersRes] = await Promise.all([
         packageService.getActivePackages(),
-        capsterService.getCapsters(),
+        capsterService.getActiveCapsters(),
       ]);
 
       if (packagesRes.success && packagesRes.data) {

@@ -133,32 +133,38 @@ export default function AturJadwal() {
 
         // Iterate through each date in the grid
         Object.entries(availabilityGrid).forEach(
-          ([dateStr, dateData]: [string, any]) => {
-            const slots = dateData.slots || {};
+          ([dateStr, dateData]: [string, unknown]) => {
+            const date = dateData as {
+              date: string;
+              dayOfWeek: number;
+              slots?: Record<string, unknown>;
+            };
+            const slots = date.slots || {};
 
             // Iterate through each time slot
             Object.entries(slots).forEach(
-              ([timeSlot, slotData]: [string, any]) => {
+              ([timeSlot, slotData]: [string, unknown]) => {
+                const slot = slotData as { _id: string; status: string };
                 scheduleData.push({
-                  _id: slotData._id,
+                  _id: slot._id,
                   barber: {
                     _id: barberInfo._id,
                     name: barberInfo.name,
                     barberId: barberInfo.barberId,
                   },
-                  date: dateData.date,
+                  date: date.date,
                   timeSlot: timeSlot,
                   scheduled_time: `${
-                    dateData.date.split("T")[0]
+                    date.date.split("T")[0]
                   }T${timeSlot}:00.000Z`,
-                  status: slotData.status,
+                  status: slot.status,
                   reservation: null,
                   isDefaultSlot: true,
-                  dayOfWeek: dateData.dayOfWeek,
+                  dayOfWeek: date.dayOfWeek,
                   completedAt: null,
                   __v: 0,
-                  createdAt: dateData.date,
-                  updatedAt: dateData.date,
+                  createdAt: date.date,
+                  updatedAt: date.date,
                 });
               }
             );
@@ -476,7 +482,6 @@ export default function AturJadwal() {
     <div className="h-full bg-gray-50 p-6 flex flex-col">
       <div className="mb-6">
         <div className="flex items-center space-x-3 mb-2">
-          <CalendarDays className="h-8 w-8 text-[#FDFB03]" />
           <h1 className="text-2xl font-bold text-gray-900">
             Atur Jadwal Capster
           </h1>

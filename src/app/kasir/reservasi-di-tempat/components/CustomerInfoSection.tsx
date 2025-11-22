@@ -40,7 +40,7 @@ export default function CustomerInfoSection({
           <Input
             id="customerPhone"
             name="customerPhone"
-            placeholder="08xxxxxxxxxx"
+            placeholder="Masukkan nomor HP customer"
             value={customerPhone}
             onChange={onInputChange}
             required

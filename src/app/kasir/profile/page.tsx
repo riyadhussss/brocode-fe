@@ -203,10 +203,10 @@ export default function Profile() {
 
   return (
     <div className="h-full bg-gray-50 p-6 flex flex-col">
-      <div className="max-w-3xl mx-auto w-full">
+      <div className="w-full">
         <ProfilePageHeader />
 
-        <div className="max-w-2xl mx-auto">
+        <div className="w-full">
           {isLoadingData ? (
             <ProfileFormSkeleton />
           ) : (

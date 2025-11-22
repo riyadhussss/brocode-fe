@@ -76,6 +76,68 @@ export default function ReservasiPage() {
   const [reservationId, setReservationId] = useState<string>(""); // Store created reservation ID
   const [customerDataSubmitted, setCustomerDataSubmitted] = useState(false); // Track if customer data is submitted via inputCustomer
 
+  // Load saved state from localStorage on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem("reservationState");
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        setCurrentStep(state.currentStep || 1);
+        setFormData(
+          state.formData || {
+            nama: "",
+            nomorHP: "",
+            email: "",
+            capster: "",
+            layanan: "",
+            tanggal: "",
+            waktu: "",
+            catatan: "",
+            scheduleId: "",
+          }
+        );
+        setIsBookingForSelf(state.isBookingForSelf || false);
+        setCustomerDataSubmitted(state.customerDataSubmitted || false);
+        setSelectedDate(state.selectedDate || "");
+        setReservationId(state.reservationId || "");
+
+        // Fetch schedules if capster is selected, but keep the saved date/time
+        if (state.formData?.capster) {
+          fetchAvailableSchedules(state.formData.capster, true);
+        }
+      } catch (error) {
+        console.error("Error loading saved reservation state:", error);
+      }
+    }
+  }, []);
+
+  // Save state to localStorage whenever it changes
+  useEffect(() => {
+    if (
+      currentStep > 1 ||
+      formData.nama ||
+      formData.email ||
+      formData.nomorHP
+    ) {
+      const state = {
+        currentStep,
+        formData,
+        isBookingForSelf,
+        customerDataSubmitted,
+        selectedDate,
+        reservationId,
+      };
+      localStorage.setItem("reservationState", JSON.stringify(state));
+    }
+  }, [
+    currentStep,
+    formData,
+    isBookingForSelf,
+    customerDataSubmitted,
+    selectedDate,
+    reservationId,
+  ]);
+
   // Fetch active packages and capsters on component mount
   useEffect(() => {
     fetchActivePackages();
@@ -116,11 +178,18 @@ export default function ReservasiPage() {
     }
   };
 
-  const fetchAvailableSchedules = async (capsterId: string) => {
+  const fetchAvailableSchedules = async (
+    capsterId: string,
+    keepDateTime = false
+  ) => {
     setIsLoadingSchedules(true);
     setSchedules([]);
-    setSelectedDate("");
-    setFormData((prev) => ({ ...prev, tanggal: "", waktu: "" }));
+
+    // Only reset date/time if not restoring from saved state
+    if (!keepDateTime) {
+      setSelectedDate("");
+      setFormData((prev) => ({ ...prev, tanggal: "", waktu: "" }));
+    }
 
     try {
       const response = await scheduleService.getAvailableSchedulesByIdBarber(
@@ -322,7 +391,30 @@ export default function ReservasiPage() {
 
   const handleSubmit = () => {
     toast.success("Pembayaran berhasil!");
+    // Clear localStorage after successful payment
+    localStorage.removeItem("reservationState");
     setShowSuccess(true);
+  };
+
+  // Function to reset/clear reservation
+  const handleResetReservation = () => {
+    localStorage.removeItem("reservationState");
+    setCurrentStep(1);
+    setFormData({
+      nama: "",
+      nomorHP: "",
+      email: "",
+      capster: "",
+      layanan: "",
+      tanggal: "",
+      waktu: "",
+      catatan: "",
+      scheduleId: "",
+    });
+    setIsBookingForSelf(false);
+    setCustomerDataSubmitted(false);
+    setSelectedDate("");
+    setReservationId("");
   };
 
   if (showSuccess) {
@@ -332,9 +424,9 @@ export default function ReservasiPage() {
   const selectedPackage = packages.find((pkg) => pkg._id === formData.layanan);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-center">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 md:mb-8 text-center">
           Reservasi Layanan
         </h1>
 
@@ -342,7 +434,7 @@ export default function ReservasiPage() {
         <ReservationStepper steps={steps} currentStep={currentStep} />
 
         {/* Step Content */}
-        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6">
           {currentStep === 1 && (
             <Step1PersonalInfo
               formData={formData}
@@ -403,9 +495,25 @@ export default function ReservasiPage() {
         </div>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between">
-          {currentStep > 1 && currentStep !== 4 && (
-            <Button onClick={handlePreviousStep} variant="outline" size="lg">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between">
+          {currentStep > 1 && currentStep !== 4 && currentStep !== 5 && (
+            <Button
+              onClick={handlePreviousStep}
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              Kembali
+            </Button>
+          )}
+
+          {currentStep === 5 && (
+            <Button
+              onClick={handlePreviousStep}
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
               Kembali
             </Button>
           )}
@@ -413,7 +521,7 @@ export default function ReservasiPage() {
           {currentStep < 4 && (
             <Button
               onClick={handleNextStep}
-              className="ml-auto bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80"
+              className="ml-auto bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80 w-full sm:w-auto"
               size="lg"
             >
               Selanjutnya

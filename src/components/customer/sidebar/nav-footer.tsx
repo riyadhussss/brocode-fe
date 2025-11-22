@@ -31,7 +31,7 @@ export function NavFooter() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Check if current path is  profile
-  const isProfileActive = pathname === "/user/profile";
+  const isProfileActive = pathname === "/customer/profile";
 
   const handleLogout = async () => {
     try {
@@ -74,7 +74,7 @@ export function NavFooter() {
               data-[active=true]:font-semibold
             "
           >
-            <Link href="/user/profile">
+            <Link href="/customer/profile">
               <User />
               <span>Profile</span>
             </Link>

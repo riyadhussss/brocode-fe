@@ -35,7 +35,7 @@ function UserLayoutContent({
             <BreadcrumbList>
               {/* Statis, tidak memiliki href */}
               <BreadcrumbItem>
-                <BreadcrumbPage>User</BreadcrumbPage>
+                <BreadcrumbPage>Customer</BreadcrumbPage>
               </BreadcrumbItem>
 
               <BreadcrumbSeparator />

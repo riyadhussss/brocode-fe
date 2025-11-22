@@ -49,9 +49,7 @@ export const createColumns = (
     header: "Status",
     cell: ({ row }) => {
       const status = row.original.status;
-      return (
-        <Badge variant={getStatusBadge(status)}>{getStatusText(status)}</Badge>
-      );
+      return getStatusBadge(status);
     },
   },
   {
@@ -73,15 +71,35 @@ export const createColumns = (
 ];
 
 function getStatusBadge(
-  status: "pending" | "confirmed" | "cancelled"
-): "default" | "success" | "destructive" {
+  status: "pending" | "confirmed" | "cancelled" | "completed"
+): React.ReactElement {
   switch (status) {
+    case "pending":
+      return (
+        <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
+          Menunggu Konfirmasi
+        </Badge>
+      );
     case "confirmed":
-      return "success";
+      return (
+        <Badge className="bg-green-500 hover:bg-green-600 text-white">
+          Dikonfirmasi
+        </Badge>
+      );
     case "cancelled":
-      return "destructive";
+      return (
+        <Badge className="bg-red-500 hover:bg-red-600 text-white">
+          Dibatalkan
+        </Badge>
+      );
+    case "completed":
+      return (
+        <Badge className="bg-green-600 hover:bg-green-700 text-white">
+          Selesai
+        </Badge>
+      );
     default:
-      return "default";
+      return <Badge variant="secondary">{status}</Badge>;
   }
 }
 

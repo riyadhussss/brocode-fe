@@ -203,7 +203,9 @@ export default function Step5Payment({
           ) : (
             <Select
               value={paymentType}
-              onValueChange={(value: any) => setPaymentType(value)}
+              onValueChange={(value) =>
+                setPaymentType(value as PaymentMethodType)
+              }
             >
               <SelectTrigger id="payment-type">
                 <SelectValue placeholder="Pilih tipe pembayaran" />
