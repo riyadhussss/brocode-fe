@@ -4,4 +4,5 @@ export * from "./capster";
 export * from "./package";
 export * from "./reservation";
 export * from "./payment";
-export * from "./schedule";
+export * from "./history";
+export * from "./customer";

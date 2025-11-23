@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
-import { deletePaymentMethod } from "@/app/lib/services/payment";
+import { paymentService } from "@/app/lib/services/payment.service";
 import { toast } from "sonner";
 
 interface DeletePaymentDialogProps {
@@ -35,7 +35,7 @@ export function DeletePaymentDialog({
   const handleDelete = async () => {
     try {
       setLoading(true);
-      await deletePaymentMethod(paymentId);
+      await paymentService.deletePaymentMethod(paymentId);
       toast.success("Metode pembayaran berhasil dihapus");
       onSuccess();
       onOpenChange(false);
