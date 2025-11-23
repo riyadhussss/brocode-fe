@@ -92,16 +92,6 @@ export const createColumns = (
     size: 60,
   },
   {
-    accessorKey: "reservationId",
-    header: "ID Reservasi",
-    cell: ({ row }) => (
-      <div className="font-medium text-blue-600">
-        {row.getValue("reservationId")}
-      </div>
-    ),
-    size: 130,
-  },
-  {
     accessorKey: "customerName",
     header: "Nama Pelanggan",
     cell: ({ row }) => (

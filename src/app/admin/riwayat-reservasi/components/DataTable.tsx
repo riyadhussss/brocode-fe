@@ -17,6 +17,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Table,
   TableBody,
   TableCell,
@@ -32,13 +45,25 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, Search, CalendarIcon, X } from "lucide-react";
+import { format } from "date-fns";
+import { id as localeId } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import { Barber } from "../page";
+
+// Type for filtering - assuming reservation data structure
+type ReservationData = {
+  barber?: { _id: string };
+  schedule?: { scheduled_time: string };
+};
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumn?: string;
   filterPlaceholder?: string;
+  barbers?: Barber[];
+  loadingBarbers?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,6 +71,8 @@ export function DataTable<TData, TValue>({
   data,
   filterColumn = "customerName",
   filterPlaceholder = "Cari berdasarkan nama...",
+  barbers = [],
+  loadingBarbers = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -53,9 +80,49 @@ export function DataTable<TData, TValue>({
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+  const [selectedBarber, setSelectedBarber] = React.useState<string>("all");
+  const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
+    undefined
+  );
+
+  // Filter data based on barber and date
+  const filteredData = React.useMemo(() => {
+    let filtered = data;
+
+    // Filter by barber
+    if (selectedBarber !== "all") {
+      filtered = filtered.filter((item: TData) => {
+        return (
+          (item as unknown as ReservationData).barber?._id === selectedBarber
+        );
+      });
+    }
+
+    // Filter by date
+    if (selectedDate) {
+      filtered = filtered.filter((item: TData) => {
+        const scheduledTime = (item as unknown as ReservationData).schedule
+          ?.scheduled_time;
+        if (!scheduledTime) return false;
+        const itemDate = new Date(scheduledTime);
+        return (
+          itemDate.getDate() === selectedDate.getDate() &&
+          itemDate.getMonth() === selectedDate.getMonth() &&
+          itemDate.getFullYear() === selectedDate.getFullYear()
+        );
+      });
+    }
+
+    return filtered;
+  }, [data, selectedBarber, selectedDate]);
+
+  const handleResetFilters = () => {
+    setSelectedBarber("all");
+    setSelectedDate(undefined);
+  };
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -78,6 +145,87 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full h-full flex flex-col">
+      {/* Filters Section */}
+      <div className="flex flex-col gap-4 py-4 px-1 flex-shrink-0 border-b bg-gray-50/50">
+        <div className="flex flex-col md:flex-row gap-3">
+          {/* Barber Filter */}
+          <div className="flex-1 min-w-0">
+            <label className="text-xs font-medium text-gray-700 mb-1.5 block">
+              Tukang Pangkas
+            </label>
+            <Select
+              value={selectedBarber}
+              onValueChange={setSelectedBarber}
+              disabled={loadingBarbers}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Pilih tukang pangkas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Tukang Pangkas</SelectItem>
+                {barbers.map((barber) => (
+                  <SelectItem key={barber._id} value={barber._id}>
+                    {barber.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Filter */}
+          <div className="flex-1 min-w-0">
+            <label className="text-xs font-medium text-gray-700 mb-1.5 block">
+              Tanggal
+            </label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? (
+                    format(selectedDate, "EEEE, dd MMMM yyyy", {
+                      locale: localeId,
+                    })
+                  ) : (
+                    <span>Pilih tanggal</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={(date) =>
+                    date < new Date(new Date().setHours(0, 0, 0, 0))
+                  }
+                  initialFocus
+                  locale={localeId}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          {/* Reset Button */}
+          <div className="flex items-end">
+            <Button
+              variant="outline"
+              onClick={handleResetFilters}
+              disabled={selectedBarber === "all" && !selectedDate}
+              className="w-full md:w-auto"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Reset Filter
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Header Actions */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 py-4 flex-shrink-0">
         {/* Search Input */}

@@ -77,19 +77,19 @@ function getStatusBadge(
     case "pending":
       return (
         <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">
-          Menunggu Konfirmasi
+          Pending
         </Badge>
       );
     case "confirmed":
       return (
         <Badge className="bg-green-500 hover:bg-green-600 text-white">
-          Dikonfirmasi
+          Diterima
         </Badge>
       );
     case "cancelled":
       return (
         <Badge className="bg-red-500 hover:bg-red-600 text-white">
-          Dibatalkan
+          Ditolak
         </Badge>
       );
     case "completed":

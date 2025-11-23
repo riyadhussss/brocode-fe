@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, User } from "lucide-react";
+import { Save    } from "lucide-react";
 import { toast } from "sonner";
 import {
   Card,
@@ -213,7 +213,6 @@ export default function Profile() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5 text-[#FDFB03]" />
                   <span>Informasi Profil</span>
                 </CardTitle>
                 <CardDescription>

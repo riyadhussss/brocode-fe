@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lock, Eye, EyeOff, KeyRound } from "lucide-react";
+import { Lock, Eye, EyeOff } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,6 @@ export function PasswordSection({
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <KeyRound className="h-5 w-5 text-[#FDFB03]" />
         <h3 className="text-lg font-semibold text-gray-900">Ubah Password</h3>
       </div>
       <p className="text-sm text-gray-600">

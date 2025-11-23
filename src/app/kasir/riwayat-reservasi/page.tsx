@@ -16,24 +16,43 @@ import { DataTable } from "./components/DataTable";
 import { createColumns, BaseHistoryData } from "./components/Columns";
 import { ViewReservasiDialog } from "./components/ViewReservasiDialog";
 import { historyService } from "@/app/lib/services/history.service";
+import { capsterService } from "@/app/lib/services/capster.service";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
+
+export interface Barber {
+  _id: string;
+  name: string;
+}
 
 export default function RiwayatReservasiKasir() {
   const [reservasis, setReservasis] = useState<BaseHistoryData[]>([]);
+  const [barbers, setBarbers] = useState<Barber[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingBarbers, setLoadingBarbers] = useState(true);
   const [viewDialog, setViewDialog] = useState<{
     open: boolean;
     reservasi: BaseHistoryData | null;
   }>({ open: false, reservasi: null });
-  const [summary, setSummary] = useState({
-    total: 0,
-    completed: 0,
-    cancelled: 0,
-  });
 
   useEffect(() => {
     fetchHistory();
+    fetchBarbers();
   }, []);
+
+  const fetchBarbers = async () => {
+    setLoadingBarbers(true);
+    try {
+      const response = await capsterService.getCapsters();
+      if (response.success && response.data) {
+        setBarbers(response.data);
+      }
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      console.error("Error fetching barbers:", errorMessage);
+    } finally {
+      setLoadingBarbers(false);
+    }
+  };
 
   const fetchHistory = async () => {
     setLoading(true);
@@ -41,11 +60,6 @@ export default function RiwayatReservasiKasir() {
       const response = await historyService.getCashierHistory();
       if (response.success && response.data) {
         setReservasis(response.data);
-        setSummary({
-          total: response.summary.total,
-          completed: response.summary.completed,
-          cancelled: response.summary.cancelled,
-        });
         toast.success("Data berhasil dimuat");
       } else {
         toast.error("Gagal memuat data riwayat reservasi");
@@ -58,8 +72,22 @@ export default function RiwayatReservasiKasir() {
     }
   };
 
+  // Calculate summary from all data
+  const summary = useMemo(() => {
+    const total = reservasis.length;
+    const completed = reservasis.filter(
+      (r) => r.status.toLowerCase() === "completed"
+    ).length;
+    const cancelled = reservasis.filter(
+      (r) => r.status.toLowerCase() === "cancelled"
+    ).length;
+
+    return { total, completed, cancelled };
+  }, [reservasis]);
+
   const handleRefresh = () => {
     fetchHistory();
+    fetchBarbers();
   };
 
   const handleViewClick = (reservasi: BaseHistoryData) => {
@@ -171,6 +199,8 @@ export default function RiwayatReservasiKasir() {
                 data={reservasis}
                 filterColumn="customerName"
                 filterPlaceholder="Cari berdasarkan nama pelanggan..."
+                barbers={barbers}
+                loadingBarbers={loadingBarbers}
               />
             )}
           </CardContent>

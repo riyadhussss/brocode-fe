@@ -6,6 +6,15 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Step4Props {
   formData: {
@@ -39,6 +48,8 @@ export default function Step4Confirmation({
   onPreviousStep,
 }: Step4Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const selectedPackage = packages.find((pkg) => pkg._id === formData.layanan);
   const selectedCapster = capsters.find((cap) => cap._id === formData.capster);
@@ -87,6 +98,10 @@ export default function Step4Confirmation({
 
       if (response.success && response.data?.reservation) {
         toast.success(response.message || "Reservasi berhasil dibuat!");
+
+        // Close dialog and reset states
+        setShowTermsDialog(false);
+        setAgreeToTerms(false);
 
         // Pass reservation ID to parent component
         onReservationCreated(response.data.reservation._id);
@@ -176,21 +191,134 @@ export default function Step4Confirmation({
         </Button>
 
         <Button
-          onClick={handleConfirmReservation}
+          onClick={() => setShowTermsDialog(true)}
           disabled={isSubmitting}
           className="flex-1 bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80"
           size="lg"
         >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Memproses...
-            </>
-          ) : (
-            "Konfirmasi & Lanjut ke Pembayaran"
-          )}
+          Konfirmasi Reservasi
         </Button>
       </div>
+
+      {/* Terms and Conditions Dialog */}
+      <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-center">
+              Ketentuan Reservasi
+            </DialogTitle>
+            <DialogDescription className="text-center text-gray-600">
+              Harap baca dan pahami ketentuan berikut sebelum melanjutkan
+              reservasi
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 text-sm leading-relaxed">
+            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>Reservasi yang sudah dibuat tidak dapat dibatalkan.</p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>
+                  Pembayaran harus dilakukan dalam maksimal 10 menit setelah
+                  reservasi dibuat. Jika lewat, sistem otomatis membatalkan.
+                </p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>
+                  Jadwal layanan bersifat perkiraan dan dapat berubah sesuai
+                  kondisi barbershop.
+                </p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>Wajib hadir 15 menit sebelum waktu yang dipilih.</p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>
+                  Layanan yang dipilih tidak dapat ditukar dengan layanan lain.
+                </p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>Jika pelanggan tidak datang, reservasi dianggap hangus.</p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>
+                  Toleransi keterlambatan maksimal 5–10 menit. Lewat dari itu,
+                  reservasi dapat hangus.
+                </p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>
+                  Notifikasi kendala seperti barber tidak hadir akan dikirim via
+                  WhatsApp ke nomor terdaftar.
+                </p>
+              </div>
+
+              <div className="flex items-start space-x-2">
+                <span className="text-red-500 font-bold">•</span>
+                <p>Pastikan nomor WhatsApp yang digunakan aktif.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2 pt-4 border-t">
+              <Checkbox
+                id="agree-terms"
+                checked={agreeToTerms}
+                onCheckedChange={(checked) =>
+                  setAgreeToTerms(checked as boolean)
+                }
+              />
+              <label
+                htmlFor="agree-terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Saya telah membaca dan menyetujui semua ketentuan di atas
+              </label>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-3">
+            <Button
+              onClick={() => {
+                setShowTermsDialog(false);
+                setAgreeToTerms(false);
+              }}
+              disabled={isSubmitting}
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={handleConfirmReservation}
+              disabled={!agreeToTerms || isSubmitting}
+              className="bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                "Konfirmasi Reservasi"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

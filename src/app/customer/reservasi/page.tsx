@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   FaUser,
   FaCut,
@@ -24,7 +25,6 @@ import Step2PackageSelection from "@/components/customer/reservasi/Step2PackageS
 import Step3CapsterSchedule from "@/components/customer/reservasi/Step3CapsterSchedule";
 import Step4Confirmation from "@/components/customer/reservasi/Step4Confirmation";
 import Step5Payment from "@/components/customer/reservasi/Step5Payment";
-import ReservationSuccess from "@/components/customer/reservasi/ReservationSuccess";
 
 // Interface untuk form reservasi
 interface ReservationForm {
@@ -49,6 +49,7 @@ const steps = [
 ];
 
 export default function ReservasiPage() {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<ReservationForm>({
     nama: "",
@@ -62,7 +63,6 @@ export default function ReservasiPage() {
     scheduleId: "", // Initialize scheduleId
   });
 
-  const [showSuccess, setShowSuccess] = useState(false);
   const [isBookingForSelf, setIsBookingForSelf] = useState(false);
   const [isLoadingAuto, setIsLoadingAuto] = useState(false);
   const [packages, setPackages] = useState<Package[]>([]);
@@ -390,10 +390,11 @@ export default function ReservasiPage() {
   };
 
   const handleSubmit = () => {
-    toast.success("Pembayaran berhasil!");
+    toast.success("Reservasi berhasil dibuat!");
     // Clear localStorage after successful payment
     localStorage.removeItem("reservationState");
-    setShowSuccess(true);
+    // Redirect to dashboard
+    router.push("/customer/dashboard");
   };
 
   // Function to reset/clear reservation
@@ -417,116 +418,120 @@ export default function ReservasiPage() {
     setReservationId("");
   };
 
-  if (showSuccess) {
-    return <ReservationSuccess />;
-  }
+  // Handle payment timeout
+  const handlePaymentTimeout = () => {
+    handleResetReservation();
+  };
 
   const selectedPackage = packages.find((pkg) => pkg._id === formData.layanan);
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 md:mb-8 text-center">
-          Reservasi Layanan
-        </h1>
+    <div className="h-full bg-gradient-to-br from-gray-50 to-gray-100 overflow-y-auto">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 md:py-8 min-h-full">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 md:mb-8 text-center text-gray-800">
+            Reservasi Layanan
+          </h1>
 
-        {/* Stepper */}
-        <ReservationStepper steps={steps} currentStep={currentStep} />
+          {/* Stepper */}
+          <ReservationStepper steps={steps} currentStep={currentStep} />
 
-        {/* Step Content */}
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6">
-          {currentStep === 1 && (
-            <Step1PersonalInfo
-              formData={formData}
-              isBookingForSelf={isBookingForSelf}
-              isLoadingAuto={isLoadingAuto}
-              isSavingManualData={isSavingManualData}
-              onInputChange={handleInputChange}
-              onBookingForSelfChange={handleBookingForSelfChange}
-              onManualInputBlur={handleManualInputBlur}
-            />
-          )}
+          {/* Step Content */}
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-4 sm:p-6 md:p-8 mb-4 sm:mb-6">
+            {currentStep === 1 && (
+              <Step1PersonalInfo
+                formData={formData}
+                isBookingForSelf={isBookingForSelf}
+                isLoadingAuto={isLoadingAuto}
+                isSavingManualData={isSavingManualData}
+                onInputChange={handleInputChange}
+                onBookingForSelfChange={handleBookingForSelfChange}
+                onManualInputBlur={handleManualInputBlur}
+              />
+            )}
 
-          {currentStep === 2 && (
-            <Step2PackageSelection
-              packages={packages}
-              selectedPackage={formData.layanan}
-              isLoadingPackages={isLoadingPackages}
-              onPackageSelect={handlePackageSelect}
-            />
-          )}
+            {currentStep === 2 && (
+              <Step2PackageSelection
+                packages={packages}
+                selectedPackage={formData.layanan}
+                isLoadingPackages={isLoadingPackages}
+                onPackageSelect={handlePackageSelect}
+              />
+            )}
 
-          {currentStep === 3 && (
-            <Step3CapsterSchedule
-              capsters={capsters}
-              selectedCapster={formData.capster}
-              schedules={schedules}
-              selectedDate={selectedDate}
-              selectedTime={formData.waktu}
-              isLoadingCapsters={isLoadingCapsters}
-              isLoadingSchedules={isLoadingSchedules}
-              onCapsterSelect={handleCapsterSelect}
-              onDateSelect={handleDateSelect}
-              onTimeSelect={handleTimeSelect}
-            />
-          )}
+            {currentStep === 3 && (
+              <Step3CapsterSchedule
+                capsters={capsters}
+                selectedCapster={formData.capster}
+                schedules={schedules}
+                selectedDate={selectedDate}
+                selectedTime={formData.waktu}
+                isLoadingCapsters={isLoadingCapsters}
+                isLoadingSchedules={isLoadingSchedules}
+                onCapsterSelect={handleCapsterSelect}
+                onDateSelect={handleDateSelect}
+                onTimeSelect={handleTimeSelect}
+              />
+            )}
 
-          {currentStep === 4 && (
-            <Step4Confirmation
-              formData={formData}
-              packages={packages}
-              capsters={capsters}
-              isBookingForSelf={isBookingForSelf}
-              onCatatanChange={handleInputChange}
-              onReservationCreated={handleReservationCreated}
-              onNextStep={handleNextStep}
-              onPreviousStep={handlePreviousStep}
-            />
-          )}
+            {currentStep === 4 && (
+              <Step4Confirmation
+                formData={formData}
+                packages={packages}
+                capsters={capsters}
+                isBookingForSelf={isBookingForSelf}
+                onCatatanChange={handleInputChange}
+                onReservationCreated={handleReservationCreated}
+                onNextStep={handleNextStep}
+                onPreviousStep={handlePreviousStep}
+              />
+            )}
 
-          {currentStep === 5 && (
-            <Step5Payment
-              selectedPackage={selectedPackage}
-              reservationId={reservationId}
-              isBookingForSelf={isBookingForSelf}
-              onSubmit={handleSubmit}
-            />
-          )}
-        </div>
+            {currentStep === 5 && (
+              <Step5Payment
+                selectedPackage={selectedPackage}
+                reservationId={reservationId}
+                isBookingForSelf={isBookingForSelf}
+                onSubmit={handleSubmit}
+                onTimeout={handlePaymentTimeout}
+              />
+            )}
+          </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between">
-          {currentStep > 1 && currentStep !== 4 && currentStep !== 5 && (
-            <Button
-              onClick={handlePreviousStep}
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto"
-            >
-              Kembali
-            </Button>
-          )}
+          {/* Navigation Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between">
+            {currentStep > 1 && currentStep !== 4 && currentStep !== 5 && (
+              <Button
+                onClick={handlePreviousStep}
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                Kembali
+              </Button>
+            )}
 
-          {currentStep === 5 && (
-            <Button
-              onClick={handlePreviousStep}
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto"
-            >
-              Kembali
-            </Button>
-          )}
+            {currentStep === 5 && (
+              <Button
+                onClick={handlePreviousStep}
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                Kembali
+              </Button>
+            )}
 
-          {currentStep < 4 && (
-            <Button
-              onClick={handleNextStep}
-              className="ml-auto bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80 w-full sm:w-auto"
-              size="lg"
-            >
-              Selanjutnya
-            </Button>
-          )}
+            {currentStep < 4 && (
+              <Button
+                onClick={handleNextStep}
+                className="ml-auto bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80 w-full sm:w-auto"
+                size="lg"
+              >
+                Selanjutnya
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

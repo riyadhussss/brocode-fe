@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { Barber } from "@/app/lib/types/capster";
 import { Schedule } from "@/app/lib/types/schedule";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -106,12 +107,14 @@ export default function Step3CapsterSchedule({
                 }`}
               >
                 {/* Photo */}
-                <div className="aspect-square overflow-hidden bg-gray-100">
+                <div className="aspect-square overflow-hidden bg-gray-100 relative">
                   {capster.photo ? (
-                    <img
+                    <Image
                       src={capster.photo}
                       alt={capster.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">

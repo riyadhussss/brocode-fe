@@ -16,14 +16,22 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Upload, Building2, Wallet } from "lucide-react";
+import { Loader2, Upload, Building2, Wallet, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Step5Props {
   selectedPackage: Package | undefined;
   reservationId: string;
   isBookingForSelf: boolean; // 🆕 Tambahkan prop ini
   onSubmit: () => void;
+  onTimeout?: () => void; // Callback when timer expires
 }
 
 type PaymentMethodType = "bank_transfer" | "e_wallet" | "";
@@ -34,6 +42,7 @@ export default function Step5Payment({
   reservationId,
   isBookingForSelf, // 🆕 Destructure prop ini
   onSubmit,
+  onTimeout,
 }: Step5Props) {
   const [paymentType, setPaymentType] = useState<PaymentMethodType>("");
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
@@ -43,6 +52,50 @@ export default function Step5Payment({
   const [isLoadingPayments, setIsLoadingPayments] = useState(true);
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Timer state
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds (600 seconds)
+  const [showTimeoutDialog, setShowTimeoutDialog] = useState(false);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      // Time's up - show dialog and clear data
+      setShowTimeoutDialog(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  // Handle timeout - clear localStorage and reset
+  const handleTimeout = () => {
+    localStorage.removeItem("reservationState");
+    setShowTimeoutDialog(false);
+    if (onTimeout) {
+      onTimeout();
+    }
+  };
+
+  // Format time display
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // Get timer color based on time left
+  const getTimerColor = () => {
+    if (timeLeft <= 60) return "text-red-600"; // Last minute
+    if (timeLeft <= 180) return "text-orange-600"; // Last 3 minutes
+    return "text-gray-700";
+  };
 
   // Fetch payment methods on component mount
   useEffect(() => {
@@ -189,7 +242,59 @@ export default function Step5Payment({
 
   return (
     <div className="space-y-6">
+      {/* Timer Display */}
+      <div
+        className={`bg-white border-2 rounded-lg p-4 flex items-center justify-between ${
+          timeLeft <= 60
+            ? "border-red-300 bg-red-50"
+            : timeLeft <= 180
+            ? "border-orange-300 bg-orange-50"
+            : "border-gray-200"
+        }`}
+      >
+        <div className="flex items-center space-x-3">
+          <Clock className={`h-6 w-6 ${getTimerColor()}`} />
+          <div>
+            <p className="text-sm text-gray-600">Waktu Pembayaran Tersisa</p>
+            <p className={`text-2xl font-bold ${getTimerColor()}`}>
+              {formatTime(timeLeft)}
+            </p>
+          </div>
+        </div>
+        {timeLeft <= 60 && (
+          <p className="text-xs text-red-600 font-medium animate-pulse">
+            Segera selesaikan pembayaran!
+          </p>
+        )}
+      </div>
+
       <h2 className="text-2xl font-bold mb-6">Pembayaran</h2>
+
+      {/* Timeout Dialog */}
+      <AlertDialog open={showTimeoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center text-xl font-bold text-red-600">
+              Reservasi Dibatalkan
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-base pt-4">
+              Reservasi Anda telah dibatalkan karena tidak melakukan pembayaran
+              dalam waktu 10 menit.
+              <br />
+              <br />
+              Silakan buat reservasi baru untuk melanjutkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-center pt-4">
+            <Button
+              onClick={handleTimeout}
+              className="bg-[#FDFB03] text-black hover:bg-[#FDFB03]/80"
+            >
+              Kembali ke Halaman Awal
+            </Button>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Payment Method Selection */}
       <div className="space-y-4">

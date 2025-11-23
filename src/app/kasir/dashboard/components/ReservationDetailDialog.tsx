@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { PaymentRecord } from "@/app/lib/types/reservation";
 import {
   Dialog,
@@ -362,10 +363,12 @@ export default function ReservationDetailDialog({
               <Separator />
               <div className="space-y-3">
                 <h3 className="font-semibold text-lg">Bukti Pembayaran</h3>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <img
+                <div className="p-4 bg-muted/50 rounded-lg relative">
+                  <Image
                     src={reservation.proofOfPayment.url}
                     alt={reservation.proofOfPayment.originalName}
+                    width={800}
+                    height={600}
                     className="w-full rounded-lg border"
                   />
 
