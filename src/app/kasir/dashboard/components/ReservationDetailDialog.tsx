@@ -371,7 +371,6 @@ export default function ReservationDetailDialog({
                     height={600}
                     className="w-full rounded-lg border"
                   />
-
                 </div>
               </div>
             </>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,22 +12,41 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Loader2 } from "lucide-react";
+import { deletePaymentMethod } from "@/app/lib/services/payment";
+import { toast } from "sonner";
 
 interface DeletePaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onSuccess: () => void;
+  paymentId: string;
   paymentName: string;
-  loading: boolean;
 }
 
 export function DeletePaymentDialog({
   open,
   onOpenChange,
-  onConfirm,
+  onSuccess,
+  paymentId,
   paymentName,
-  loading,
 }: DeletePaymentDialogProps) {
+  const [loading, setLoading] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      await deletePaymentMethod(paymentId);
+      toast.success("Metode pembayaran berhasil dihapus");
+      onSuccess();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error deleting payment method:", error);
+      toast.error("Gagal menghapus metode pembayaran");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -44,7 +64,7 @@ export function DeletePaymentDialog({
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
-              onConfirm();
+              handleDelete();
             }}
             disabled={loading}
             className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
