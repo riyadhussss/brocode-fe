@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { customerService } from "@/app/lib/services/customer.service";
-import { UserRowData } from "./columns";
+import { CustomerRowData } from "./CustomerTableColumns";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { getErrorMessage } from "@/app/lib/getErrorMessage";
@@ -22,7 +22,7 @@ import { getErrorMessage } from "@/app/lib/getErrorMessage";
 interface EditCustomerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  customer: UserRowData | null;
+  customer: CustomerRowData | null;
   onSuccess: () => void;
 }
 
